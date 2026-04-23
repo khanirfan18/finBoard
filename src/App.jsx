@@ -4,10 +4,11 @@ import Budgets from "./pages/Budgets";
 import Settings from "./pages/Settings";
 import Transaction from "./pages/Transaction";
 import Layout from "./components/layout/Layout";
-
+import {AppContext} from "./context/AppContext";
 export default function App() {
   return (
     <>
+    <AppContext>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>
@@ -18,6 +19,7 @@ export default function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      </AppContext>
     </>
   );
 }
