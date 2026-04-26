@@ -43,7 +43,6 @@ export default function Dashboard() {
 
   const savings = totalIncome + totalExpense;
 
-  // ✅ category data (safe)
   const categoryData =
     transactions
       ?.filter((t) => Number(t.Amount) < 0)
