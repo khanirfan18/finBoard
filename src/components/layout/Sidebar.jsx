@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import finbGif from "../../assets/finb.gif";
 
 export default function Sidebar() {
   const location = useLocation();
@@ -16,7 +17,7 @@ export default function Sidebar() {
       <div className="flex flex-col items-center justify-center p-8 gap-4 border-b border-fin-border bg-[#0A0A0A]">
         <img
           className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-xl border border-[#FF6B00]/40 shadow-[0_0_20px_rgba(255,107,0,0.3)] hover:scale-105 hover:shadow-[0_0_25px_rgba(255,107,0,0.5)] transition-all duration-300"
-          src="src/assets/finb.gif"
+          src={finbGif}
           alt="finboard icon"
         />
         <span 
