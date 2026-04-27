@@ -1,5 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Bungee&family=Righteous&display=swap');
 @import "tailwindcss";
 @plugin "daisyui";
+
+@theme {
+  --color-fin-orange: #FF6B00;
+  --color-fin-hover: #FF8C00;
+  --color-fin-bg: #0A0A0A;
+  --color-fin-card: #111111;
+  --color-fin-border: #1F1F1F;
+}
+
 :root {
   font-family: "Inter", sans-serif;
+  background-color: var(--color-fin-bg);
+  color: #FFFFFF;
+}
+
+body {
+  background-color: var(--color-fin-bg);
+  color: #E0E0E0;
+}
+
+.retro-card {
+  background-color: var(--color-fin-card);
+  border: 1px solid var(--color-fin-border);
+  border-radius: 0;
+  transition: all 0.3s ease;
+}
+.retro-card:hover {
+  border-color: var(--color-fin-orange);
+  box-shadow: 0 0 12px rgba(255, 107, 0, 0.15);
+}
+
+.retro-btn {
+  background-color: var(--color-fin-orange);
+  color: var(--color-fin-bg);
+  border: none;
+  border-radius: 0;
+  font-weight: 700;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+  padding: 0.75rem 1.5rem;
+}
+.retro-btn:hover {
+  background-color: var(--color-fin-hover);
+  box-shadow: 0 0 10px rgba(255, 107, 0, 0.4);
+}
+
+.retro-input {
+  background-color: var(--color-fin-bg);
+  border: 1px solid var(--color-fin-border);
+  color: #fff;
+  border-radius: 0;
+}
+.retro-input:focus {
+  outline: none;
+  border-color: var(--color-fin-orange);
+  box-shadow: 0 0 8px rgba(255, 107, 0, 0.2);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-fin-bg); 
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-fin-border); 
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-fin-orange); 
 }
