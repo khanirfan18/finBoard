@@ -50,7 +50,7 @@ export default function Dashboard() {
         return acc;
       }, {}) || {};
 
-  const chartData = Object.entries(data).map(([name, value]) => ({
+  const chartData = Object.entries(categoryData).map(([name, value]) => ({
     name,
     value,
   }));
