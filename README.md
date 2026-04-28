@@ -1,16 +1,58 @@
-# React + Vite
+<p align="center">
+  <img src="src/assets/finb.gif" alt="Finboard Logo" width="150" style="border-radius: 20px;" />
+</p>
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<h1 align="center">FINBOARD</h1>
 
-Currently, two official plugins are available:
+<p align="center">
+  A retro-styled, interactive personal finance dashboard to manage budgets, visualize transactions, and keep track of your spending securely in your browser.
+</p>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## ✨ Features
 
-## React Compiler
+- **📊 Interactive Dashboard:** Visualize your income and expenses over time using dynamic Recharts.
+- **💰 Budget Management:** Set limits on different spending categories and track your progress.
+- **📜 Transaction History:** View, filter, and categorize your transactions in a sleek retro table.
+- **📁 Secure Data Upload:** Load your financial data locally. No backend needed—your data stays in your browser!
+- **💻 Retro Aesthetic:** Designed with a smooth dark grid terminal theme, bringing a nostalgic but modern feel.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🚀 Tech Stack
 
-## Expanding the ESLint configuration
+- **Frontend:** React, React Router
+- **Build Tool:** Vite
+- **Styling:** Tailwind CSS, DaisyUI
+- **Charts:** Recharts
+- **Icons Elements:** Lucide / Custom SVGs
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🛠️ Getting Started
+
+### Prerequisites
+Make sure you have [Node.js](https://nodejs.org/) installed.
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/khanirfan18/finBoard.git
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd finboard
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/khanirfan18/finBoard/issues).
+
+---
+<p align="center">
+  Built with ❤️ by <a href="https://github.com/khanirfan18">Irfan Khan</a>
+</p>
