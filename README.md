@@ -53,9 +53,6 @@ Make sure you have [Node.js](https://nodejs.org/) installed.
 **Planning to contribute?** 
 Your efforts are highly appreciated! Please take a moment to check the [Contributing Guide](CONTRIBUTING.md) before you get started. It outlines the professional workflow for opening valid issues, claiming tasks correctly, and submitting Pull Requests.
 
----
-<p align="center">
-  Built with ❤️ by <a href="https://github.com/khanirfan18">Irfan Khan</a>
-</p>
+
 
 
