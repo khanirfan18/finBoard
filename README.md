@@ -52,7 +52,7 @@ Make sure you have [Node.js](https://nodejs.org/) installed.
 
 Contributions, issues, and feature requests are welcome! 
 
-Please read our [Contributing Guide](CONTRIBUTING.md) to learn how to open valid issues, claim tasks properly, and submit Pull Requests.
+Please read the [Contributing Guide](CONTRIBUTING.md) to learn how to open valid issues, claim tasks properly, and submit Pull Requests.
 
 ---
 <p align="center">

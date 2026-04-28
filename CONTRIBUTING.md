@@ -1,6 +1,6 @@
 # Contributing to Finboard
 
-First off, thank you for considering contributing to Finboard! We welcome all contributions, from bug fixes to highly requested features. 
+First off, thank you for considering contributing to Finboard! I welcome all contributions, from bug fixes to highly requested features. 
 
 To ensure a smooth and productive collaboration process, please review the following guidelines before you start.
 
