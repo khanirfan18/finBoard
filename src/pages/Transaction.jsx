@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { DataContext } from "../context/AppContext";
 import categorize from "../components/utils/categorize";
 
@@ -41,12 +42,12 @@ export default function Transaction() {
         </div>
         <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">No Transactions</h2>
         <p className="text-gray-400 mb-8 leading-relaxed">No transactions found. Upload your data to view the history.</p>
-        <button 
-          onClick={() => window.location.href='/settings'} 
+        <Link 
+          to='/settings' 
           className="retro-btn"
         >
           Configure Settings
-        </button>
+        </Link>
       </div>
     </div>
   );

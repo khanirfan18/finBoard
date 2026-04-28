@@ -1,4 +1,5 @@
 import { DataContext } from "../context/AppContext";
+import { Link } from "react-router-dom";
 import categorize from "../components/utils/categorize";
 import {
   PieChart,
@@ -139,12 +140,12 @@ export default function Dashboard() {
         </div>
         <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">No Data Found</h2>
         <p className="text-gray-400 mb-8 leading-relaxed">Your dashboard is looking a bit empty. Head over to settings to upload your transaction history.</p>
-        <button 
-          onClick={() => window.location.href='/settings'} 
+        <Link 
+          to='/settings' 
           className="retro-btn"
         >
           Configure Settings
-        </button>
+        </Link>
       </div>
     </div>
   );

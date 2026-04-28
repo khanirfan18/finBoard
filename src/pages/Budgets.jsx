@@ -1,5 +1,6 @@
 import { DataContext } from "../context/AppContext";
 import React from "react";
+import { Link } from "react-router-dom";
 import categorize from "../components/utils/categorize";
 export default function Budgets() {
   const [budgets, setBudgets] = React.useState({});
@@ -63,12 +64,12 @@ export default function Budgets() {
         </div>
         <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">No Budgets Yet</h2>
         <p className="text-gray-400 mb-8 leading-relaxed">We need transaction data to compute categories so you can set budgets.</p>
-        <button 
-          onClick={() => window.location.href='/settings'} 
+        <Link 
+          to='/settings' 
           className="retro-btn"
         >
           Configure Settings
-        </button>
+        </Link>
       </div>
     </div>
   );
