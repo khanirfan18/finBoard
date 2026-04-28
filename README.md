@@ -50,15 +50,9 @@ Make sure you have [Node.js](https://nodejs.org/) installed.
 
 ## 🤝 Contributing
 
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/khanirfan18/finBoard/issues).
+Contributions, issues, and feature requests are welcome! 
 
-### How to Contribute
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'feat: Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+Please read our [Contributing Guide](CONTRIBUTING.md) to learn how to open valid issues, claim tasks properly, and submit Pull Requests.
 
 ---
 <p align="center">
