@@ -4,7 +4,7 @@ import { Outlet } from "react-router-dom";
 
 export default function Layout() {
   return (
-    <div className="drawer lg:drawer-open bg-fin-bg text-white h-screen overflow-hidden">
+    <div className="drawer lg:drawer-open text-white h-screen overflow-hidden">
       <input id="mobile-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content flex flex-col flex-1 h-screen overflow-hidden">
         <Header />

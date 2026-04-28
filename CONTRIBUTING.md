@@ -47,3 +47,15 @@ Once you are assigned to an issue, follow these steps:
 By participating in this project, you agree to maintain a professional, respectful, and inclusive environment. Treat all contributors with kindness and constructive feedback.
 
 Thank you for helping make Finboard better!
+
+### Contribution Evaluation & PR Merging
+
+To ensure fair and consistent point calculation for all contributors:
+
+* Pull requests are reviewed regularly, and feedback is provided throughout the week.
+* Contributions are evaluated in batches to maintain consistency in scoring.
+* Merges are performed in batches after reviewing all eligible contributions so there’s no need to worry if your PR isn’t merged immediately :)
+
+
+
+
