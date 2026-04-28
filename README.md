@@ -50,9 +50,8 @@ Make sure you have [Node.js](https://nodejs.org/) installed.
 
 ## 🤝 Contributing
 
-Contributions, issues, and feature requests are welcome! 
-
-Please read the [Contributing Guide](CONTRIBUTING.md) to learn how to open valid issues, claim tasks properly, and submit Pull Requests.
+**Planning to contribute?** 
+Your efforts are highly appreciated! Please take a moment to check the [Contributing Guide](CONTRIBUTING.md) before you get started. It outlines the professional workflow for opening valid issues, claiming tasks correctly, and submitting Pull Requests.
 
 ---
 <p align="center">
