@@ -1,4 +1,3 @@
-
   const keywords = {
     Food : ["swiggy", "zomato", "blinkit", "bigbasket"],
     Transport : ["uber", "ola", "rapido", "petrol"],
@@ -10,14 +9,13 @@
   }
 
 export default function categorize(description) {
+  if (!description || typeof description !== 'string') return "Other";
 
-  const desc = description.toLowerCase()
-    for (const [category, words] of Object.entries(keywords)) {
-      if (words.some(word => desc.includes(word))) {
-        return category
-      }
+  const desc = description.toLowerCase();
+  for (const [category, words] of Object.entries(keywords)) {
+    if (words.some(word => desc.includes(word))) {
+      return category;
     }
-    return "Other"
-
-    
+  }
+  return "Other";
 }

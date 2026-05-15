@@ -1,80 +1,104 @@
-@import url('https://fonts.googleapis.com/css2?family=Bungee&family=Righteous&display=swap');
 @import "tailwindcss";
 @plugin "daisyui";
 
 @theme {
-  --color-fin-orange: #FF6B00;
-  --color-fin-hover: #FF8C00;
-  --color-fin-bg: #0A0A0A;
-  --color-fin-card: #111111;
-  --color-fin-border: #1F1F1F;
+  --color-primary: #10b981;
+  --color-primary-hover: #059669;
+  --color-bg-base: #06080A;
+  --color-card-bg: rgba(17, 24, 39, 0.6);
+  --color-card-border: rgba(255, 255, 255, 0.08);
 }
 
 :root {
   font-family: "Inter", sans-serif;
-  background-color: var(--color-fin-bg);
-  color: #FFFFFF;
+  background-color: var(--color-bg-base);
+  color: #f3f4f6;
 }
 
 body {
-  background-color: var(--color-fin-bg);
+  background-color: var(--color-bg-base);
   background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 30px 30px;
-  background-position: center center;
-  color: #E0E0E0;
+    radial-gradient(circle at 15% 50%, rgba(16, 185, 129, 0.08), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(20, 184, 166, 0.08), transparent 25%);
+  background-attachment: fixed;
+  color: #f3f4f6;
   min-height: 100vh;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
 }
 
-.retro-card {
-  background-color: var(--color-fin-card);
-  border: 1px solid var(--color-fin-border);
-  border-radius: 0;
+/* Premium Glassmorphic Card */
+.premium-card {
+  background: var(--color-card-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-card-border);
+  border-radius: 1rem;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.premium-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.1), 0 0 15px rgba(16, 185, 129, 0.1);
+}
+
+/* Premium Button */
+.premium-btn {
+  background: linear-gradient(135deg, var(--color-primary), #14b8a6);
+  color: #ffffff;
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.premium-btn:hover {
+  background: linear-gradient(135deg, #059669, #0d9488);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+  transform: translateY(-1px);
+}
+
+.premium-btn:active {
+  transform: translateY(1px);
+}
+
+/* Premium Input */
+.premium-input {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f3f4f6;
+  border-radius: 0.75rem;
   transition: all 0.3s ease;
 }
-.retro-card:hover {
-  border-color: var(--color-fin-orange);
-  box-shadow: 0 0 12px rgba(255, 107, 0, 0.15);
-}
 
-.retro-btn {
-  background-color: var(--color-fin-orange);
-  color: var(--color-fin-bg);
-  border: none;
-  border-radius: 0;
-  font-weight: 700;
-  text-transform: uppercase;
-  transition: all 0.2s ease;
-  padding: 0.75rem 1.5rem;
-}
-.retro-btn:hover {
-  background-color: var(--color-fin-hover);
-  box-shadow: 0 0 10px rgba(255, 107, 0, 0.4);
-}
-
-.retro-input {
-  background-color: var(--color-fin-bg);
-  border: 1px solid var(--color-fin-border);
-  color: #fff;
-  border-radius: 0;
-}
-.retro-input:focus {
+.premium-input:focus {
   outline: none;
-  border-color: var(--color-fin-orange);
-  box-shadow: 0 0 8px rgba(255, 107, 0, 0.2);
+  border-color: var(--color-primary);
+  background-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
+/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-fin-bg); 
+  background: transparent; 
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-fin-border); 
+  background: rgba(255, 255, 255, 0.1); 
+  border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-fin-orange); 
+  background: rgba(255, 255, 255, 0.2); 
 }
