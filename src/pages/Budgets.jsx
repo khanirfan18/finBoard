@@ -29,11 +29,15 @@ export default function Budgets() {
             <input
               type="number"
               placeholder="Set limit"
+              min="0"
               className="retro-input p-3 w-full"
               value={budgets[category] || ""}
-              onChange={(e) =>
-                setBudgets({ ...budgets, [category]: Number(e.target.value) })
-              }
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                if (val >= 0 || e.target.value === "") {
+                  setBudgets({ ...budgets, [category]: val });
+                }
+              }}
             />
             {budgets[category] && (
               <div className="pt-2">
