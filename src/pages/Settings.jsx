@@ -1,11 +1,12 @@
 import { useState, useContext } from "react";
 import Papa from "papaparse";
 import { DataContext } from "../context/contexts";
+import { CURRENCIES } from "../context/AppContext";
 import { demoData } from "../data/demoData";
 import { format } from "date-fns";
 
 export default function CSVParser() {
-  const { transactions, setTransactions } = useContext(DataContext);
+  const { transactions, setTransactions, currency, updateCurrency } = useContext(DataContext);
   const [data, setData] = useState([]);
   const [showManualEntry, setShowManualEntry] = useState(false);
   
@@ -213,6 +214,33 @@ export default function CSVParser() {
             </div>
           </form>
         )}
+      </div>
+
+      {/* Currency Settings Section */}
+      <div className="retro-card p-8">
+        <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest mb-6">Currency Settings</h2>
+        <div className="max-w-sm">
+          <label className="block text-xs text-fin-muted uppercase tracking-wider font-bold mb-2">
+            Select Currency
+          </label>
+          <select
+            value={currency.code}
+            onChange={(e) => {
+              const selected = CURRENCIES.find((c) => c.code === e.target.value);
+              if (selected) updateCurrency(selected);
+            }}
+            className="retro-input p-3 w-full"
+          >
+            {CURRENCIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.symbol} - {c.name} ({c.code})
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-fin-muted mt-3">
+            Currently using: <span className="text-[#FF6B00] font-bold">{currency.symbol} {currency.name}</span>
+          </p>
+        </div>
       </div>
 
       {/* Data Management Section */}

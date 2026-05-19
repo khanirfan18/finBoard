@@ -17,7 +17,7 @@ import React from "react";
 import { parse, format } from "date-fns";
 
 export default function Dashboard() {
-  const { transactions } = React.useContext(DataContext);
+  const { transactions, currency } = React.useContext(DataContext);
   const { colors } = React.useContext(ThemeContext);
 
   const COLORS = [
@@ -80,15 +80,15 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="retro-card p-6 flex flex-col justify-center">
           <h2 className="text-fin-muted text-sm font-semibold tracking-widest uppercase mb-2">Income</h2>
-          <p className="text-[#00C49F] text-3xl font-black">₹{totalIncome.toLocaleString()}</p>
+          <p className="text-[#00C49F] text-3xl font-black">{currency.symbol}{totalIncome.toLocaleString()}</p>
         </div>
         <div className="retro-card p-6 flex flex-col justify-center">
           <h2 className="text-fin-muted text-sm font-semibold tracking-widest uppercase mb-2">Spent</h2>
-          <p className="text-[#FF6B6B] text-3xl font-black">₹{Math.abs(totalExpense).toLocaleString()}</p>
+          <p className="text-[#FF6B6B] text-3xl font-black">{currency.symbol}{Math.abs(totalExpense).toLocaleString()}</p>
         </div>
         <div className="retro-card p-6 flex flex-col justify-center">
           <h2 className="text-fin-muted text-sm font-semibold tracking-widest uppercase mb-2">Savings</h2>
-          <p className="text-[#0088FE] text-3xl font-black">₹{savings.toLocaleString()}</p>
+          <p className="text-[#0088FE] text-3xl font-black">{currency.symbol}{savings.toLocaleString()}</p>
         </div>
       </div>
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">

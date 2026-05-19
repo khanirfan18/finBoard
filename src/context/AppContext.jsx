@@ -30,8 +30,20 @@ const THEME_COLORS = {
   }
 };
 
+export const CURRENCIES = [
+  { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
+  { code: 'USD', symbol: '$', name: 'US Dollar' },
+  { code: 'EUR', symbol: '€', name: 'Euro' },
+  { code: 'GBP', symbol: '£', name: 'British Pound' },
+  { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
+  { code: 'AED', symbol: 'د.إ', name: 'UAE Dirham' },
+];
+
 export function AppContext({children}){
   const [transactions, setTransactions] = React.useState(JSON.parse(localStorage.getItem( 'transactions'))|| [])
+  const [currency, setCurrency] = React.useState(
+    JSON.parse(localStorage.getItem('currency')) || CURRENCIES[0]
+  );
   const [theme, setTheme] = React.useState(() => localStorage.getItem("theme") || "dark");
 
   React.useEffect(() => {
@@ -44,9 +56,14 @@ export function AppContext({children}){
     setTheme((currentTheme) => currentTheme === "dark" ? "light" : "dark");
   };
 
+  const updateCurrency = (selectedCurrency) => {
+    setCurrency(selectedCurrency);
+    localStorage.setItem('currency', JSON.stringify(selectedCurrency));
+  };
+
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, colors: THEME_COLORS[theme] }}>
-      <DataContext.Provider value={{transactions,setTransactions}}>
+      <DataContext.Provider value={{transactions,setTransactions,currency,updateCurrency}}>
         {children}
       </DataContext.Provider>
     </ThemeContext.Provider>
