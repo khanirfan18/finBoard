@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { DataContext } from "../context/AppContext";
+import { DataContext } from "../context/contexts";
 import categorize from "../components/utils/categorize";
 import { parse } from "date-fns";
 
@@ -30,28 +30,33 @@ export default function Transaction() {
     switch(preset) {
       case "today":
         return { start: today, end: new Date(today.getTime() + 86400000) };
-      case "yesterday":
+      case "yesterday": {
         const yesterday = new Date(today.getTime() - 86400000);
         return { start: yesterday, end: today };
-      case "this-week":
+      }
+      case "this-week": {
         const weekStart = new Date(today);
         weekStart.setDate(today.getDate() - today.getDay());
         return { start: weekStart, end: new Date() };
-      case "last-week":
+      }
+      case "last-week": {
         const lastWeekEnd = new Date(today);
         lastWeekEnd.setDate(today.getDate() - today.getDay());
         const lastWeekStart = new Date(lastWeekEnd);
         lastWeekStart.setDate(lastWeekEnd.getDate() - 7);
         return { start: lastWeekStart, end: lastWeekEnd };
+      }
       case "this-month":
         return { start: new Date(now.getFullYear(), now.getMonth(), 1), end: new Date() };
-      case "last-month":
+      case "last-month": {
         const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
         const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
         return { start: lastMonth, end: lastMonthEnd };
-      case "last-3-months":
+      }
+      case "last-3-months": {
         const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
         return { start: threeMonthsAgo, end: new Date() };
+      }
       case "this-year":
         return { start: new Date(now.getFullYear(), 0, 1), end: new Date() };
       default:
@@ -80,7 +85,7 @@ export default function Transaction() {
           try {
             const transactionDate = parse(t.Date, "dd/MM/yyyy", new Date());
             return transactionDate >= dateRange.start && transactionDate <= dateRange.end;
-          } catch (e) {
+          } catch {
             return true;
           }
         });
@@ -150,7 +155,7 @@ export default function Transaction() {
           <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest">Filters & Search</h2>
           <button 
             onClick={clearFilters}
-            className="text-xs text-gray-400 hover:text-[#FF6B00] uppercase tracking-wider font-bold transition-colors"
+            className="text-xs text-fin-muted hover:text-[#FF6B00] uppercase tracking-wider font-bold transition-colors"
           >
             Clear All
           </button>
@@ -159,7 +164,7 @@ export default function Transaction() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Search */}
           <div className="lg:col-span-2">
-            <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">Search Description</label>
+            <label className="block text-xs text-fin-muted uppercase tracking-wider font-bold mb-2">Search Description</label>
             <input
               type="text"
               placeholder="Search transactions..."
@@ -171,7 +176,7 @@ export default function Transaction() {
 
           {/* Date Preset */}
           <div className="lg:col-span-2">
-            <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">Time Period</label>
+            <label className="block text-xs text-fin-muted uppercase tracking-wider font-bold mb-2">Time Period</label>
             <select
               value={datePreset}
               onChange={(e) => setDatePreset(e.target.value)}
@@ -191,7 +196,7 @@ export default function Transaction() {
 
           {/* Amount Range */}
           <div>
-            <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">Min Amount</label>
+            <label className="block text-xs text-fin-muted uppercase tracking-wider font-bold mb-2">Min Amount</label>
             <input
               type="number"
               placeholder="Min"
@@ -202,7 +207,7 @@ export default function Transaction() {
           </div>
 
           <div>
-            <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">Max Amount</label>
+            <label className="block text-xs text-fin-muted uppercase tracking-wider font-bold mb-2">Max Amount</label>
             <input
               type="number"
               placeholder="Max"
@@ -214,7 +219,7 @@ export default function Transaction() {
 
           {/* Sort */}
           <div>
-            <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">Sort By</label>
+            <label className="block text-xs text-fin-muted uppercase tracking-wider font-bold mb-2">Sort By</label>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
@@ -231,7 +236,7 @@ export default function Transaction() {
 
         {/* Category Filter */}
         <div className="mt-4">
-          <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">Filter by Category</label>
+          <label className="block text-xs text-fin-muted uppercase tracking-wider font-bold mb-2">Filter by Category</label>
           <div className="flex flex-wrap gap-2">
             {allCategories.map(category => (
               <button
@@ -240,7 +245,7 @@ export default function Transaction() {
                 className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-sm border transition-colors ${
                   selectedCategories.includes(category)
                     ? 'bg-[#FF6B00] text-black border-[#FF6B00]'
-                    : 'bg-[#1F1F1F] text-gray-300 border-[#2a2a2a] hover:border-[#FF6B00]'
+                    : 'bg-fin-surface text-fin-text border-fin-border hover:border-[#FF6B00]'
                 }`}
               >
                 {category}
@@ -250,7 +255,7 @@ export default function Transaction() {
         </div>
 
         {/* Results count */}
-        <div className="mt-4 text-sm text-gray-400">
+        <div className="mt-4 text-sm text-fin-muted">
           Showing <span className="text-[#FF6B00] font-bold">{filteredTransactions.length}</span> of <span className="font-bold">{transactions.length}</span> transactions
         </div>
       </div>
@@ -259,7 +264,7 @@ export default function Transaction() {
       <div className="retro-card overflow-x-auto">
         <table className="table w-full border-collapse">
           <thead>
-            <tr className="bg-[#111111] text-[#FF6B00] border-b border-[#1F1F1F] uppercase tracking-widest text-sm">
+            <tr className="bg-fin-card text-[#FF6B00] border-b border-fin-border uppercase tracking-widest text-sm">
               <th className="py-4 px-6 font-bold">Date</th>
               <th className="py-4 px-6 font-bold">Description</th>
               <th className="py-4 px-6 font-bold text-right">Amount</th>
@@ -268,14 +273,14 @@ export default function Transaction() {
           </thead>
           <tbody>
             {filteredTransactions.map((data, i) => (
-              <tr key={i} className="border-b border-[#1F1F1F]/50 hover:bg-[#1a1a1a] transition-colors">
-                <td className="py-4 px-6 text-gray-400 whitespace-nowrap">{data.Date}</td>
+              <tr key={i} className="border-b border-fin-border/60 hover:bg-fin-surface transition-colors">
+                <td className="py-4 px-6 text-fin-muted whitespace-nowrap">{data.Date}</td>
                 <td className="py-4 px-6 font-medium max-w-sm truncate" title={data.Description}>{data.Description}</td>
-                <td className={`py-4 px-6 font-black text-right whitespace-nowrap ${Number(data.Amount) > 0 ? 'text-[#00C49F]' : 'text-white'}`}>
+                <td className={`py-4 px-6 font-black text-right whitespace-nowrap ${Number(data.Amount) > 0 ? 'text-[#00C49F]' : 'text-fin-text'}`}>
                   {Number(data.Amount) > 0 ? '+' : ''}{data.Amount}
                 </td>
                 <td className="py-4 px-6">
-                  <span className="bg-[#1F1F1F] text-gray-300 px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-sm border border-[#2a2a2a]">
+                  <span className="bg-fin-surface text-fin-text px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-sm border border-fin-border">
                     {categorize(data.Description)}
                   </span>
                 </td>
@@ -291,8 +296,8 @@ export default function Transaction() {
         <div className="w-16 h-16 bg-[#FF6B00]/10 flex items-center justify-center rounded-full mb-6 text-[#FF6B00]">
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
         </div>
-        <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">No Transactions</h2>
-        <p className="text-gray-400 mb-8 leading-relaxed">No transactions found. Upload your data to view the history.</p>
+        <h2 className="text-2xl font-black tracking-wider text-fin-text mb-2 uppercase">No Transactions</h2>
+        <p className="text-fin-muted mb-8 leading-relaxed">No transactions found. Upload your data to view the history.</p>
         <Link 
           to='/settings' 
           className="retro-btn"

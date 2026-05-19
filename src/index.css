@@ -8,23 +8,38 @@
   --color-fin-bg: #0A0A0A;
   --color-fin-card: #111111;
   --color-fin-border: #1F1F1F;
+  --color-fin-surface: #1A1A1A;
+  --color-fin-text: #FFFFFF;
+  --color-fin-muted: #9CA3AF;
+  --color-fin-subtle: #6B7280;
 }
 
 :root {
   font-family: "Inter", sans-serif;
   background-color: var(--color-fin-bg);
-  color: #FFFFFF;
+  color: var(--color-fin-text);
+}
+
+:root[data-theme="light"] {
+  --color-fin-bg: #F7F4EF;
+  --color-fin-card: #FFFFFF;
+  --color-fin-border: #D8CFC1;
+  --color-fin-surface: #EEE7DC;
+  --color-fin-text: #1E1A16;
+  --color-fin-muted: #5E554B;
+  --color-fin-subtle: #7F7468;
 }
 
 body {
   background-color: var(--color-fin-bg);
   background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(color-mix(in srgb, var(--color-fin-text) 3%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-fin-text) 3%, transparent) 1px, transparent 1px);
   background-size: 30px 30px;
   background-position: center center;
-  color: #E0E0E0;
+  color: var(--color-fin-text);
   min-height: 100vh;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .retro-card {
@@ -40,7 +55,7 @@ body {
 
 .retro-btn {
   background-color: var(--color-fin-orange);
-  color: var(--color-fin-bg);
+  color: #111111;
   border: none;
   border-radius: 0;
   font-weight: 700;
@@ -56,8 +71,12 @@ body {
 .retro-input {
   background-color: var(--color-fin-bg);
   border: 1px solid var(--color-fin-border);
-  color: #fff;
+  color: var(--color-fin-text);
   border-radius: 0;
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+.retro-input::placeholder {
+  color: var(--color-fin-subtle);
 }
 .retro-input:focus {
   outline: none;

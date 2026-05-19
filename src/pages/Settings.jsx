@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import Papa from "papaparse";
-import { DataContext } from "../context/AppContext";
+import { DataContext } from "../context/contexts";
 import { demoData } from "../data/demoData";
 import { format } from "date-fns";
 
@@ -94,17 +94,17 @@ export default function CSVParser() {
         <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
           <div className="form-control w-full max-w-xs">
             <label className="label">
-              <span className="label-text text-gray-400 font-bold uppercase tracking-wider text-xs">Upload CSV File</span>
+              <span className="label-text text-fin-muted font-bold uppercase tracking-wider text-xs">Upload CSV File</span>
             </label>
             <input
               type="file"
               accept=".csv"
-              className="file-input file-input-bordered bg-[#111111] border-[#1F1F1F] text-gray-300 w-full rounded-none focus:border-[#FF6B00] outline-none hover:border-[#FF6B00]/50 transition-colors file:bg-[#FF6B00] file:text-black file:border-none file:uppercase file:font-bold file:px-4"
+              className="file-input file-input-bordered bg-fin-card border-fin-border text-fin-text w-full rounded-none focus:border-[#FF6B00] outline-none hover:border-[#FF6B00]/50 transition-colors file:bg-[#FF6B00] file:text-black file:border-none file:uppercase file:font-bold file:px-4"
               onChange={handleFile}
             />
           </div>
           
-          <div className="hidden md:flex items-center text-gray-600 font-black uppercase text-sm">Or</div>
+          <div className="hidden md:flex items-center text-fin-subtle font-black uppercase text-sm">Or</div>
           
           <div className="w-full md:w-auto md:mt-7">
             <button
@@ -127,7 +127,7 @@ export default function CSVParser() {
           <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest">Manual Entry</h2>
           <button
             onClick={() => setShowManualEntry(!showManualEntry)}
-            className="text-sm text-gray-400 hover:text-[#FF6B00] uppercase tracking-wider font-bold transition-colors"
+            className="text-sm text-fin-muted hover:text-[#FF6B00] uppercase tracking-wider font-bold transition-colors"
           >
             {showManualEntry ? "Hide Form" : "Add Transaction"}
           </button>
@@ -138,7 +138,7 @@ export default function CSVParser() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Date */}
               <div>
-                <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">
+                <label className="block text-xs text-fin-muted uppercase tracking-wider font-bold mb-2">
                   Date
                 </label>
                 <input
@@ -152,7 +152,7 @@ export default function CSVParser() {
 
               {/* Description */}
               <div>
-                <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">
+                <label className="block text-xs text-fin-muted uppercase tracking-wider font-bold mb-2">
                   Description
                 </label>
                 <input
@@ -167,7 +167,7 @@ export default function CSVParser() {
 
               {/* Amount */}
               <div>
-                <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">
+                <label className="block text-xs text-fin-muted uppercase tracking-wider font-bold mb-2">
                   Amount (use - for expenses)
                 </label>
                 <input
@@ -195,17 +195,17 @@ export default function CSVParser() {
                     Amount: ""
                   });
                 }}
-                className="px-6 py-3 bg-[#1F1F1F] text-gray-300 font-bold uppercase tracking-wider hover:bg-[#2a2a2a] transition-colors"
+                className="px-6 py-3 bg-fin-surface text-fin-text font-bold uppercase tracking-wider hover:border-fin-orange transition-colors border border-fin-border"
               >
                 Clear
               </button>
             </div>
 
-            <div className="mt-4 p-4 bg-[#0A0A0A] border border-[#1F1F1F]">
-              <p className="text-xs text-gray-400 mb-2">
+            <div className="mt-4 p-4 bg-fin-bg border border-fin-border">
+              <p className="text-xs text-fin-muted mb-2">
                 <span className="text-[#FF6B00] font-bold">💡 Tips:</span>
               </p>
-              <ul className="text-xs text-gray-400 space-y-1 list-disc list-inside">
+              <ul className="text-xs text-fin-muted space-y-1 list-disc list-inside">
                 <li>Use negative amounts for expenses (e.g., -450)</li>
                 <li>Use positive amounts for income (e.g., 5000)</li>
                 <li>Include keywords in description for auto-categorization (e.g., "Swiggy", "Uber", "Salary")</li>
@@ -221,8 +221,8 @@ export default function CSVParser() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest">Data Management</h2>
-              <p className="text-gray-400 text-sm mt-2">
-                Total Transactions: <span className="text-white font-bold">{transactions.length}</span>
+              <p className="text-fin-muted text-sm mt-2">
+                Total Transactions: <span className="text-fin-text font-bold">{transactions.length}</span>
               </p>
             </div>
             <button
@@ -238,8 +238,8 @@ export default function CSVParser() {
       {data && data.length > 0 && (
         <div className="retro-card p-8">
           <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest mb-6">Raw Parsed Data</h2>
-          <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-4 max-h-96 overflow-y-auto">
-            <pre className="text-xs text-gray-400 font-mono">
+          <div className="bg-fin-bg border border-fin-border p-4 max-h-96 overflow-y-auto">
+            <pre className="text-xs text-fin-muted font-mono">
               {JSON.stringify(data, null, 2)}
             </pre>
           </div>

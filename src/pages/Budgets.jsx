@@ -1,4 +1,4 @@
-import { DataContext } from "../context/AppContext";
+import { DataContext, ThemeContext } from "../context/contexts";
 import React from "react";
 import { Link } from "react-router-dom";
 import categorize from "../components/utils/categorize";
@@ -12,6 +12,18 @@ export default function Budgets() {
   const [showAlert, setShowAlert] = React.useState(false);
   const [exceededCategories, setExceededCategories] = React.useState([]);
   const { transactions } = React.useContext(DataContext);
+  const { colors } = React.useContext(ThemeContext);
+
+  const spending = React.useMemo(() => (
+    transactions
+      ?.filter((t) => Number(t.Amount) < 0)
+      .reduce((acc, item) => {
+        const category = categorize(item.Description);
+        acc[category] = (acc[category] || 0) + Math.abs(Number(item.Amount));
+        return acc;
+      }, {}) || {}
+  ), [transactions]);
+  const categories = Object.keys(spending || {});
 
   // Save budgets to localStorage whenever they change
   React.useEffect(() => {
@@ -35,16 +47,7 @@ export default function Budgets() {
     if (exceeded.length > 0) {
       setShowAlert(true);
     }
-  }, [budgets, transactions]);
-
-  const spending = transactions
-    ?.filter((t) => Number(t.Amount) < 0)
-    .reduce((acc, item) => {
-      const category = categorize(item.Description);
-      acc[category] = (acc[category] || 0) + Math.abs(Number(item.Amount));
-      return acc;
-    }, {});
-  const categories = Object.keys(spending || {});
+  }, [budgets, transactions, spending]);
 
   // Prepare comparison chart data
   const comparisonData = categories.map(category => ({
@@ -91,12 +94,12 @@ export default function Budgets() {
               </div>
               <div>
                 <h3 className="text-[#FF6B6B] font-black uppercase tracking-widest text-lg">Budget Alert!</h3>
-                <p className="text-gray-400 text-sm mt-1">You've exceeded your budget in {exceededCategories.length} {exceededCategories.length === 1 ? 'category' : 'categories'}</p>
+                <p className="text-fin-muted text-sm mt-1">You've exceeded your budget in {exceededCategories.length} {exceededCategories.length === 1 ? 'category' : 'categories'}</p>
               </div>
             </div>
             <button 
               onClick={() => setShowAlert(false)}
-              className="text-gray-500 hover:text-gray-300 transition-colors"
+              className="text-fin-subtle hover:text-fin-text transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -106,11 +109,11 @@ export default function Budgets() {
           </div>
           <div className="space-y-2">
             {exceededCategories.map(item => (
-              <div key={item.category} className="flex items-center justify-between bg-[#111111] p-3 border border-[#1F1F1F]">
-                <span className="font-bold text-white uppercase tracking-wider">{item.category}</span>
+              <div key={item.category} className="flex items-center justify-between bg-fin-card p-3 border border-fin-border">
+                <span className="font-bold text-fin-text uppercase tracking-wider">{item.category}</span>
                 <span className="text-[#FF6B6B] font-black">
                   Over by ₹{item.over.toLocaleString()} 
-                  <span className="text-gray-500 text-sm ml-2">
+                  <span className="text-fin-subtle text-sm ml-2">
                     (₹{item.spent.toLocaleString()} / ₹{item.limit.toLocaleString()})
                   </span>
                 </span>
@@ -127,20 +130,22 @@ export default function Budgets() {
             <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest">Budget vs Actual Spending</h2>
             <button 
               onClick={resetBudgets}
-              className="text-xs text-gray-400 hover:text-[#FF6B6B] uppercase tracking-wider font-bold transition-colors"
+              className="text-xs text-fin-muted hover:text-[#FF6B6B] uppercase tracking-wider font-bold transition-colors"
             >
               Reset All Budgets
             </button>
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={comparisonData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-              <XAxis dataKey="category" stroke="#666" tick={{fill: '#888'}} />
-              <YAxis stroke="#666" tick={{fill: '#888'}} />
+              <XAxis dataKey="category" stroke={colors.chartGrid} tick={{fill: colors.chartTick}} />
+              <YAxis stroke={colors.chartGrid} tick={{fill: colors.chartTick}} />
               <Tooltip 
-                cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
-                contentStyle={{ backgroundColor: '#111111', borderColor: '#1F1F1F', borderRadius: '0' }}
+                cursor={{ fill: colors.hover }}
+                contentStyle={{ backgroundColor: colors.card, borderColor: colors.border, borderRadius: '0', color: colors.tooltipText }}
+                itemStyle={{ color: colors.tooltipText }}
+                labelStyle={{ color: colors.tooltipText }}
               />
-              <Legend wrapperStyle={{ paddingTop: '20px' }} />
+              <Legend wrapperStyle={{ paddingTop: '20px', color: colors.muted }} />
               <Bar dataKey="spent" fill="#FF6B6B" name="Spent" radius={[2, 2, 0, 0]} />
               <Bar dataKey="budget" fill="#00C49F" name="Budget" radius={[2, 2, 0, 0]} />
             </BarChart>
@@ -168,8 +173,8 @@ export default function Budgets() {
               </div>
               
               <div className="flex items-baseline gap-2 mb-6">
-                <span className="text-sm text-gray-500 uppercase tracking-wider">Spent</span>
-                <span className={`text-2xl font-black ${isOverBudget ? 'text-[#FF6B6B]' : 'text-white'}`}>
+                <span className="text-sm text-fin-subtle uppercase tracking-wider">Spent</span>
+                <span className={`text-2xl font-black ${isOverBudget ? 'text-[#FF6B6B]' : 'text-fin-text'}`}>
                   ₹{spending[category].toLocaleString()}
                 </span>
               </div>
@@ -184,19 +189,19 @@ export default function Budgets() {
                 />
                 {budgets[category] && (
                   <div className="pt-2">
-                    <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
+                    <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-fin-muted mb-2">
                       <span>₹{spending[category].toLocaleString()}</span>
                       <span>Limit: ₹{budgets[category].toLocaleString()}</span>
                     </div>
                     <progress
-                      className={`progress w-full h-3 rounded-none [&::-webkit-progress-bar]:bg-[#1a1a1a]`}
+                      className={`progress w-full h-3 rounded-none [&::-webkit-progress-bar]:bg-fin-surface`}
                       style={{
                         '--progress-color': getProgressColor(spending[category], budgets[category])
                       }}
                       value={spending[category]}
                       max={budgets[category]}
                     />
-                    <div className="mt-2 text-xs text-gray-400">
+                    <div className="mt-2 text-xs text-fin-muted">
                       {percentage >= 100 ? (
                         <span className="text-[#FF6B6B] font-bold">
                           {percentage.toFixed(0)}% - Over budget by ₹{(spending[category] - budgets[category]).toLocaleString()}
@@ -225,8 +230,8 @@ export default function Budgets() {
         <div className="w-16 h-16 bg-[#FF6B00]/10 flex items-center justify-center rounded-full mb-6 text-[#FF6B00]">
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
         </div>
-        <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">No Budgets Yet</h2>
-        <p className="text-gray-400 mb-8 leading-relaxed">We need transaction data to compute categories so you can set budgets.</p>
+        <h2 className="text-2xl font-black tracking-wider text-fin-text mb-2 uppercase">No Budgets Yet</h2>
+        <p className="text-fin-muted mb-8 leading-relaxed">We need transaction data to compute categories so you can set budgets.</p>
         <Link 
           to='/settings' 
           className="retro-btn"

@@ -13,8 +13,8 @@ export default function Sidebar() {
   ];
 
   return (
-    <div className="w-64 bg-fin-card border-r border-fin-border flex flex-col h-full shrink-0 shadow-2xl lg:shadow-none">
-      <div className="flex flex-col items-center justify-center p-8 gap-4 border-b border-fin-border bg-[#0A0A0A]">
+    <div className="w-64 bg-fin-card border-r border-fin-border flex flex-col h-full shrink-0 shadow-2xl lg:shadow-none transition-colors duration-300">
+      <div className="flex flex-col items-center justify-center p-8 gap-4 border-b border-fin-border bg-fin-bg transition-colors duration-300">
         <img
           className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-xl border border-[#FF6B00]/40 shadow-[0_0_20px_rgba(255,107,0,0.3)] hover:scale-105 hover:shadow-[0_0_25px_rgba(255,107,0,0.5)] transition-all duration-300"
           src={finbGif}
@@ -22,7 +22,7 @@ export default function Sidebar() {
         />
         <span 
           className="text-3xl text-transparent bg-clip-text bg-gradient-to-b from-[#FF6B00] to-[#FF8C00] text-center"
-          style={{ fontFamily: "'Righteous', 'Bungee', cursive", filter: "drop-shadow(3px 3px 0px #1F1F1F)" }}
+          style={{ fontFamily: "'Righteous', 'Bungee', cursive", filter: "drop-shadow(3px 3px 0px var(--color-fin-border))" }}
         >
           FINBOARD
         </span>
@@ -41,8 +41,8 @@ export default function Sidebar() {
               }}
               className={`px-4 py-3 text-sm font-bold tracking-widest transition-all duration-200 border-l-4 ${
                 isActive
-                  ? "border-[#FF6B00] bg-[#1a1a1a] text-[#FF6B00]"
-                  : "border-transparent text-gray-400 hover:text-white hover:bg-[#1a1a1a] hover:border-[#FF6B00]/50"
+                  ? "border-[#FF6B00] bg-fin-surface text-[#FF6B00]"
+                  : "border-transparent text-fin-muted hover:text-fin-text hover:bg-fin-surface hover:border-[#FF6B00]/50"
               }`}
             >
               {link.name}
@@ -52,13 +52,13 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer Icons Section */}
-      <div className="p-6 border-t border-[#1F1F1F] flex justify-center gap-6 mt-auto bg-[#0A0A0A]">
+      <div className="p-6 border-t border-fin-border flex justify-center gap-6 mt-auto bg-fin-bg transition-colors duration-300">
         {/* GitHub Link */}
         <a 
           href="https://github.com/khanirfan18" 
           target="_blank" 
           rel="noopener noreferrer" 
-          className="text-gray-400 hover:text-[#FF6B00] transition-colors hover:scale-110"
+          className="text-fin-muted hover:text-[#FF6B00] transition-colors hover:scale-110"
           title="GitHub"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -71,7 +71,7 @@ export default function Sidebar() {
           href="https://www.linkedin.com/in/irfankhan1855/" 
           target="_blank" 
           rel="noopener noreferrer" 
-          className="text-gray-400 hover:text-[#FF6B00] transition-colors hover:scale-110"
+          className="text-fin-muted hover:text-[#FF6B00] transition-colors hover:scale-110"
           title="LinkedIn"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

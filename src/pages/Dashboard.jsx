@@ -1,4 +1,4 @@
-import { DataContext } from "../context/AppContext";
+import { DataContext, ThemeContext } from "../context/contexts";
 import { Link } from "react-router-dom";
 import categorize from "../components/utils/categorize";
 import {
@@ -18,6 +18,7 @@ import { parse, format } from "date-fns";
 
 export default function Dashboard() {
   const { transactions } = React.useContext(DataContext);
+  const { colors } = React.useContext(ThemeContext);
 
   const COLORS = [
     "#0088FE",
@@ -78,15 +79,15 @@ export default function Dashboard() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="retro-card p-6 flex flex-col justify-center">
-          <h2 className="text-gray-400 text-sm font-semibold tracking-widest uppercase mb-2">Income</h2>
+          <h2 className="text-fin-muted text-sm font-semibold tracking-widest uppercase mb-2">Income</h2>
           <p className="text-[#00C49F] text-3xl font-black">₹{totalIncome.toLocaleString()}</p>
         </div>
         <div className="retro-card p-6 flex flex-col justify-center">
-          <h2 className="text-gray-400 text-sm font-semibold tracking-widest uppercase mb-2">Spent</h2>
+          <h2 className="text-fin-muted text-sm font-semibold tracking-widest uppercase mb-2">Spent</h2>
           <p className="text-[#FF6B6B] text-3xl font-black">₹{Math.abs(totalExpense).toLocaleString()}</p>
         </div>
         <div className="retro-card p-6 flex flex-col justify-center">
-          <h2 className="text-gray-400 text-sm font-semibold tracking-widest uppercase mb-2">Savings</h2>
+          <h2 className="text-fin-muted text-sm font-semibold tracking-widest uppercase mb-2">Savings</h2>
           <p className="text-[#0088FE] text-3xl font-black">₹{savings.toLocaleString()}</p>
         </div>
       </div>
@@ -107,10 +108,11 @@ export default function Dashboard() {
                 ))}
               </Pie>
               <Tooltip
-                contentStyle={{ backgroundColor: '#111111', borderColor: '#1F1F1F', borderRadius: '0' }}
-                itemStyle={{ color: '#E0E0E0' }}
+                contentStyle={{ backgroundColor: colors.card, borderColor: colors.border, borderRadius: '0', color: colors.tooltipText }}
+                itemStyle={{ color: colors.tooltipText }}
+                labelStyle={{ color: colors.tooltipText }}
               />
-              <Legend wrapperStyle={{ paddingTop: '20px' }} />
+              <Legend wrapperStyle={{ paddingTop: '20px', color: colors.muted }} />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -118,13 +120,15 @@ export default function Dashboard() {
           <h3 className="text-fin-orange font-bold tracking-widest text-sm uppercase self-start mb-4 px-4 pt-2">Monthly Overview</h3>
           <ResponsiveContainer width="100%" height={350}>
             <BarChart data={barData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-              <XAxis dataKey="month" stroke="#666" tick={{ fill: '#888' }} />
-              <YAxis stroke="#666" tick={{ fill: '#888' }} />
+              <XAxis dataKey="month" stroke={colors.chartGrid} tick={{ fill: colors.chartTick }} />
+              <YAxis stroke={colors.chartGrid} tick={{ fill: colors.chartTick }} />
               <Tooltip
-                cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
-                contentStyle={{ backgroundColor: '#111111', borderColor: '#1F1F1F', borderRadius: '0' }}
+                cursor={{ fill: colors.hover }}
+                contentStyle={{ backgroundColor: colors.card, borderColor: colors.border, borderRadius: '0', color: colors.tooltipText }}
+                itemStyle={{ color: colors.tooltipText }}
+                labelStyle={{ color: colors.tooltipText }}
               />
-              <Legend wrapperStyle={{ paddingTop: '20px' }} />
+              <Legend wrapperStyle={{ paddingTop: '20px', color: colors.muted }} />
               <Bar dataKey="income" fill="#00C49F" radius={[2, 2, 0, 0]} />
               <Bar dataKey="spent" fill="#FF6B6B" radius={[2, 2, 0, 0]} />
             </BarChart>
@@ -138,8 +142,8 @@ export default function Dashboard() {
         <div className="w-16 h-16 bg-[#FF6B00]/10 flex items-center justify-center rounded-full mb-6 text-[#FF6B00]">
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
         </div>
-        <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">No Data Found</h2>
-        <p className="text-gray-400 mb-8 leading-relaxed">Your dashboard is looking a bit empty. Head over to settings to upload your transaction history.</p>
+        <h2 className="text-2xl font-black tracking-wider text-fin-text mb-2 uppercase">No Data Found</h2>
+        <p className="text-fin-muted mb-8 leading-relaxed">Your dashboard is looking a bit empty. Head over to settings to upload your transaction history.</p>
         <Link
           to='/settings'
           className="retro-btn"
