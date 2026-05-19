@@ -2,37 +2,288 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { DataContext } from "../context/AppContext";
 import categorize from "../components/utils/categorize";
+import { parse } from "date-fns";
 
 export default function Transaction() {
   const { transactions } = React.useContext(DataContext);
+  
+  // Filter states
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [datePreset, setDatePreset] = React.useState("all");
+  const [selectedCategories, setSelectedCategories] = React.useState([]);
+  const [sortBy, setSortBy] = React.useState("date-desc");
+  const [minAmount, setMinAmount] = React.useState("");
+  const [maxAmount, setMaxAmount] = React.useState("");
+
+  // Get unique categories
+  const allCategories = React.useMemo(() => {
+    const cats = new Set();
+    transactions?.forEach(t => cats.add(categorize(t.Description)));
+    return Array.from(cats).sort();
+  }, [transactions]);
+
+  // Get date range based on preset
+  const getDateRange = (preset) => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    switch(preset) {
+      case "today":
+        return { start: today, end: new Date(today.getTime() + 86400000) };
+      case "yesterday":
+        const yesterday = new Date(today.getTime() - 86400000);
+        return { start: yesterday, end: today };
+      case "this-week":
+        const weekStart = new Date(today);
+        weekStart.setDate(today.getDate() - today.getDay());
+        return { start: weekStart, end: new Date() };
+      case "last-week":
+        const lastWeekEnd = new Date(today);
+        lastWeekEnd.setDate(today.getDate() - today.getDay());
+        const lastWeekStart = new Date(lastWeekEnd);
+        lastWeekStart.setDate(lastWeekEnd.getDate() - 7);
+        return { start: lastWeekStart, end: lastWeekEnd };
+      case "this-month":
+        return { start: new Date(now.getFullYear(), now.getMonth(), 1), end: new Date() };
+      case "last-month":
+        const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+        return { start: lastMonth, end: lastMonthEnd };
+      case "last-3-months":
+        const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+        return { start: threeMonthsAgo, end: new Date() };
+      case "this-year":
+        return { start: new Date(now.getFullYear(), 0, 1), end: new Date() };
+      default:
+        return null;
+    }
+  };
+
+  // Filter and sort transactions
+  const filteredTransactions = React.useMemo(() => {
+    if (!transactions) return [];
+
+    let filtered = [...transactions];
+
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(t => 
+        t.Description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Date preset filter
+    if (datePreset !== "all") {
+      const dateRange = getDateRange(datePreset);
+      if (dateRange) {
+        filtered = filtered.filter(t => {
+          try {
+            const transactionDate = parse(t.Date, "dd/MM/yyyy", new Date());
+            return transactionDate >= dateRange.start && transactionDate <= dateRange.end;
+          } catch (e) {
+            return true;
+          }
+        });
+      }
+    }
+
+    // Category filter
+    if (selectedCategories.length > 0) {
+      filtered = filtered.filter(t => 
+        selectedCategories.includes(categorize(t.Description))
+      );
+    }
+
+    // Amount range filter
+    if (minAmount !== "" || maxAmount !== "") {
+      filtered = filtered.filter(t => {
+        const amount = Math.abs(Number(t.Amount));
+        const min = minAmount !== "" ? Number(minAmount) : -Infinity;
+        const max = maxAmount !== "" ? Number(maxAmount) : Infinity;
+        return amount >= min && amount <= max;
+      });
+    }
+
+    // Sort
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case "date-asc":
+          return parse(a.Date, "dd/MM/yyyy", new Date()) - parse(b.Date, "dd/MM/yyyy", new Date());
+        case "date-desc":
+          return parse(b.Date, "dd/MM/yyyy", new Date()) - parse(a.Date, "dd/MM/yyyy", new Date());
+        case "amount-asc":
+          return Number(a.Amount) - Number(b.Amount);
+        case "amount-desc":
+          return Number(b.Amount) - Number(a.Amount);
+        case "category":
+          return categorize(a.Description).localeCompare(categorize(b.Description));
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [transactions, searchTerm, datePreset, selectedCategories, sortBy, minAmount, maxAmount]);
+
+  const toggleCategory = (category) => {
+    setSelectedCategories(prev => 
+      prev.includes(category) 
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setDatePreset("all");
+    setSelectedCategories([]);
+    setSortBy("date-desc");
+    setMinAmount("");
+    setMaxAmount("");
+  };
+
   return transactions && transactions.length > 0 ? (
-    <div className="retro-card overflow-x-auto animate-in fade-in duration-500">
-      <table className="table w-full border-collapse">
-        <thead>
-          <tr className="bg-[#111111] text-[#FF6B00] border-b border-[#1F1F1F] uppercase tracking-widest text-sm">
-            <th className="py-4 px-6 font-bold">Date</th>
-            <th className="py-4 px-6 font-bold">Description</th>
-            <th className="py-4 px-6 font-bold text-right">Amount</th>
-            <th className="py-4 px-6 font-bold">Category</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions?.map((data, i) => (
-            <tr key={i} className="border-b border-[#1F1F1F]/50 hover:bg-[#1a1a1a] transition-colors">
-              <td className="py-4 px-6 text-gray-400 whitespace-nowrap">{data.Date}</td>
-              <td className="py-4 px-6 font-medium max-w-sm truncate" title={data.Description}>{data.Description}</td>
-              <td className={`py-4 px-6 font-black text-right whitespace-nowrap ${Number(data.Amount) > 0 ? 'text-[#00C49F]' : 'text-white'}`}>
-                {Number(data.Amount) > 0 ? '+' : ''}{data.Amount}
-              </td>
-              <td className="py-4 px-6">
-                <span className="bg-[#1F1F1F] text-gray-300 px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-sm border border-[#2a2a2a]">
-                  {categorize(data.Description)}
-                </span>
-              </td>
+    <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Filter Panel */}
+      <div className="retro-card p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest">Filters & Search</h2>
+          <button 
+            onClick={clearFilters}
+            className="text-xs text-gray-400 hover:text-[#FF6B00] uppercase tracking-wider font-bold transition-colors"
+          >
+            Clear All
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Search */}
+          <div className="lg:col-span-2">
+            <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">Search Description</label>
+            <input
+              type="text"
+              placeholder="Search transactions..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="retro-input p-3 w-full"
+            />
+          </div>
+
+          {/* Date Preset */}
+          <div className="lg:col-span-2">
+            <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">Time Period</label>
+            <select
+              value={datePreset}
+              onChange={(e) => setDatePreset(e.target.value)}
+              className="retro-input p-3 w-full"
+            >
+              <option value="all">All Time</option>
+              <option value="today">Today</option>
+              <option value="yesterday">Yesterday</option>
+              <option value="this-week">This Week</option>
+              <option value="last-week">Last Week</option>
+              <option value="this-month">This Month</option>
+              <option value="last-month">Last Month</option>
+              <option value="last-3-months">Last 3 Months</option>
+              <option value="this-year">This Year</option>
+            </select>
+          </div>
+
+          {/* Amount Range */}
+          <div>
+            <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">Min Amount</label>
+            <input
+              type="number"
+              placeholder="Min"
+              value={minAmount}
+              onChange={(e) => setMinAmount(e.target.value)}
+              className="retro-input p-3 w-full"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">Max Amount</label>
+            <input
+              type="number"
+              placeholder="Max"
+              value={maxAmount}
+              onChange={(e) => setMaxAmount(e.target.value)}
+              className="retro-input p-3 w-full"
+            />
+          </div>
+
+          {/* Sort */}
+          <div>
+            <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">Sort By</label>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="retro-input p-3 w-full"
+            >
+              <option value="date-desc">Date (Newest First)</option>
+              <option value="date-asc">Date (Oldest First)</option>
+              <option value="amount-desc">Amount (High to Low)</option>
+              <option value="amount-asc">Amount (Low to High)</option>
+              <option value="category">Category (A-Z)</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Category Filter */}
+        <div className="mt-4">
+          <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">Filter by Category</label>
+          <div className="flex flex-wrap gap-2">
+            {allCategories.map(category => (
+              <button
+                key={category}
+                onClick={() => toggleCategory(category)}
+                className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-sm border transition-colors ${
+                  selectedCategories.includes(category)
+                    ? 'bg-[#FF6B00] text-black border-[#FF6B00]'
+                    : 'bg-[#1F1F1F] text-gray-300 border-[#2a2a2a] hover:border-[#FF6B00]'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Results count */}
+        <div className="mt-4 text-sm text-gray-400">
+          Showing <span className="text-[#FF6B00] font-bold">{filteredTransactions.length}</span> of <span className="font-bold">{transactions.length}</span> transactions
+        </div>
+      </div>
+
+      {/* Transactions Table */}
+      <div className="retro-card overflow-x-auto">
+        <table className="table w-full border-collapse">
+          <thead>
+            <tr className="bg-[#111111] text-[#FF6B00] border-b border-[#1F1F1F] uppercase tracking-widest text-sm">
+              <th className="py-4 px-6 font-bold">Date</th>
+              <th className="py-4 px-6 font-bold">Description</th>
+              <th className="py-4 px-6 font-bold text-right">Amount</th>
+              <th className="py-4 px-6 font-bold">Category</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredTransactions.map((data, i) => (
+              <tr key={i} className="border-b border-[#1F1F1F]/50 hover:bg-[#1a1a1a] transition-colors">
+                <td className="py-4 px-6 text-gray-400 whitespace-nowrap">{data.Date}</td>
+                <td className="py-4 px-6 font-medium max-w-sm truncate" title={data.Description}>{data.Description}</td>
+                <td className={`py-4 px-6 font-black text-right whitespace-nowrap ${Number(data.Amount) > 0 ? 'text-[#00C49F]' : 'text-white'}`}>
+                  {Number(data.Amount) > 0 ? '+' : ''}{data.Amount}
+                </td>
+                <td className="py-4 px-6">
+                  <span className="bg-[#1F1F1F] text-gray-300 px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-sm border border-[#2a2a2a]">
+                    {categorize(data.Description)}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   ) : (
     <div className="flex flex-col items-center justify-center h-full min-h-[60vh]">

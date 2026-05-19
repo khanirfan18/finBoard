@@ -83,7 +83,7 @@ export default function Dashboard() {
         </div>
         <div className="retro-card p-6 flex flex-col justify-center">
           <h2 className="text-gray-400 text-sm font-semibold tracking-widest uppercase mb-2">Spent</h2>
-          <p className="text-[#FF6B6B] text-3xl font-black">₹{totalExpense.toLocaleString()}</p>
+          <p className="text-[#FF6B6B] text-3xl font-black">₹{Math.abs(totalExpense).toLocaleString()}</p>
         </div>
         <div className="retro-card p-6 flex flex-col justify-center">
           <h2 className="text-gray-400 text-sm font-semibold tracking-widest uppercase mb-2">Savings</h2>
@@ -106,7 +106,7 @@ export default function Dashboard() {
                   <Cell key={index} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip 
+              <Tooltip
                 contentStyle={{ backgroundColor: '#111111', borderColor: '#1F1F1F', borderRadius: '0' }}
                 itemStyle={{ color: '#E0E0E0' }}
               />
@@ -118,9 +118,9 @@ export default function Dashboard() {
           <h3 className="text-fin-orange font-bold tracking-widest text-sm uppercase self-start mb-4 px-4 pt-2">Monthly Overview</h3>
           <ResponsiveContainer width="100%" height={350}>
             <BarChart data={barData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-              <XAxis dataKey="month" stroke="#666" tick={{fill: '#888'}} />
-              <YAxis stroke="#666" tick={{fill: '#888'}} />
-              <Tooltip 
+              <XAxis dataKey="month" stroke="#666" tick={{ fill: '#888' }} />
+              <YAxis stroke="#666" tick={{ fill: '#888' }} />
+              <Tooltip
                 cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
                 contentStyle={{ backgroundColor: '#111111', borderColor: '#1F1F1F', borderRadius: '0' }}
               />
@@ -140,8 +140,8 @@ export default function Dashboard() {
         </div>
         <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">No Data Found</h2>
         <p className="text-gray-400 mb-8 leading-relaxed">Your dashboard is looking a bit empty. Head over to settings to upload your transaction history.</p>
-        <Link 
-          to='/settings' 
+        <Link
+          to='/settings'
           className="retro-btn"
         >
           Configure Settings

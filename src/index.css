@@ -78,3 +78,11 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-fin-orange); 
 }
+
+/* Custom progress bar colors */
+.progress::-webkit-progress-value {
+  background-color: var(--progress-color, #FF6B00);
+}
+.progress::-moz-progress-bar {
+  background-color: var(--progress-color, #FF6B00);
+}
