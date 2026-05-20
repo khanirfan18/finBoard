@@ -85,6 +85,28 @@ export default function CSVParser() {
     }
   };
 
+  const exportToCSV = () => {
+    if (!transactions || transactions.length === 0) {
+      alert("No transactions available to export!");
+      return;
+    }
+    
+    // Convert JSON transactions array back to CSV string
+    const csv = Papa.unparse(transactions);
+    
+    // Create download link and trigger download
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `finboard_transactions_${format(new Date(), "yyyy-MM-dd")}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+
   return (
     <div className="max-w-4xl animate-in fade-in duration-500 space-y-6">
       {/* Data Source Section */}
@@ -251,12 +273,21 @@ export default function CSVParser() {
                 Total Transactions: <span className="text-white font-bold">{transactions.length}</span>
               </p>
             </div>
-            <button
-              onClick={clearAllData}
-              className="px-4 py-2 bg-[#FF6B6B] text-white font-bold uppercase tracking-wider text-sm hover:bg-[#FF5252] transition-colors"
-            >
-              Clear All Data
-            </button>
+            <div className="flex gap-4 items-center">
+              <button
+                onClick={exportToCSV}
+                className="retro-btn py-2 text-sm flex items-center gap-2"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                Export CSV
+              </button>
+              <button
+                onClick={clearAllData}
+                className="px-4 py-2 bg-[#FF6B6B] text-white font-bold uppercase tracking-wider text-sm hover:bg-[#FF5252] transition-colors"
+              >
+                Clear All Data
+              </button>
+            </div>
           </div>
         </div>
       )}
