@@ -1,6 +1,7 @@
 import { DataContext } from "../context/AppContext";
 import { Link } from "react-router-dom";
 import categorize from "../components/utils/categorize";
+import AIFinanceChatbot from "../components/AIFinanceChatbot";
 import {
   PieChart,
   Pie,
@@ -215,6 +216,11 @@ export default function Dashboard() {
             </div>
 
           </section>
+
+          <AIFinanceChatbot
+            transactions={transactions}
+            currency={currency}
+          />
         </>
       ) : (
         <div className="flex flex-col items-center justify-center h-full min-h-[60vh]">
