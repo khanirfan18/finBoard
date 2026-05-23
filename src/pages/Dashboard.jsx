@@ -220,6 +220,7 @@ export default function Dashboard() {
           <AIFinanceChatbot
             transactions={transactions}
             currency={currency}
+            page="dashboard"
           />
         </>
       ) : (

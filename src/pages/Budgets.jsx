@@ -2,6 +2,7 @@ import { DataContext } from "../context/AppContext";
 import React from "react";
 import { Link } from "react-router-dom";
 import categorize from "../components/utils/categorize";
+import AIFinanceChatbot from "../components/AIFinanceChatbot";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
 
 export default function Budgets() {
@@ -12,6 +13,20 @@ export default function Budgets() {
   const [showAlert, setShowAlert] = React.useState(false);
   const [exceededCategories, setExceededCategories] = React.useState([]);
   const { transactions, currency } = React.useContext(DataContext);
+
+  const spending = React.useMemo(
+    () =>
+      transactions
+        ?.filter((t) => Number(t.Amount) < 0)
+        .reduce((acc, item) => {
+          const category = categorize(item.Description);
+          acc[category] = (acc[category] || 0) + Math.abs(Number(item.Amount));
+          return acc;
+        }, {}) || {},
+    [transactions]
+  );
+
+  const categories = Object.keys(spending);
 
   // Save budgets to localStorage whenever they change
   React.useEffect(() => {
@@ -35,16 +50,7 @@ export default function Budgets() {
     if (exceeded.length > 0) {
       setShowAlert(true);
     }
-  }, [budgets, transactions]);
-
-  const spending = transactions
-    ?.filter((t) => Number(t.Amount) < 0)
-    .reduce((acc, item) => {
-      const category = categorize(item.Description);
-      acc[category] = (acc[category] || 0) + Math.abs(Number(item.Amount));
-      return acc;
-    }, {});
-  const categories = Object.keys(spending || {});
+  }, [budgets, spending]);
 
   // Prepare comparison chart data
   const comparisonData = categories.map(category => ({
@@ -218,6 +224,12 @@ export default function Budgets() {
           );
         })}
       </div>
+
+      <AIFinanceChatbot
+        transactions={transactions}
+        currency={currency}
+        page="budgets"
+      />
     </div>
   ) : (
     <div className="flex flex-col items-center justify-center h-full min-h-[60vh]">

@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { DataContext } from "../context/AppContext";
 import categorize from "../components/utils/categorize";
+import AIFinanceChatbot from "../components/AIFinanceChatbot";
 import { parse } from "date-fns";
 
 export default function Transaction() {
@@ -28,30 +29,36 @@ export default function Transaction() {
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     
     switch(preset) {
-      case "today":
+      case "today": {
         return { start: today, end: new Date(today.getTime() + 86400000) };
-      case "yesterday":
+      }
+      case "yesterday": {
         const yesterday = new Date(today.getTime() - 86400000);
         return { start: yesterday, end: today };
-      case "this-week":
+      }
+      case "this-week": {
         const weekStart = new Date(today);
         weekStart.setDate(today.getDate() - today.getDay());
         return { start: weekStart, end: new Date() };
-      case "last-week":
+      }
+      case "last-week": {
         const lastWeekEnd = new Date(today);
         lastWeekEnd.setDate(today.getDate() - today.getDay());
         const lastWeekStart = new Date(lastWeekEnd);
         lastWeekStart.setDate(lastWeekEnd.getDate() - 7);
         return { start: lastWeekStart, end: lastWeekEnd };
+      }
       case "this-month":
         return { start: new Date(now.getFullYear(), now.getMonth(), 1), end: new Date() };
-      case "last-month":
+      case "last-month": {
         const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
         const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
         return { start: lastMonth, end: lastMonthEnd };
-      case "last-3-months":
+      }
+      case "last-3-months": {
         const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
         return { start: threeMonthsAgo, end: new Date() };
+      }
       case "this-year":
         return { start: new Date(now.getFullYear(), 0, 1), end: new Date() };
       default:
@@ -80,7 +87,7 @@ export default function Transaction() {
           try {
             const transactionDate = parse(t.Date, "dd/MM/yyyy", new Date());
             return transactionDate >= dateRange.start && transactionDate <= dateRange.end;
-          } catch (e) {
+          } catch {
             return true;
           }
         });
@@ -284,6 +291,12 @@ export default function Transaction() {
           </tbody>
         </table>
       </div>
+
+      <AIFinanceChatbot
+        transactions={filteredTransactions}
+        currency={currency}
+        page="transactions"
+      />
     </div>
   ) : (
     <div className="flex flex-col items-center justify-center h-full min-h-[60vh]">

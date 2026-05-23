@@ -2,31 +2,57 @@ import React from "react";
 import {
   Bot,
   ChevronDown,
+  FileSearch,
+  LayoutDashboard,
   MessageSquareText,
   PiggyBank,
   Search,
-  Sparkles,
+  Wallet,
   X,
 } from "lucide-react";
 import categorize from "./utils/categorize";
 
-const quickActions = [
-  {
-    id: "spending",
-    label: "Analyze Spending",
-    icon: MessageSquareText,
+const pageConfig = {
+  dashboard: {
+    title: "Dashboard AI",
+    subtitle: "Overview insights",
+    introTitle: "Dashboard insights ready",
+    introBody:
+      "Use this assistant for high-level spending, savings, and outlier checks from your current dataset.",
+    icon: LayoutDashboard,
+    actions: [
+      { id: "spending", label: "Analyze Spending", icon: MessageSquareText },
+      { id: "saving", label: "Saving Suggestions", icon: PiggyBank },
+      { id: "unusual", label: "Detect Unusual Expenses", icon: Search },
+    ],
   },
-  {
-    id: "saving",
-    label: "Saving Suggestions",
-    icon: PiggyBank,
+  transactions: {
+    title: "Transactions AI",
+    subtitle: "Search and review",
+    introTitle: "Transaction review ready",
+    introBody:
+      "Use this assistant to inspect spending patterns, unusual charges, and transaction review patterns from the current table.",
+    icon: FileSearch,
+    actions: [
+      { id: "spending", label: "Analyze Spending", icon: MessageSquareText },
+      { id: "unusual", label: "Detect Unusual Expenses", icon: Search },
+      { id: "search", label: "Search Review Tips", icon: FileSearch },
+    ],
   },
-  {
-    id: "unusual",
-    label: "Detect Unusual Expenses",
-    icon: Search,
+  budgets: {
+    title: "Budgets AI",
+    subtitle: "Budget coaching",
+    introTitle: "Budget guidance ready",
+    introBody:
+      "Use this assistant to spot budget pressure, savings opportunities, and categories that deserve tighter limits.",
+    icon: Wallet,
+    actions: [
+      { id: "budget", label: "Budget Pressure", icon: Wallet },
+      { id: "saving", label: "Saving Suggestions", icon: PiggyBank },
+      { id: "unusual", label: "Detect Unusual Expenses", icon: Search },
+    ],
   },
-];
+};
 
 const formatMoney = (value, currency) =>
   `${currency.symbol}${Math.round(value).toLocaleString()}`;
@@ -91,7 +117,10 @@ const createInsight = (actionId, summary, currency) => {
     const categoryLine =
       summary.topCategories.length > 0
         ? summary.topCategories
-            .map(([category, amount]) => `${category}: ${formatMoney(amount, currency)}`)
+            .map(
+              ([category, amount]) =>
+                `${category}: ${formatMoney(amount, currency)}`
+            )
             .join(", ")
         : "No expense categories found yet.";
 
@@ -125,6 +154,39 @@ const createInsight = (actionId, summary, currency) => {
     };
   }
 
+  if (actionId === "budget") {
+    const highestCategory = summary.topCategories[0];
+    const secondCategory = summary.topCategories[1];
+
+    return {
+      title: "Budget Pressure Check",
+      body: highestCategory
+        ? `${highestCategory[0]} is your heaviest expense category at ${formatMoney(highestCategory[1], currency)}. That is the first place to tighten if a budget is overshooting.`
+        : "Upload more expense data to identify which categories need tighter limits.",
+      details: [
+        highestCategory
+          ? `Set a visible cap for ${highestCategory[0]} and review it weekly.`
+          : "Create at least one category budget after importing transactions.",
+        secondCategory
+          ? `${secondCategory[0]} is the next category to watch at ${formatMoney(secondCategory[1], currency)}.`
+          : "A second high-spend category will appear once more data is available.",
+        "Use the budget page to compare actual spending against limits before adding new discretionary expenses.",
+      ],
+    };
+  }
+
+  if (actionId === "search") {
+    return {
+      title: "Transaction Review Tips",
+      body: `You are viewing ${summary.expenses.length} expense transactions. Use search and amount filters together to isolate merchants, repeated charges, or unusually large debits.`,
+      details: [
+        "Start with the merchant or keyword in the search box, then narrow by date or amount.",
+        "Sort by highest amount to review the biggest cash outflows first.",
+        "Use category filters to compare similar expenses before deciding what to cut.",
+      ],
+    };
+  }
+
   const unusualLine =
     summary.unusualExpenses.length > 0
       ? summary.unusualExpenses.map((expense) => {
@@ -140,25 +202,28 @@ const createInsight = (actionId, summary, currency) => {
   };
 };
 
-export default function AIFinanceChatbot({ transactions = [], currency }) {
+export default function AIFinanceChatbot({
+  transactions = [],
+  currency,
+  page = "dashboard",
+}) {
+  const config = pageConfig[page] || pageConfig.dashboard;
+  const HeaderIcon = config.icon;
   const [isOpen, setIsOpen] = React.useState(true);
-  const [isMinimized, setIsMinimized] = React.useState(false);
+  const [isMinimized, setIsMinimized] = React.useState(true);
   const [messages, setMessages] = React.useState([
     {
       role: "assistant",
-      title: "AI finance assistant ready",
-      body: "Choose an analysis option to generate insights from your uploaded transactions.",
+      title: config.introTitle,
+      body: config.introBody,
       details: ["Your data stays in this browser session."],
     },
   ]);
 
-  const summary = React.useMemo(
-    () => buildSummary(transactions),
-    [transactions]
-  );
+  const summary = React.useMemo(() => buildSummary(transactions), [transactions]);
 
   const handleAction = (actionId) => {
-    const action = quickActions.find((item) => item.id === actionId);
+    const action = config.actions.find((item) => item.id === actionId);
     const insight = createInsight(actionId, summary, currency);
 
     setMessages((currentMessages) => [
@@ -183,28 +248,28 @@ export default function AIFinanceChatbot({ transactions = [], currency }) {
       <button
         type="button"
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center border border-[#FF6B00] bg-[#111111] text-[#FF6B00] shadow-[0_0_18px_rgba(255,107,0,0.22)] transition-colors hover:bg-[#FF6B00] hover:text-black"
-        aria-label="Open AI finance insights"
-        title="Open AI finance insights"
+        className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center border border-[#FF6B00] bg-[#111111] text-[#FF6B00] shadow-[0_0_14px_rgba(255,107,0,0.18)] transition-colors hover:bg-[#FF6B00] hover:text-black"
+        aria-label={`Open ${config.title}`}
+        title={`Open ${config.title}`}
       >
-        <Bot size={24} aria-hidden="true" />
+        <Bot size={20} aria-hidden="true" />
       </button>
     );
   }
 
   return (
-    <aside className="fixed inset-x-3 bottom-3 z-40 mx-auto flex max-h-[82vh] w-[calc(100vw-1.5rem)] max-w-[420px] flex-col border border-[#FF6B00]/60 bg-[#0A0A0A] shadow-[0_0_28px_rgba(255,107,0,0.2)] md:inset-x-auto md:right-5 md:bottom-5">
+    <aside className="fixed inset-x-3 bottom-3 z-40 mx-auto flex max-h-[78vh] w-[calc(100vw-1.5rem)] max-w-[360px] flex-col border border-[#FF6B00]/60 bg-[#0A0A0A] shadow-[0_0_22px_rgba(255,107,0,0.16)] md:inset-x-auto md:right-5 md:bottom-5">
       <header className="flex items-center justify-between border-b border-[#1F1F1F] bg-[#111111] px-4 py-3">
         <div className="flex min-w-0 items-center gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-[#FF6B00]/50 bg-[#FF6B00]/10 text-[#FF6B00]">
-            <Sparkles size={20} aria-hidden="true" />
+            <HeaderIcon size={18} aria-hidden="true" />
           </span>
           <div className="min-w-0">
             <h2 className="truncate text-sm font-black uppercase tracking-widest text-white">
-              AI Finance Insights
+              {config.title}
             </h2>
             <p className="truncate text-xs font-semibold uppercase tracking-wider text-gray-500">
-              {transactions.length} transactions loaded
+              {config.subtitle} • {transactions.length} loaded
             </p>
           </div>
         </div>
@@ -213,7 +278,7 @@ export default function AIFinanceChatbot({ transactions = [], currency }) {
             type="button"
             onClick={() => setIsMinimized(true)}
             className="flex h-9 w-9 items-center justify-center border border-[#1F1F1F] text-gray-400 transition-colors hover:border-[#FF6B00] hover:text-[#FF6B00]"
-            aria-label="Minimize AI finance insights"
+            aria-label={`Minimize ${config.title}`}
             title="Minimize"
           >
             <ChevronDown size={18} aria-hidden="true" />
@@ -222,7 +287,7 @@ export default function AIFinanceChatbot({ transactions = [], currency }) {
             type="button"
             onClick={() => setIsOpen(false)}
             className="flex h-9 w-9 items-center justify-center border border-[#1F1F1F] text-gray-400 transition-colors hover:border-[#FF6B6B] hover:text-[#FF6B6B]"
-            aria-label="Close AI finance insights"
+            aria-label={`Close ${config.title}`}
             title="Close"
           >
             <X size={18} aria-hidden="true" />
@@ -261,8 +326,9 @@ export default function AIFinanceChatbot({ transactions = [], currency }) {
 
       <div className="border-t border-[#1F1F1F] bg-[#111111] p-4">
         <div className="grid grid-cols-1 gap-2">
-          {quickActions.map((action) => {
+          {config.actions.map((action) => {
             const Icon = action.icon;
+
             return (
               <button
                 key={action.id}
