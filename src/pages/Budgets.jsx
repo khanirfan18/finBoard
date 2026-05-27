@@ -14,13 +14,13 @@ export default function Budgets() {
   const [showAlert, setShowAlert] = React.useState(false);
   const [exceededCategories, setExceededCategories] = React.useState([]);
   const { transactions, currency } = React.useContext(DataContext);
-  const spending = transactions
+  const spending = React.useMemo(() => transactions
     ?.filter((t) => Number(t.Amount) < 0)
     .reduce((acc, item) => {
       const category = categorize(item.Description);
       acc[category] = (acc[category] || 0) + Math.abs(Number(item.Amount));
       return acc;
-    }, {});
+    }, {}), [transactions]);
 
   // Save budgets to localStorage whenever they change
   React.useEffect(() => {
@@ -31,7 +31,7 @@ export default function Budgets() {
   React.useEffect(() => {
     const exceeded = [];
     Object.keys(budgets).forEach(category => {
-      if (spending[category] > budgets[category]) {
+      if (spending && spending[category] > budgets[category]) {
         exceeded.push({
           category,
           spent: spending[category],
@@ -44,7 +44,7 @@ export default function Budgets() {
     if (exceeded.length > 0) {
       setShowAlert(true);
     }
-  }, [budgets, transactions, spending]);
+  }, [budgets, transactions,]);
 
   const categories = Object.keys(spending || {});
 

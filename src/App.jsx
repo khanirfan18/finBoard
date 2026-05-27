@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import Budgets from "./pages/Budgets";
 import Settings from "./pages/Settings";
@@ -17,7 +17,7 @@ export default function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Layout />}>
-                <Route path="/" element={<Dashboard />} />
+                <Route index element={<Dashboard />} />
                 <Route path="budgets" element={<Budgets />} />
                 <Route path="settings" element={<Settings />} />
                 <Route path="transaction" element={<Transaction />} />

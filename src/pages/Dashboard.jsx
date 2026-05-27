@@ -22,11 +22,7 @@ export default function Dashboard() {
 
   const [loading] = React.useState(false);
 
-  const [successMessage] = React.useState(
-    transactions && transactions.length > 0
-      ? "Data loaded successfully!"
-      : ""
-  );
+
 
   const COLORS = [
     "#0088FE",
@@ -101,13 +97,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
 
-      {successMessage && (
-        <div className="toast toast-top toast-end z-50">
-          <div className="alert alert-success shadow-lg">
-            <span>{successMessage}</span>
-          </div>
-        </div>
-      )}
+
 
       {loading && (
         <div className="flex justify-center items-center py-10">
@@ -118,53 +108,48 @@ export default function Dashboard() {
       {transactions && transactions.length > 0 ? (
         <>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-            <div className="retro-card p-6 flex flex-col justify-center">
-              <div className="flex items-center justify-between">
-                <h2 className="text-gray-400 text-sm font-semibold tracking-widest uppercase mb-2">
-                  Income
-                </h2>
-                <div className="p-2 bg-[#161616] border border-fin-border">
+            <div className="fin-metric-card">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-xs font-bold tracking-widest uppercase text-gray-500 mb-1">Income</p>
+                  <p className="text-[#00C49F] text-3xl font-black">
+                    {currency.symbol}{totalIncome.toLocaleString()}
+                  </p>
+                </div>
+                <div className="p-3 rounded-xl" style={{ background: "rgba(0,196,159,0.1)", border: "1px solid rgba(0,196,159,0.2)" }}>
                   <TrendingUp className="w-5 h-5 text-[#00C49F]" />
                 </div>
               </div>
-
-              <p className="text-[#00C49F] text-3xl font-black">
-                {currency.symbol}
-                {totalIncome.toLocaleString()}
-              </p>
+              <p className="text-xs text-gray-600">Total income received</p>
             </div>
-
-            <div className="retro-card p-6 flex flex-col justify-center">
-              <div className="flex items-center justify-between">
-                <h2 className="text-gray-400 text-sm font-semibold tracking-widest uppercase mb-2">
-                  Spent
-                </h2>
-                <div className="p-2 bg-[#161616] border border-fin-border">
+            <div className="fin-metric-card">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-xs font-bold tracking-widest uppercase text-gray-500 mb-1">Spent</p>
+                  <p className="text-[#FF6B6B] text-3xl font-black">
+                    {currency.symbol}{Math.abs(totalExpense).toLocaleString()}
+                  </p>
+                </div>
+                <div className="p-3 rounded-xl" style={{ background: "rgba(255,107,107,0.1)", border: "1px solid rgba(255,107,107,0.2)" }}>
                   <TrendingDown className="w-5 h-5 text-[#FF6B6B]" />
                 </div>
               </div>
-
-              <p className="text-[#FF6B6B] text-3xl font-black">
-                {currency.symbol}
-                {Math.abs(totalExpense).toLocaleString()}
-              </p>
+              <p className="text-xs text-gray-600">Total expenses tracked</p>
             </div>
-
-            <div className="retro-card p-6 flex flex-col justify-center">
-              <div className="flex items-center justify-between">
-                <h2 className="text-gray-400 text-sm font-semibold tracking-widest uppercase mb-2">
-                  Savings
-                </h2>
-                <div className="p-2 bg-[#161616] border border-fin-border">
+            <div className="fin-metric-card">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-xs font-bold tracking-widest uppercase text-gray-500 mb-1">Savings</p>
+                  <p className="text-[#0088FE] text-3xl font-black">
+                    {currency.symbol}{savings.toLocaleString()}
+                  </p>
+                </div>
+                <div className="p-3 rounded-xl" style={{ background: "rgba(0,136,254,0.1)", border: "1px solid rgba(0,136,254,0.2)" }}>
                   <PiggyBank className="w-5 h-5 text-[#0088FE]" />
                 </div>
               </div>
+              <p className="text-xs text-gray-600">Net savings balance</p>
 
-              <p className="text-[#0088FE] text-3xl font-black">
-                {currency.symbol}
-                {savings.toLocaleString()}
-              </p>
             </div>
 
           </div>
