@@ -195,7 +195,7 @@ export default function CSVParser() {
   };
 
   return (
-    <div className="max-w-4xl animate-in fade-in duration-500 space-y-6">
+    <div className="max-w-4xl mx-auto w-full animate-in fade-in duration-500 space-y-6">
 
       {/* SUCCESS MESSAGE */}
       {successMessage && (
@@ -219,7 +219,7 @@ export default function CSVParser() {
 
       {/* DATA SOURCE */}
       <div className="retro-card p-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest">
             Data Source
           </h2>
@@ -242,9 +242,9 @@ export default function CSVParser() {
           )}
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-6 items-end">
 
-          <div className="form-control w-full max-w-xs">
+          <div className="form-control w-full">
             <label className="label">
               <span className="label-text text-gray-400 font-bold uppercase tracking-wider text-xs">
                 Upload CSV File
@@ -259,13 +259,13 @@ export default function CSVParser() {
             />
           </div>
 
-          <div className="hidden md:flex items-center text-gray-600 font-black uppercase text-sm">
+          <div className="hidden lg:flex items-center text-gray-600 font-black uppercase text-sm justify-center">
             Or
           </div>
 
-          <div className="w-full md:w-auto md:mt-7">
+          <div className="w-full lg:justify-self-end">
             <button
-              className="retro-btn w-full md:w-auto flex items-center justify-center gap-2"
+              className="retro-btn w-full lg:w-auto flex items-center justify-center gap-2"
               onClick={() => {
                 const newData = importMode === "append" && transactions && transactions.length > 0
                   ? [...transactions, ...demoData]
@@ -295,7 +295,7 @@ export default function CSVParser() {
 
       {/* MANUAL ENTRY */}
       <div className="retro-card p-8">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest">
             Manual Entry
           </h2>
@@ -375,10 +375,10 @@ export default function CSVParser() {
               </div>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 type="submit"
-                className="retro-btn"
+                className="retro-btn w-full sm:w-auto"
               >
                 Add Transaction
               </button>
@@ -386,7 +386,7 @@ export default function CSVParser() {
               <button
                 type="button"
                 onClick={clearAllData}
-                className="px-6 py-3 bg-red-500 text-white font-bold uppercase tracking-wider hover:bg-red-600 transition-colors"
+                className="px-6 py-3 w-full sm:w-auto bg-red-500 text-white font-bold uppercase tracking-wider hover:bg-red-600 transition-colors"
               >
                 Clear All Data
               </button>
@@ -401,7 +401,7 @@ export default function CSVParser() {
           Currency Settings
         </h2>
 
-        <div className="max-w-sm">
+        <div className="max-w-md">
           <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">
             Select Currency
           </label>
@@ -438,7 +438,7 @@ export default function CSVParser() {
       {/* DATA MANAGEMENT */}
       {transactions && transactions.length > 0 && (
         <div className="retro-card p-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
             <div>
               <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest">
                 Data Management
