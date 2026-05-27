@@ -5,29 +5,66 @@ import { demoData } from "../data/demoData";
 import { format } from "date-fns";
 import { useModal } from "../context/ModalContext";
 
+// =========================
+// REUSABLE SECTION COMPONENT
+// =========================
+const Section = ({
+  title,
+  subtitle,
+  children,
+  right,
+}) => (
+  <div className="w-full rounded-[32px] border border-[#1F1F1F] bg-[#0B0B0B] p-6 md:p-8 transition-all duration-300 hover:border-[#FF6B00]/40 hover:shadow-[0_0_40px_rgba(255,107,0,0.06)]">
+
+    {/* HEADER */}
+    <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+
+      <div className="space-y-2">
+        <h2 className="text-[28px] font-black uppercase tracking-[0.22em] text-[#FF6B00]">
+          {title}
+        </h2>
+
+        {subtitle && (
+          <p className="text-sm text-gray-500">
+            {subtitle}
+          </p>
+        )}
+      </div>
+
+      {right}
+    </div>
+
+    {children}
+  </div>
+);
+
 export default function Settings() {
-  const {
-    transactions,
-    setTransactions,
-    currency,
-    updateCurrency,
-  } = useContext(DataContext);
+  const { transactions, setTransactions, currency, updateCurrency } =
+    useContext(DataContext);
 
   const { showModal } = useModal();
 
-  const [showManualEntry, setShowManualEntry] = useState(true);
-  const [importMode, setImportMode] = useState("replace");
+  const [showManualEntry, setShowManualEntry] =
+    useState(true);
+
+  const [importMode, setImportMode] =
+    useState("replace");
 
   const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
 
-  const [manualTransaction, setManualTransaction] = useState({
-    Date: format(new Date(), "yyyy-MM-dd"),
-    Description: "",
-    Amount: "",
-  });
+  const [successMessage, setSuccessMessage] =
+    useState("");
 
+  const [manualTransaction, setManualTransaction] =
+    useState({
+      Date: format(new Date(), "yyyy-MM-dd"),
+      Description: "",
+      Amount: "",
+    });
+
+  // =========================
   // CSV IMPORT
+  // =========================
   const handleFile = (e) => {
     const file = e.target.files[0];
 
@@ -42,21 +79,23 @@ export default function Settings() {
       complete: (results) => {
         const parsedData = results.data || [];
 
-        const newData =
+        const updatedData =
           importMode === "append"
             ? [...(transactions || []), ...parsedData]
             : parsedData;
 
-        setTransactions(newData);
+        setTransactions(updatedData);
 
         localStorage.setItem(
           "transactions",
-          JSON.stringify(newData)
+          JSON.stringify(updatedData)
         );
 
         setLoading(false);
 
-        setSuccessMessage("CSV Imported Successfully!");
+        setSuccessMessage(
+          "CSV Imported Successfully!"
+        );
 
         setTimeout(() => {
           setSuccessMessage("");
@@ -76,7 +115,9 @@ export default function Settings() {
     e.target.value = "";
   };
 
+  // =========================
   // MANUAL ENTRY
+  // =========================
   const handleManualSubmit = (e) => {
     e.preventDefault();
 
@@ -94,6 +135,7 @@ export default function Settings() {
 
     const updatedTransactions = [
       ...(transactions || []),
+
       {
         ...manualTransaction,
         Currency: currency.code,
@@ -120,11 +162,15 @@ export default function Settings() {
     }, 3000);
   };
 
+  // =========================
   // CLEAR DATA
+  // =========================
   const clearAllData = () => {
     showModal({
       type: "confirm",
-      message: "Are you sure you want to clear all data?",
+
+      message:
+        "Are you sure you want to clear all data?",
 
       onConfirm: () => {
         setTransactions([]);
@@ -142,67 +188,55 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen w-full bg-[#050505] px-4 py-6 md:px-8">
-      <div className="max-w-6xl mx-auto space-y-8">
+
+      {/* MAIN CONTAINER */}
+      <div className="w-full space-y-6">
 
         {/* SUCCESS MESSAGE */}
         {successMessage && (
-          <div className="border border-[#FF6B00] bg-[#111111] px-5 py-4 text-sm font-semibold uppercase tracking-wider text-[#FF6B00]">
+          <div className="rounded-2xl border border-[#FF6B00]/40 bg-[#111] px-5 py-4 text-sm font-bold uppercase tracking-wide text-[#FF6B00] animate-pulse">
             {successMessage}
           </div>
         )}
 
         {/* LOADING */}
         {loading && (
-          <div className="flex justify-center">
-            <span className="loading loading-spinner loading-lg text-[#FF6B00]"></span>
+          <div className="flex justify-center py-2">
+            <span className="loading loading-spinner loading-lg text-[#FF6B00]" />
           </div>
         )}
 
+        {/* ========================= */}
         {/* DATA SOURCE */}
-        <div className="rounded-xl border border-[#1F1F1F] bg-[#0D0D0D] p-6 md:p-8">
+        {/* ========================= */}
+        <Section
+          title="Data Source"
+          subtitle="Upload CSV or load demo financial data"
+          right={
+            <div className="flex overflow-hidden rounded-xl border border-[#222]">
 
-          <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-
-            <div>
-              <h2 className="text-2xl font-black uppercase tracking-[0.2em] text-[#FF6B00]">
-                Data Source
-              </h2>
-
-              <p className="mt-2 text-sm text-gray-500">
-                Upload CSV or load demo financial data
-              </p>
+              {["replace", "append"].map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setImportMode(mode)}
+                  className={`px-5 py-2 text-xs font-bold uppercase tracking-wide transition-all duration-300 ${
+                    importMode === mode
+                      ? "bg-[#FF6B00] text-black"
+                      : "bg-[#111] text-gray-400 hover:text-white"
+                  }`}
+                >
+                  {mode}
+                </button>
+              ))}
             </div>
+          }
+        >
+          <div className="grid grid-cols-1 xl:grid-cols-[1fr_auto] gap-6 items-end">
 
-            <div className="flex overflow-hidden rounded-lg border border-[#222222]">
+            {/* FILE INPUT */}
+            <div className="space-y-3">
 
-              <button
-                onClick={() => setImportMode("replace")}
-                className={`px-5 py-2 text-xs font-bold uppercase tracking-wider transition-all ${
-                  importMode === "replace"
-                    ? "bg-[#FF6B00] text-black"
-                    : "bg-[#111111] text-gray-400"
-                }`}
-              >
-                Replace
-              </button>
-
-              <button
-                onClick={() => setImportMode("append")}
-                className={`px-5 py-2 text-xs font-bold uppercase tracking-wider transition-all ${
-                  importMode === "append"
-                    ? "bg-[#FF6B00] text-black"
-                    : "bg-[#111111] text-gray-400"
-                }`}
-              >
-                Append
-              </button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_auto]">
-
-            <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-400">
+              <label className="text-xs font-bold uppercase tracking-[0.18em] text-gray-500">
                 Upload CSV File
               </label>
 
@@ -210,72 +244,77 @@ export default function Settings() {
                 type="file"
                 accept=".csv"
                 onChange={handleFile}
-                className="file-input file-input-bordered w-full border-[#222222] bg-[#111111] text-white"
+                className="file-input w-full rounded-xl border border-[#222] bg-[#111] text-white"
               />
             </div>
 
+            {/* LOAD DEMO BUTTON */}
             <button
-              className="h-[48px] rounded-lg bg-[#FF6B00] px-6 font-bold uppercase tracking-wider text-black transition-all hover:scale-[1.02]"
               onClick={() => {
-                const newData =
+                const updatedData =
                   importMode === "append"
-                    ? [...(transactions || []), ...demoData]
+                    ? [
+                        ...(transactions || []),
+                        ...demoData,
+                      ]
                     : demoData;
 
-                setTransactions(newData);
+                setTransactions(updatedData);
 
                 localStorage.setItem(
                   "transactions",
-                  JSON.stringify(newData)
+                  JSON.stringify(updatedData)
                 );
 
-                setSuccessMessage("Demo Data Loaded!");
+                setSuccessMessage(
+                  "Demo Data Loaded!"
+                );
 
                 setTimeout(() => {
                   setSuccessMessage("");
                 }, 3000);
               }}
+              className="h-[52px] rounded-xl bg-[#FF6B00] px-8 text-sm font-black uppercase tracking-wide text-black transition-all duration-300 hover:scale-[1.03] active:scale-95"
             >
               Load Demo Data
             </button>
           </div>
-        </div>
+        </Section>
 
+        {/* ========================= */}
         {/* MANUAL ENTRY */}
-        <div className="rounded-xl border border-[#1F1F1F] bg-[#0D0D0D] p-6 md:p-8">
-
-          <div className="mb-8 flex items-center justify-between">
-
-            <div>
-              <h2 className="text-2xl font-black uppercase tracking-[0.2em] text-[#FF6B00]">
-                Manual Entry
-              </h2>
-
-              <p className="mt-2 text-sm text-gray-500">
-                Add transactions manually
-              </p>
-            </div>
-
+        {/* ========================= */}
+        <Section
+          title="Manual Entry"
+          subtitle="Add transactions manually"
+          right={
             <button
               onClick={() =>
-                setShowManualEntry(!showManualEntry)
+                setShowManualEntry(
+                  !showManualEntry
+                )
               }
-              className="text-sm font-semibold uppercase tracking-wider text-gray-400 transition-colors hover:text-[#FF6B00]"
+              className="rounded-xl border border-[#222] px-5 py-2 text-sm font-semibold uppercase tracking-wide text-gray-400 transition-all duration-300 hover:border-[#FF6B00]/40 hover:text-[#FF6B00]"
             >
-              {showManualEntry ? "Hide Form" : "Show Form"}
+              {showManualEntry
+                ? "Hide Form"
+                : "Show Form"}
             </button>
-          </div>
-
+          }
+        >
           {showManualEntry && (
             <form
               onSubmit={handleManualSubmit}
               className="space-y-6"
             >
 
-              <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+              {/* INPUT GRID */}
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
 
-                <div>
-                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-400">
+                {/* DATE */}
+                <div className="space-y-2">
+
+                  <label className="text-xs font-bold uppercase tracking-[0.18em] text-gray-500">
                     Date
                   </label>
 
@@ -288,37 +327,43 @@ export default function Settings() {
                         Date: e.target.value,
                       })
                     }
-                    className="w-full rounded-lg border border-[#222222] bg-[#111111] p-3 text-white outline-none focus:border-[#FF6B00]"
+                    className="w-full rounded-xl border border-[#222] bg-[#111] p-4 text-white outline-none transition-all duration-300 focus:border-[#FF6B00]/40"
                   />
                 </div>
 
-                <div>
-                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-400">
+                {/* DESCRIPTION */}
+                <div className="space-y-2">
+
+                  <label className="text-xs font-bold uppercase tracking-[0.18em] text-gray-500">
                     Description
                   </label>
 
                   <input
                     type="text"
-                    placeholder="e.g. Swiggy Order"
-                    value={manualTransaction.Description}
+                    placeholder="Enter description"
+                    value={
+                      manualTransaction.Description
+                    }
                     onChange={(e) =>
                       setManualTransaction({
                         ...manualTransaction,
                         Description: e.target.value,
                       })
                     }
-                    className="w-full rounded-lg border border-[#222222] bg-[#111111] p-3 text-white outline-none focus:border-[#FF6B00]"
+                    className="w-full rounded-xl border border-[#222] bg-[#111] p-4 text-white outline-none transition-all duration-300 focus:border-[#FF6B00]/40"
                   />
                 </div>
 
-                <div>
-                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-400">
+                {/* AMOUNT */}
+                <div className="space-y-2">
+
+                  <label className="text-xs font-bold uppercase tracking-[0.18em] text-gray-500">
                     Amount
                   </label>
 
                   <input
                     type="number"
-                    placeholder="-450 or 5000"
+                    placeholder="Enter amount"
                     value={manualTransaction.Amount}
                     onChange={(e) =>
                       setManualTransaction({
@@ -326,97 +371,99 @@ export default function Settings() {
                         Amount: e.target.value,
                       })
                     }
-                    className="w-full rounded-lg border border-[#222222] bg-[#111111] p-3 text-white outline-none focus:border-[#FF6B00]"
+                    className="w-full rounded-xl border border-[#222] bg-[#111] p-4 text-white outline-none transition-all duration-300 focus:border-[#FF6B00]/40"
                   />
                 </div>
               </div>
 
-              <div className="flex flex-col gap-4 sm:flex-row">
+              {/* ACTION BUTTONS */}
+              <div className="flex flex-wrap items-center gap-4 pt-2">
 
-                <button
-                  type="submit"
-                  className="rounded-lg bg-[#FF6B00] px-6 py-3 font-bold uppercase tracking-wider text-black transition-all hover:scale-[1.02]"
-                >
+                <button className="rounded-xl bg-[#FF6B00] px-7 py-3 font-black uppercase tracking-wide text-black transition-all duration-300 hover:scale-[1.03] active:scale-95">
                   Add Transaction
                 </button>
 
                 <button
                   type="button"
                   onClick={clearAllData}
-                  className="rounded-lg border border-red-500 px-6 py-3 font-bold uppercase tracking-wider text-red-400 transition-all hover:bg-red-500 hover:text-white"
+                  className="rounded-xl border border-red-500/40 px-7 py-3 font-black uppercase tracking-wide text-red-400 transition-all duration-300 hover:bg-red-500 hover:text-white"
                 >
                   Clear Data
                 </button>
               </div>
-
-              <div className="rounded-lg border border-[#1A1A1A] bg-[#080808] p-4 text-sm leading-7 text-gray-500">
-                <p>• Use negative amounts for expenses</p>
-                <p>• Use positive amounts for income</p>
-                <p>• Add proper descriptions for tracking</p>
-              </div>
             </form>
           )}
-        </div>
+        </Section>
 
+        {/* ========================= */}
         {/* CURRENCY SETTINGS */}
-        <div className="rounded-xl border border-[#FF6B00] bg-[#0D0D0D] p-6 md:p-8">
+        {/* ========================= */}
+        <Section
+          title="Currency Settings"
+          subtitle="Choose your preferred currency"
+        >
+          <div className="max-w-md space-y-3">
 
-          <h2 className="mb-6 text-2xl font-black uppercase tracking-[0.2em] text-[#FF6B00]">
-            Currency Settings
-          </h2>
-
-          <div className="max-w-md">
-
-            <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-400">
+            <label className="text-xs font-bold uppercase tracking-[0.18em] text-gray-500">
               Select Currency
             </label>
 
             <select
               value={currency?.code || ""}
               onChange={(e) => {
-                const selected = CURRENCIES.find(
-                  (c) => c.code === e.target.value
-                );
+                const selected =
+                  CURRENCIES.find(
+                    (c) =>
+                      c.code === e.target.value
+                  );
 
                 if (selected) {
                   updateCurrency(selected);
                 }
               }}
-              className="w-full rounded-lg border border-[#222222] bg-[#111111] p-3 text-white outline-none focus:border-[#FF6B00]"
+              className="w-full rounded-xl border border-[#222] bg-[#111] p-4 text-white outline-none transition-all duration-300 focus:border-[#FF6B00]/40"
             >
               {CURRENCIES.map((c) => (
-                <option key={c.code} value={c.code}>
+                <option
+                  key={c.code}
+                  value={c.code}
+                >
                   {c.symbol} — {c.name}
                 </option>
               ))}
             </select>
 
-            <p className="mt-4 text-sm text-gray-400">
-              Currently Using:
-              <span className="ml-2 font-bold text-[#FF6B00]">
-                {currency?.symbol} {currency?.name}
+            <p className="text-sm text-gray-500">
+              Currently using:
+
+              <span className="ml-2 font-semibold text-[#FF6B00]">
+                {currency?.symbol}{" "}
+                {currency?.name}
               </span>
             </p>
           </div>
-        </div>
+        </Section>
 
-        {/* TRANSACTION COUNT */}
-        {transactions && transactions.length > 0 && (
-          <div className="rounded-xl border border-[#1F1F1F] bg-[#0D0D0D] p-6">
+        {/* ========================= */}
+        {/* DATA OVERVIEW */}
+        {/* ========================= */}
+        {transactions?.length > 0 && (
+          <Section
+            title="Data Overview"
+            subtitle="Quick overview of imported transactions"
+          >
+            <div className="flex flex-wrap items-center gap-3">
 
-            <h2 className="mb-3 text-xl font-black uppercase tracking-[0.2em] text-[#FF6B00]">
-              Data Overview
-            </h2>
+              <span className="text-gray-400">
+                Total Transactions:
+              </span>
 
-            <p className="text-gray-400">
-              Total Transactions:
-              <span className="ml-2 font-bold text-white">
+              <span className="rounded-xl border border-[#222] bg-[#111] px-4 py-2 font-bold text-white">
                 {transactions.length}
               </span>
-            </p>
-          </div>
+            </div>
+          </Section>
         )}
-
       </div>
     </div>
   );
