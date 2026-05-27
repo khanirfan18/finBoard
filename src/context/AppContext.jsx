@@ -1,14 +1,5 @@
 import React from 'react'
-export const DataContext = React.createContext();
-
-export const CURRENCIES = [
-  { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
-  { code: 'USD', symbol: '$', name: 'US Dollar' },
-  { code: 'EUR', symbol: '€', name: 'Euro' },
-  { code: 'GBP', symbol: '£', name: 'British Pound' },
-  { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
-  { code: 'AED', symbol: 'د.إ', name: 'UAE Dirham' },
-];
+import { CURRENCIES, DataContext } from './AppContextValue';
 
 export function AppContext({ children }) {
   const [transactions, setTransactions] = React.useState(

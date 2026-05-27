@@ -1,9 +1,9 @@
 import { useState, useContext } from "react";
 import Papa from "papaparse";
-import { DataContext, CURRENCIES } from "../context/AppContext";
+import { DataContext, CURRENCIES } from "../context/AppContextValue";
 import { demoData } from "../data/demoData";
 import { format } from "date-fns";
-
+import { useModal } from "../context/ModalContextValue";
 export default function CSVParser() {
   const {
     transactions,
@@ -12,8 +12,11 @@ export default function CSVParser() {
     updateCurrency,
   } = useContext(DataContext);
 
+  const { showModal } = useModal();
+
   const [data, setData] = useState([]);
   const [showManualEntry, setShowManualEntry] = useState(false);
+  const [importMode, setImportMode] = useState("replace"); // 'replace' or 'append'
 
   // Loading + Success states
   const [loading, setLoading] = useState(false);
@@ -31,6 +34,12 @@ export default function CSVParser() {
 
     if (!file) return;
 
+    if (file.type !== "text/csv" && !file.name.endsWith(".csv")) {
+      showModal({ type: 'alert', message: "Please upload a valid CSV file." });
+      e.target.value = null;
+      return;
+    }
+
     setLoading(true);
     setSuccessMessage("");
 
@@ -39,15 +48,38 @@ export default function CSVParser() {
       skipEmptyLines: true,
 
       complete: (results) => {
+        if (!results.data || results.data.length === 0) {
+          setLoading(false);
+          showModal({ type: 'alert', message: "The uploaded CSV file is empty." });
+          return;
+        }
+
+        const requiredKeys = ["Date", "Description", "Amount", "Category"];
+        const firstRow = results.data[0];
+        const hasAllKeys = requiredKeys.every(key => key in firstRow);
+
+        if (!hasAllKeys) {
+          setLoading(false);
+          showModal({
+            type: 'alert',
+            message: "Invalid CSV format. Required columns: Date, Description, Amount, Category."
+          });
+          return;
+        }
+
         setTimeout(() => {
-          setData(results.data);
+          const newData = importMode === "append" && transactions && transactions.length > 0
+            ? [...transactions, ...results.data]
+            : results.data;
+
+          setData(newData);
 
           localStorage.setItem(
             "transactions",
-            JSON.stringify(results.data)
+            JSON.stringify(newData)
           );
 
-          setTransactions(results.data);
+          setTransactions(newData);
 
           setLoading(false);
 
@@ -61,9 +93,11 @@ export default function CSVParser() {
 
       error: () => {
         setLoading(false);
-        alert("Failed to parse CSV file.");
+        showModal({ type: 'alert', message: "Failed to parse CSV file." });
       },
     });
+
+    e.target.value = "";
   };
 
   const handleManualSubmit = (e) => {
@@ -73,7 +107,7 @@ export default function CSVParser() {
       !manualTransaction.Description ||
       !manualTransaction.Amount
     ) {
-      alert("Please fill in all fields");
+      showModal({ type: 'alert', message: "Please fill in all fields" });
       return;
     }
 
@@ -81,6 +115,7 @@ export default function CSVParser() {
       Date: manualTransaction.Date,
       Description: manualTransaction.Description,
       Amount: manualTransaction.Amount,
+      Currency: currency,
     };
 
     const updatedTransactions = [
@@ -129,24 +164,24 @@ export default function CSVParser() {
   };
 
   const clearAllData = () => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete all transactions? This cannot be undone."
-      )
-    ) {
-      setTransactions([]);
-      setData([]);
+    showModal({
+      type: 'confirm',
+      message: "Are you sure you want to delete all transactions? This cannot be undone.",
+      onConfirm: () => {
+        setTransactions([]);
+        setData([]);
 
-      localStorage.removeItem("transactions");
+        localStorage.removeItem("transactions");
 
-      setSuccessMessage(
-        "All transactions deleted successfully!"
-      );
+        setSuccessMessage(
+          "All transactions deleted successfully!"
+        );
 
-      setTimeout(() => {
-        setSuccessMessage("");
-      }, 3000);
-    }
+        setTimeout(() => {
+          setSuccessMessage("");
+        }, 3000);
+      }
+    });
   };
 
   return (
@@ -174,9 +209,28 @@ export default function CSVParser() {
 
       {/* DATA SOURCE */}
       <div className="retro-card p-8">
-        <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest mb-6">
-          Data Source
-        </h2>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+          <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest">
+            Data Source
+          </h2>
+
+          {transactions && transactions.length > 0 && (
+            <div className="flex bg-[#111111] border border-[#1F1F1F] p-1">
+              <button
+                onClick={() => setImportMode("replace")}
+                className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors ${importMode === 'replace' ? 'bg-[#FF6B00] text-black' : 'text-gray-400 hover:text-white'}`}
+              >
+                Replace
+              </button>
+              <button
+                onClick={() => setImportMode("append")}
+                className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors ${importMode === 'append' ? 'bg-[#FF6B00] text-black' : 'text-gray-400 hover:text-white'}`}
+              >
+                Append
+              </button>
+            </div>
+          )}
+        </div>
 
         <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
 
@@ -203,11 +257,15 @@ export default function CSVParser() {
             <button
               className="retro-btn w-full md:w-auto flex items-center justify-center gap-2"
               onClick={() => {
-                setTransactions(demoData);
+                const newData = importMode === "append" && transactions && transactions.length > 0
+                  ? [...transactions, ...demoData]
+                  : demoData;
+
+                setTransactions(newData);
 
                 localStorage.setItem(
                   "transactions",
-                  JSON.stringify(demoData)
+                  JSON.stringify(newData)
                 );
 
                 setSuccessMessage(

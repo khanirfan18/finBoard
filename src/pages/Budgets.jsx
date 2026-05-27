@@ -1,17 +1,18 @@
-import { DataContext } from "../context/AppContext";
+import { DataContext } from "../context/AppContextValue";
 import React from "react";
 import { Link } from "react-router-dom";
 import categorize from "../components/utils/categorize";
 import AIFinanceChatbot from "../components/AIFinanceChatbot";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
+import { useModal } from "../context/ModalContextValue";
 
 export default function Budgets() {
+  const { showModal } = useModal();
   const [budgets, setBudgets] = React.useState(() => {
     const saved = localStorage.getItem('budgets');
     return saved ? JSON.parse(saved) : {};
   });
-  const [showAlert, setShowAlert] = React.useState(false);
-  const [exceededCategories, setExceededCategories] = React.useState([]);
+  const [dismissedAlertKey, setDismissedAlertKey] = React.useState("");
   const { transactions, currency } = React.useContext(DataContext);
 
   const spending = React.useMemo(
@@ -27,30 +28,30 @@ export default function Budgets() {
   );
 
   const categories = Object.keys(spending);
+  const exceededCategories = React.useMemo(
+    () =>
+      Object.keys(budgets).reduce((exceeded, category) => {
+        if (spending[category] > budgets[category]) {
+          exceeded.push({
+            category,
+            spent: spending[category],
+            limit: budgets[category],
+            over: spending[category] - budgets[category]
+          });
+        }
+        return exceeded;
+      }, []),
+    [budgets, spending]
+  );
+  const exceededAlertKey = exceededCategories
+    .map((item) => `${item.category}:${item.spent}:${item.limit}`)
+    .join("|");
+  const showAlert = exceededCategories.length > 0 && dismissedAlertKey !== exceededAlertKey;
 
   // Save budgets to localStorage whenever they change
   React.useEffect(() => {
     localStorage.setItem('budgets', JSON.stringify(budgets));
   }, [budgets]);
-
-  // Check for budget exceeded
-  React.useEffect(() => {
-    const exceeded = [];
-    Object.keys(budgets).forEach(category => {
-      if (spending[category] > budgets[category]) {
-        exceeded.push({
-          category,
-          spent: spending[category],
-          limit: budgets[category],
-          over: spending[category] - budgets[category]
-        });
-      }
-    });
-    setExceededCategories(exceeded);
-    if (exceeded.length > 0) {
-      setShowAlert(true);
-    }
-  }, [budgets, spending]);
 
   // Prepare comparison chart data
   const comparisonData = categories.map(category => ({
@@ -67,10 +68,14 @@ export default function Budgets() {
   };
 
   const resetBudgets = () => {
-    if (window.confirm('Are you sure you want to reset all budgets?')) {
-      setBudgets({});
-      localStorage.removeItem('budgets');
-    }
+    showModal({
+      type: 'confirm',
+      message: 'Are you sure you want to reset all budgets?',
+      onConfirm: () => {
+        setBudgets({});
+        localStorage.removeItem('budgets');
+      }
+    });
   };
 
   const getProgressColor = (spent, budget) => {
@@ -101,7 +106,7 @@ export default function Budgets() {
               </div>
             </div>
             <button 
-              onClick={() => setShowAlert(false)}
+              onClick={() => setDismissedAlertKey(exceededAlertKey)}
               className="text-gray-500 hover:text-gray-300 transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

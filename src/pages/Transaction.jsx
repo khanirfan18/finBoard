@@ -1,13 +1,21 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { DataContext } from "../context/AppContext";
+import { DataContext } from "../context/AppContextValue";
 import categorize from "../components/utils/categorize";
 import AIFinanceChatbot from "../components/AIFinanceChatbot";
 import { parse } from "date-fns";
-
+const categoryIcons = {
+  FOOD: "🍔",
+  TRANSPORT: "✈️",
+  SHOPPING: "🛒",
+  INCOME: "💰",
+  BILLS: "📄",
+  HEALTH: "🏥",
+  OTHER: "📌",
+};
 export default function Transaction() {
   const { transactions, currency } = React.useContext(DataContext);
-  
+
   // Filter states
   const [searchTerm, setSearchTerm] = React.useState("");
   const [datePreset, setDatePreset] = React.useState("all");
@@ -27,7 +35,7 @@ export default function Transaction() {
   const getDateRange = (preset) => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    
+
     switch(preset) {
       case "today": {
         return { start: today, end: new Date(today.getTime() + 86400000) };
@@ -74,7 +82,7 @@ export default function Transaction() {
 
     // Search filter
     if (searchTerm) {
-      filtered = filtered.filter(t => 
+      filtered = filtered.filter(t =>
         t.Description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
@@ -96,7 +104,7 @@ export default function Transaction() {
 
     // Category filter
     if (selectedCategories.length > 0) {
-      filtered = filtered.filter(t => 
+      filtered = filtered.filter(t =>
         selectedCategories.includes(categorize(t.Description))
       );
     }
@@ -133,8 +141,8 @@ export default function Transaction() {
   }, [transactions, searchTerm, datePreset, selectedCategories, sortBy, minAmount, maxAmount]);
 
   const toggleCategory = (category) => {
-    setSelectedCategories(prev => 
-      prev.includes(category) 
+    setSelectedCategories(prev =>
+      prev.includes(category)
         ? prev.filter(c => c !== category)
         : [...prev, category]
     );
@@ -149,13 +157,45 @@ export default function Transaction() {
     setMaxAmount("");
   };
 
+  const exportToCSV = () => {
+  if (!filteredTransactions.length) return;
+
+  const headers = ["Date", "Description", "Amount", "Category"];
+
+  const rows = filteredTransactions.map((item) => [
+    item.Date,
+    item.Description,
+    item.Amount,
+    categorize(item.Description),
+  ]);
+
+  const csvContent = [
+    headers.join(","),
+    ...rows.map((row) => row.join(",")),
+  ].join("\n");
+
+  const blob = new Blob([csvContent], {
+    type: "text/csv;charset=utf-8;",
+  });
+
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+
+  link.setAttribute("href", url);
+  link.setAttribute("download", "transactions.csv");
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
   return transactions && transactions.length > 0 ? (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Filter Panel */}
       <div className="retro-card p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest">Filters & Search</h2>
-          <button 
+          <button
             onClick={clearFilters}
             className="text-xs text-gray-400 hover:text-[#FF6B00] uppercase tracking-wider font-bold transition-colors"
           >
@@ -263,7 +303,23 @@ export default function Transaction() {
       </div>
 
       {/* Transactions Table */}
+  {/* <div className="flex justify-end mb-4">
+  <button
+    onClick={exportToCSV}
+    className="px-4 py-2 bg-[#FF6B00] text-black font-bold rounded hover:opacity-90 transition"
+  >
+    Export CSV
+  </button>
+</div> */}
       <div className="retro-card overflow-x-auto">
+          <div className="flex justify-end items-center px-4 pt-4">
+  <button
+    onClick={exportToCSV}
+    className="px-3 py-2 bg-[#FF6B00] text-black text-sm font-bold rounded-md hover:opacity-90 transition"
+  >
+    Export CSV
+  </button>
+</div>
         <table className="table w-full border-collapse">
           <thead>
             <tr className="bg-[#111111] text-[#FF6B00] border-b border-[#1F1F1F] uppercase tracking-widest text-sm">
@@ -279,16 +335,30 @@ export default function Transaction() {
                 <td className="py-4 px-6 text-gray-400 whitespace-nowrap">{data.Date}</td>
                 <td className="py-4 px-6 font-medium max-w-sm truncate" title={data.Description}>{data.Description}</td>
                 <td className={`py-4 px-6 font-black text-right whitespace-nowrap ${Number(data.Amount) > 0 ? 'text-[#00C49F]' : 'text-white'}`}>
-                  {Number(data.Amount) > 0 ? '+' : ''}{currency.symbol}{Math.abs(Number(data.Amount)).toLocaleString()}
+                  {Number(data.Amount) > 0 ? '+' : ''}
+                  {data.Currency?.symbol || currency.symbol}
+                  {Math.abs(Number(data.Amount)).toLocaleString()}
                 </td>
                 <td className="py-4 px-6">
                   <span className="bg-[#1F1F1F] text-gray-300 px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-sm border border-[#2a2a2a]">
                     {categorize(data.Description)}
                   </span>
+
                 </td>
+
+               <td className="py-4 px-6">
+  <span className="bg-[#1F1F1F] text-gray-300 px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-sm border border-[#2a2a2a] flex items-center gap-2 w-fit">
+    <span>
+      {categoryIcons[categorize(data.Description)] || "📌"}
+    </span>
+    {categorize(data.Description)}
+  </span>
+</td>
               </tr>
+
             ))}
           </tbody>
+
         </table>
       </div>
 
@@ -306,8 +376,8 @@ export default function Transaction() {
         </div>
         <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">No Transactions</h2>
         <p className="text-gray-400 mb-8 leading-relaxed">No transactions found. Upload your data to view the history.</p>
-        <Link 
-          to='/settings' 
+        <Link
+          to='/settings'
           className="retro-btn"
         >
           Configure Settings
