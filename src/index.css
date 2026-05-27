@@ -1,88 +1,167 @@
 @import url('https://fonts.googleapis.com/css2?family=Bungee&family=Righteous&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 @plugin "daisyui";
 
 @theme {
   --color-fin-orange: #FF6B00;
   --color-fin-hover: #FF8C00;
-  --color-fin-bg: #0A0A0A;
+  --color-fin-bg: #080808;
   --color-fin-card: #111111;
-  --color-fin-border: #1F1F1F;
+  --color-fin-card-2: #161616;
+  --color-fin-border: #222222;
+  --color-fin-border-hover: #FF6B00;
+  --color-fin-muted: #888888;
+  --color-fin-text: #F0F0F0;
 }
 
 :root {
   font-family: "Inter", sans-serif;
   background-color: var(--color-fin-bg);
-  color: #FFFFFF;
+  color: var(--color-fin-text);
 }
 
 body {
   background-color: var(--color-fin-bg);
-  background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 30px 30px;
-  background-position: center center;
-  color: #E0E0E0;
+  background-image:
+    radial-gradient(ellipse at 20% 20%, rgba(255, 107, 0, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(255, 107, 0, 0.03) 0%, transparent 50%),
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+  color: var(--color-fin-text);
   min-height: 100vh;
 }
 
-.retro-card {
-  background-color: var(--color-fin-card);
+/* ── Premium Cards ─────────────────────────────────────────────────────────── */
+.fin-card {
+  background: linear-gradient(135deg, #161616 0%, #111111 100%);
   border: 1px solid var(--color-fin-border);
-  border-radius: 0;
-  transition: all 0.3s ease;
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+.fin-card:hover {
+  border-color: rgba(255, 107, 0, 0.4);
+  box-shadow: 0 8px 32px rgba(255, 107, 0, 0.1), 0 4px 24px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+/* ── Metric Cards ──────────────────────────────────────────────────────────── */
+.fin-metric-card {
+  background: linear-gradient(135deg, #161616 0%, #121212 100%);
+  border: 1px solid var(--color-fin-border);
+  border-radius: 20px;
+  padding: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+.fin-metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 107, 0, 0.5), transparent);
+}
+.fin-metric-card:hover {
+  border-color: rgba(255, 107, 0, 0.35);
+  box-shadow: 0 12px 40px rgba(255, 107, 0, 0.08), 0 4px 24px rgba(0, 0, 0, 0.5);
+  transform: translateY(-3px);
+}
+
+/* ── Retro Card (legacy support) ───────────────────────────────────────────── */
+.retro-card {
+  background: linear-gradient(135deg, #161616 0%, #111111 100%);
+  border: 1px solid var(--color-fin-border);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
 .retro-card:hover {
-  border-color: var(--color-fin-orange);
-  box-shadow: 0 0 12px rgba(255, 107, 0, 0.15);
+  border-color: rgba(255, 107, 0, 0.4);
+  box-shadow: 0 8px 32px rgba(255, 107, 0, 0.1);
 }
 
+/* ── Buttons ───────────────────────────────────────────────────────────────── */
 .retro-btn {
-  background-color: var(--color-fin-orange);
-  color: var(--color-fin-bg);
+  background: linear-gradient(135deg, #FF6B00 0%, #FF8C00 100%);
+  color: #000000;
   border: none;
-  border-radius: 0;
+  border-radius: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  transition: all 0.2s ease;
+  letter-spacing: 0.05em;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 0.75rem 1.5rem;
+  box-shadow: 0 4px 16px rgba(255, 107, 0, 0.3);
 }
 .retro-btn:hover {
-  background-color: var(--color-fin-hover);
-  box-shadow: 0 0 10px rgba(255, 107, 0, 0.4);
+  background: linear-gradient(135deg, #FF8C00 0%, #FFA500 100%);
+  box-shadow: 0 6px 24px rgba(255, 107, 0, 0.45);
+  transform: translateY(-1px);
+}
+.retro-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(255, 107, 0, 0.3);
 }
 
+/* ── Inputs ────────────────────────────────────────────────────────────────── */
 .retro-input {
-  background-color: var(--color-fin-bg);
+  background-color: #0D0D0D;
   border: 1px solid var(--color-fin-border);
-  color: #fff;
-  border-radius: 0;
+  border-radius: 10px;
+  color: var(--color-fin-text);
+  transition: all 0.2s ease;
+  outline: none;
 }
 .retro-input:focus {
-  outline: none;
-  border-color: var(--color-fin-orange);
-  box-shadow: 0 0 8px rgba(255, 107, 0, 0.2);
+  border-color: rgba(255, 107, 0, 0.6);
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+}
+.retro-input::placeholder {
+  color: var(--color-fin-muted);
 }
 
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: var(--color-fin-bg); 
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-fin-border); 
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-fin-orange); 
+/* ── Orange Glow ───────────────────────────────────────────────────────────── */
+.fin-glow {
+  box-shadow: 0 0 20px rgba(255, 107, 0, 0.3);
 }
 
-/* Custom progress bar colors */
-.progress::-webkit-progress-value {
-  background-color: var(--progress-color, #FF6B00);
+/* ── Section Headers ───────────────────────────────────────────────────────── */
+.fin-section-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 107, 0, 0.7);
+  margin-bottom: 1.5rem;
 }
-.progress::-moz-progress-bar {
-  background-color: var(--progress-color, #FF6B00);
+
+/* ── Badge / Pill ──────────────────────────────────────────────────────────── */
+.fin-badge {
+  background: rgba(255, 107, 0, 0.15);
+  border: 1px solid rgba(255, 107, 0, 0.3);
+  border-radius: 999px;
+  color: #FF8C00;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 0.2rem 0.7rem;
 }
+
+/* ── Scrollbar ─────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: #0A0A0A; }
+::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 107, 0, 0.4); }
+
+/* ── Animations ────────────────────────────────────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-in { animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
