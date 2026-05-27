@@ -5,111 +5,119 @@ import { demoData } from "../data/demoData";
 import { format } from "date-fns";
 import { useModal } from "../context/ModalContext";
 
-const categoryIcons = {
-  Food: "🍔",
-  Travel: "✈️",
-  Shopping: "🛒",
-  Salary: "💰",
-  Bills: "📄",
-  Entertainment: "🎬",
-  Health: "🏥",
-};
-export default function CSVParser() {
-  const {
-    transactions,
-    setTransactions,
-    currency,
-    updateCurrency,
-  } = useContext(DataContext);
+// =========================
+// REUSABLE SECTION COMPONENT
+// =========================
+const Section = ({
+  title,
+  subtitle,
+  children,
+  right,
+}) => (
+  <div className="w-full rounded-[32px] border border-[#1F1F1F] bg-[#0B0B0B] p-6 md:p-8 transition-all duration-300 hover:border-[#FF6B00]/40 hover:shadow-[0_0_40px_rgba(255,107,0,0.06)]">
+
+    {/* HEADER */}
+    <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+
+      <div className="space-y-2">
+        <h2 className="text-[28px] font-black uppercase tracking-[0.22em] text-[#FF6B00]">
+          {title}
+        </h2>
+
+        {subtitle && (
+          <p className="text-sm text-gray-500">
+            {subtitle}
+          </p>
+        )}
+      </div>
+
+      {right}
+    </div>
+
+    {children}
+  </div>
+);
+
+export default function Settings() {
+  const { transactions, setTransactions, currency, updateCurrency } =
+    useContext(DataContext);
 
   const { showModal } = useModal();
 
-  const [data, setData] = useState([]);
-  const [showManualEntry, setShowManualEntry] = useState(false);
-  const [importMode, setImportMode] = useState("replace"); // 'replace' or 'append'
+  const [showManualEntry, setShowManualEntry] =
+    useState(true);
 
-  // Loading + Success states
+  const [importMode, setImportMode] =
+    useState("replace");
+
   const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
 
-  // Manual entry form state
-  const [manualTransaction, setManualTransaction] = useState({
-    Date: format(new Date(), "dd/MM/yyyy"),
-    Description: "",
-    Amount: "",
-  });
+  const [successMessage, setSuccessMessage] =
+    useState("");
 
+  const [manualTransaction, setManualTransaction] =
+    useState({
+      Date: format(new Date(), "yyyy-MM-dd"),
+      Description: "",
+      Amount: "",
+    });
+
+  // =========================
+  // CSV IMPORT
+  // =========================
   const handleFile = (e) => {
     const file = e.target.files[0];
 
     if (!file) return;
 
-    if (file.type !== "text/csv" && !file.name.endsWith(".csv")) {
-      showModal({ type: 'alert', message: "Please upload a valid CSV file." });
-      e.target.value = null;
-      return;
-    }
-
     setLoading(true);
-    setSuccessMessage("");
 
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
 
       complete: (results) => {
-        if (!results.data || results.data.length === 0) {
-          setLoading(false);
-          showModal({ type: 'alert', message: "The uploaded CSV file is empty." });
-          return;
-        }
+        const parsedData = results.data || [];
 
-        const requiredKeys = ["Date", "Description", "Amount", "Category"];
-        const firstRow = results.data[0];
-        const hasAllKeys = requiredKeys.every(key => key in firstRow);
+        const updatedData =
+          importMode === "append"
+            ? [...(transactions || []), ...parsedData]
+            : parsedData;
 
-        if (!hasAllKeys) {
-          setLoading(false);
-          showModal({ 
-            type: 'alert', 
-            message: "Invalid CSV format. Required columns: Date, Description, Amount, Category." 
-          });
-          return;
-        }
+        setTransactions(updatedData);
+
+        localStorage.setItem(
+          "transactions",
+          JSON.stringify(updatedData)
+        );
+
+        setLoading(false);
+
+        setSuccessMessage(
+          "CSV Imported Successfully!"
+        );
 
         setTimeout(() => {
-          const newData = importMode === "append" && transactions && transactions.length > 0 
-            ? [...transactions, ...results.data]
-            : results.data;
-
-          setData(newData);
-
-          localStorage.setItem(
-            "transactions",
-            JSON.stringify(newData)
-          );
-
-          setTransactions(newData);
-
-          setLoading(false);
-
-          setSuccessMessage("Data loaded successfully!");
-
-          setTimeout(() => {
-            setSuccessMessage("");
-          }, 3000);
-        }, 1200);
+          setSuccessMessage("");
+        }, 3000);
       },
 
       error: () => {
         setLoading(false);
-        showModal({ type: 'alert', message: "Failed to parse CSV file." });
+
+        showModal({
+          type: "alert",
+          message: "Failed to parse CSV file.",
+        });
       },
     });
 
     e.target.value = "";
   };
 
+  // =========================
+  // MANUAL ENTRY
+  // =========================
   const handleManualSubmit = (e) => {
     e.preventDefault();
 
@@ -117,20 +125,21 @@ export default function CSVParser() {
       !manualTransaction.Description ||
       !manualTransaction.Amount
     ) {
-      showModal({ type: 'alert', message: "Please fill in all fields" });
+      showModal({
+        type: "alert",
+        message: "Please fill all fields",
+      });
+
       return;
     }
 
-    const newTransaction = {
-      Date: manualTransaction.Date,
-      Description: manualTransaction.Description,
-      Amount: manualTransaction.Amount,
-      Currency: currency,
-    };
-
     const updatedTransactions = [
       ...(transactions || []),
-      newTransaction,
+
+      {
+        ...manualTransaction,
+        Currency: currency.code,
+      },
     ];
 
     setTransactions(updatedTransactions);
@@ -141,341 +150,321 @@ export default function CSVParser() {
     );
 
     setManualTransaction({
-      Date: format(new Date(), "dd/MM/yyyy"),
+      Date: format(new Date(), "yyyy-MM-dd"),
       Description: "",
       Amount: "",
     });
 
-    setSuccessMessage("Transaction added successfully!");
+    setSuccessMessage("Transaction Added!");
 
     setTimeout(() => {
       setSuccessMessage("");
     }, 3000);
   };
 
-  const handleDateChange = (e) => {
-    const dateValue = e.target.value;
-
-    if (dateValue) {
-      const [year, month, day] = dateValue.split("-");
-
-      setManualTransaction({
-        ...manualTransaction,
-        Date: `${day}/${month}/${year}`,
-      });
-    }
-  };
-
-  const getCurrentDateForInput = () => {
-    const [day, month, year] =
-      manualTransaction.Date.split("/");
-
-    return `${year}-${month}-${day}`;
-  };
-
+  // =========================
+  // CLEAR DATA
+  // =========================
   const clearAllData = () => {
     showModal({
-      type: 'confirm',
-      message: "Are you sure you want to delete all transactions? This cannot be undone.",
+      type: "confirm",
+
+      message:
+        "Are you sure you want to clear all data?",
+
       onConfirm: () => {
         setTransactions([]);
-        setData([]);
 
         localStorage.removeItem("transactions");
 
-        setSuccessMessage(
-          "All transactions deleted successfully!"
-        );
+        setSuccessMessage("All Data Cleared!");
 
         setTimeout(() => {
           setSuccessMessage("");
         }, 3000);
-      }
+      },
     });
   };
 
   return (
-    <div className="max-w-4xl animate-in fade-in duration-500 space-y-6">
+    <div className="min-h-screen w-full bg-[#050505] px-4 py-6 md:px-8">
 
-      {/* SUCCESS MESSAGE */}
-      {successMessage && (
-        <div className="alert alert-success shadow-lg">
-          <span>{successMessage}</span>
-        </div>
-      )}
+      {/* MAIN CONTAINER */}
+      <div className="w-full space-y-6">
 
-      {/* LOADING SPINNER */}
-      {loading && (
-        <div className="flex justify-center">
-          <div className="flex items-center gap-3 bg-[#111111] border border-[#1F1F1F] px-6 py-4">
-            <span className="loading loading-spinner loading-md text-[#FF6B00]"></span>
-
-            <span className="text-gray-300 font-semibold uppercase tracking-wider text-sm">
-              Parsing CSV file...
-            </span>
+        {/* SUCCESS MESSAGE */}
+        {successMessage && (
+          <div className="rounded-2xl border border-[#FF6B00]/40 bg-[#111] px-5 py-4 text-sm font-bold uppercase tracking-wide text-[#FF6B00] animate-pulse">
+            {successMessage}
           </div>
-        </div>
-      )}
+        )}
 
-      {/* DATA SOURCE */}
-      <div className="retro-card p-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-          <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest">
-            Data Source
-          </h2>
-          
-          {transactions && transactions.length > 0 && (
-            <div className="flex bg-[#111111] border border-[#1F1F1F] p-1">
-              <button 
-                onClick={() => setImportMode("replace")}
-                className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors ${importMode === 'replace' ? 'bg-[#FF6B00] text-black' : 'text-gray-400 hover:text-white'}`}
-              >
-                Replace
-              </button>
-              <button 
-                onClick={() => setImportMode("append")}
-                className={`px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors ${importMode === 'append' ? 'bg-[#FF6B00] text-black' : 'text-gray-400 hover:text-white'}`}
-              >
-                Append
-              </button>
+        {/* LOADING */}
+        {loading && (
+          <div className="flex justify-center py-2">
+            <span className="loading loading-spinner loading-lg text-[#FF6B00]" />
+          </div>
+        )}
+
+        {/* ========================= */}
+        {/* DATA SOURCE */}
+        {/* ========================= */}
+        <Section
+          title="Data Source"
+          subtitle="Upload CSV or load demo financial data"
+          right={
+            <div className="flex overflow-hidden rounded-xl border border-[#222]">
+
+              {["replace", "append"].map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setImportMode(mode)}
+                  className={`px-5 py-2 text-xs font-bold uppercase tracking-wide transition-all duration-300 ${
+                    importMode === mode
+                      ? "bg-[#FF6B00] text-black"
+                      : "bg-[#111] text-gray-400 hover:text-white"
+                  }`}
+                >
+                  {mode}
+                </button>
+              ))}
             </div>
-          )}
-        </div>
+          }
+        >
+          <div className="grid grid-cols-1 xl:grid-cols-[1fr_auto] gap-6 items-end">
 
-        <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
+            {/* FILE INPUT */}
+            <div className="space-y-3">
 
-          <div className="form-control w-full max-w-xs">
-            <label className="label">
-              <span className="label-text text-gray-400 font-bold uppercase tracking-wider text-xs">
+              <label className="text-xs font-bold uppercase tracking-[0.18em] text-gray-500">
                 Upload CSV File
-              </span>
-            </label>
+              </label>
 
-            <input
-              type="file"
-              accept=".csv"
-              className="file-input file-input-bordered bg-[#111111] border-[#1F1F1F] text-gray-300 w-full rounded-none focus:border-[#FF6B00] outline-none hover:border-[#FF6B00]/50 transition-colors file:bg-[#FF6B00] file:text-black file:border-none file:uppercase file:font-bold file:px-4"
-              onChange={handleFile}
-            />
-          </div>
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleFile}
+                className="file-input w-full rounded-xl border border-[#222] bg-[#111] text-white"
+              />
+            </div>
 
-          <div className="hidden md:flex items-center text-gray-600 font-black uppercase text-sm">
-            Or
-          </div>
-
-          <div className="w-full md:w-auto md:mt-7">
+            {/* LOAD DEMO BUTTON */}
             <button
-              className="retro-btn w-full md:w-auto flex items-center justify-center gap-2"
               onClick={() => {
-                const newData = importMode === "append" && transactions && transactions.length > 0
-                  ? [...transactions, ...demoData]
-                  : demoData;
+                const updatedData =
+                  importMode === "append"
+                    ? [
+                        ...(transactions || []),
+                        ...demoData,
+                      ]
+                    : demoData;
 
-                setTransactions(newData);
+                setTransactions(updatedData);
 
                 localStorage.setItem(
                   "transactions",
-                  JSON.stringify(newData)
+                  JSON.stringify(updatedData)
                 );
 
                 setSuccessMessage(
-                  "Demo data loaded successfully!"
+                  "Demo Data Loaded!"
                 );
 
                 setTimeout(() => {
                   setSuccessMessage("");
                 }, 3000);
               }}
+              className="h-[52px] rounded-xl bg-[#FF6B00] px-8 text-sm font-black uppercase tracking-wide text-black transition-all duration-300 hover:scale-[1.03] active:scale-95"
             >
               Load Demo Data
             </button>
           </div>
-        </div>
-      </div>
+        </Section>
 
-      {/* MANUAL ENTRY */}
-      <div className="retro-card p-8">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest">
-            Manual Entry
-          </h2>
+        {/* ========================= */}
+        {/* MANUAL ENTRY */}
+        {/* ========================= */}
+        <Section
+          title="Manual Entry"
+          subtitle="Add transactions manually"
+          right={
+            <button
+              onClick={() =>
+                setShowManualEntry(
+                  !showManualEntry
+                )
+              }
+              className="rounded-xl border border-[#222] px-5 py-2 text-sm font-semibold uppercase tracking-wide text-gray-400 transition-all duration-300 hover:border-[#FF6B00]/40 hover:text-[#FF6B00]"
+            >
+              {showManualEntry
+                ? "Hide Form"
+                : "Show Form"}
+            </button>
+          }
+        >
+          {showManualEntry && (
+            <form
+              onSubmit={handleManualSubmit}
+              className="space-y-6"
+            >
 
-          <button
-            onClick={() =>
-              setShowManualEntry(!showManualEntry)
-            }
-            className="text-sm text-gray-400 hover:text-[#FF6B00] uppercase tracking-wider font-bold transition-colors"
+              {/* INPUT GRID */}
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+
+                {/* DATE */}
+                <div className="space-y-2">
+
+                  <label className="text-xs font-bold uppercase tracking-[0.18em] text-gray-500">
+                    Date
+                  </label>
+
+                  <input
+                    type="date"
+                    value={manualTransaction.Date}
+                    onChange={(e) =>
+                      setManualTransaction({
+                        ...manualTransaction,
+                        Date: e.target.value,
+                      })
+                    }
+                    className="w-full rounded-xl border border-[#222] bg-[#111] p-4 text-white outline-none transition-all duration-300 focus:border-[#FF6B00]/40"
+                  />
+                </div>
+
+                {/* DESCRIPTION */}
+                <div className="space-y-2">
+
+                  <label className="text-xs font-bold uppercase tracking-[0.18em] text-gray-500">
+                    Description
+                  </label>
+
+                  <input
+                    type="text"
+                    placeholder="Enter description"
+                    value={
+                      manualTransaction.Description
+                    }
+                    onChange={(e) =>
+                      setManualTransaction({
+                        ...manualTransaction,
+                        Description: e.target.value,
+                      })
+                    }
+                    className="w-full rounded-xl border border-[#222] bg-[#111] p-4 text-white outline-none transition-all duration-300 focus:border-[#FF6B00]/40"
+                  />
+                </div>
+
+                {/* AMOUNT */}
+                <div className="space-y-2">
+
+                  <label className="text-xs font-bold uppercase tracking-[0.18em] text-gray-500">
+                    Amount
+                  </label>
+
+                  <input
+                    type="number"
+                    placeholder="Enter amount"
+                    value={manualTransaction.Amount}
+                    onChange={(e) =>
+                      setManualTransaction({
+                        ...manualTransaction,
+                        Amount: e.target.value,
+                      })
+                    }
+                    className="w-full rounded-xl border border-[#222] bg-[#111] p-4 text-white outline-none transition-all duration-300 focus:border-[#FF6B00]/40"
+                  />
+                </div>
+              </div>
+
+              {/* ACTION BUTTONS */}
+              <div className="flex flex-wrap items-center gap-4 pt-2">
+
+                <button className="rounded-xl bg-[#FF6B00] px-7 py-3 font-black uppercase tracking-wide text-black transition-all duration-300 hover:scale-[1.03] active:scale-95">
+                  Add Transaction
+                </button>
+
+                <button
+                  type="button"
+                  onClick={clearAllData}
+                  className="rounded-xl border border-red-500/40 px-7 py-3 font-black uppercase tracking-wide text-red-400 transition-all duration-300 hover:bg-red-500 hover:text-white"
+                >
+                  Clear Data
+                </button>
+              </div>
+            </form>
+          )}
+        </Section>
+
+        {/* ========================= */}
+        {/* CURRENCY SETTINGS */}
+        {/* ========================= */}
+        <Section
+          title="Currency Settings"
+          subtitle="Choose your preferred currency"
+        >
+          <div className="max-w-md space-y-3">
+
+            <label className="text-xs font-bold uppercase tracking-[0.18em] text-gray-500">
+              Select Currency
+            </label>
+
+            <select
+              value={currency?.code || ""}
+              onChange={(e) => {
+                const selected =
+                  CURRENCIES.find(
+                    (c) =>
+                      c.code === e.target.value
+                  );
+
+                if (selected) {
+                  updateCurrency(selected);
+                }
+              }}
+              className="w-full rounded-xl border border-[#222] bg-[#111] p-4 text-white outline-none transition-all duration-300 focus:border-[#FF6B00]/40"
+            >
+              {CURRENCIES.map((c) => (
+                <option
+                  key={c.code}
+                  value={c.code}
+                >
+                  {c.symbol} — {c.name}
+                </option>
+              ))}
+            </select>
+
+            <p className="text-sm text-gray-500">
+              Currently using:
+
+              <span className="ml-2 font-semibold text-[#FF6B00]">
+                {currency?.symbol}{" "}
+                {currency?.name}
+              </span>
+            </p>
+          </div>
+        </Section>
+
+        {/* ========================= */}
+        {/* DATA OVERVIEW */}
+        {/* ========================= */}
+        {transactions?.length > 0 && (
+          <Section
+            title="Data Overview"
+            subtitle="Quick overview of imported transactions"
           >
-            {showManualEntry
-              ? "Hide Form"
-              : "Add Transaction"}
-          </button>
-        </div>
+            <div className="flex flex-wrap items-center gap-3">
 
-        {showManualEntry && (
-          <form
-            onSubmit={handleManualSubmit}
-            className="space-y-4"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <span className="text-gray-400">
+                Total Transactions:
+              </span>
 
-              <div>
-                <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">
-                  Date
-                </label>
-
-                <input
-                  type="date"
-                  value={getCurrentDateForInput()}
-                  onChange={handleDateChange}
-                  className="retro-input p-3 w-full"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">
-                  Description
-                </label>
-
-                <input
-                  type="text"
-                  placeholder="e.g., Swiggy Food Order"
-                  value={manualTransaction.Description}
-                  onChange={(e) =>
-                    setManualTransaction({
-                      ...manualTransaction,
-                      Description: e.target.value,
-                    })
-                  }
-                  className="retro-input p-3 w-full"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">
-                  Amount
-                </label>
-
-                <input
-                  type="number"
-                  step="0.01"
-                  placeholder="e.g., -450 or 5000"
-                  value={manualTransaction.Amount}
-                  onChange={(e) =>
-                    setManualTransaction({
-                      ...manualTransaction,
-                      Amount: e.target.value,
-                    })
-                  }
-                  className="retro-input p-3 w-full"
-                  required
-                />
-              </div>
+              <span className="rounded-xl border border-[#222] bg-[#111] px-4 py-2 font-bold text-white">
+                {transactions.length}
+              </span>
             </div>
-
-            <div className="flex gap-4">
-              <button
-                type="submit"
-                className="retro-btn"
-              >
-                Add Transaction
-              </button>
-
-              <button
-                type="button"
-                onClick={clearAllData}
-                className="px-6 py-3 bg-red-500 text-white font-bold uppercase tracking-wider hover:bg-red-600 transition-colors"
-              >
-                Clear All Data
-              </button>
-            </div>
-          </form>
+          </Section>
         )}
       </div>
-
-      {/* CURRENCY SETTINGS */}
-      <div className="retro-card p-8">
-        <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest mb-6">
-          Currency Settings
-        </h2>
-
-        <div className="max-w-sm">
-          <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">
-            Select Currency
-          </label>
-
-          <select
-            value={currency.code}
-            onChange={(e) => {
-              const selected = CURRENCIES.find(
-                (c) => c.code === e.target.value
-              );
-
-              if (selected) {
-                updateCurrency(selected);
-              }
-            }}
-            className="retro-input p-3 w-full"
-          >
-            {CURRENCIES.map((c) => (
-              <option key={c.code} value={c.code}>
-                {c.symbol} — {c.name} ({c.code})
-              </option>
-            ))}
-          </select>
-
-          <p className="text-xs text-gray-400 mt-3">
-            Currently using:
-            <span className="text-[#FF6B00] font-bold ml-1">
-              {currency.symbol} {currency.name}
-            </span>
-          </p>
-        </div>
-      </div>
-
-      {/* DATA MANAGEMENT */}
-      {transactions && transactions.length > 0 && (
-        <div className="retro-card p-8">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest">
-                Data Management
-              </h2>
-
-              <p className="text-gray-400 text-sm mt-2">
-                Total Transactions:
-                <span className="text-white font-bold ml-1">
-                  {transactions.length}
-                </span>
-              </p>
-            </div>
-
-            <button
-              onClick={clearAllData}
-              className="px-4 py-2 bg-[#FF6B6B] text-white font-bold uppercase tracking-wider text-sm hover:bg-[#FF5252] transition-colors"
-            >
-              Clear All Data
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* RAW DATA */}
-      {data && data.length > 0 && (
-        <div className="retro-card p-8">
-          <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest mb-6">
-            Raw Parsed Data
-          </h2>
-
-          <div className="bg-[#0A0A0A] border border-[#1F1F1F] p-4 max-h-96 overflow-y-auto">
-            <pre className="text-xs text-gray-400 font-mono">
-              {JSON.stringify(data, null, 2)}
-            </pre>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
