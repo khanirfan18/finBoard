@@ -7,6 +7,7 @@ import {
   MessageSquareText,
   PiggyBank,
   Search,
+  Send,
   Wallet,
   X,
 } from "lucide-react";
@@ -55,7 +56,7 @@ const pageConfig = {
 };
 
 const formatMoney = (value, currency) =>
-  `${currency.symbol}${Math.round(value).toLocaleString()}`;
+  `${currency?.symbol || "$"}${Math.round(value).toLocaleString()}`;
 
 const getTransactionAmount = (transaction) =>
   Number(transaction.Amount || transaction.amount || 0);
@@ -112,8 +113,50 @@ const buildSummary = (transactions) => {
   };
 };
 
-const createInsight = (actionId, summary, currency) => {
-  if (actionId === "spending") {
+const inferIntent = (prompt) => {
+  const normalizedPrompt = prompt.toLowerCase();
+
+  if (
+    normalizedPrompt.includes("save") ||
+    normalizedPrompt.includes("saving") ||
+    normalizedPrompt.includes("cut") ||
+    normalizedPrompt.includes("reduce")
+  ) {
+    return "saving";
+  }
+
+  if (
+    normalizedPrompt.includes("budget") ||
+    normalizedPrompt.includes("limit") ||
+    normalizedPrompt.includes("overspend") ||
+    normalizedPrompt.includes("pressure")
+  ) {
+    return "budget";
+  }
+
+  if (
+    normalizedPrompt.includes("unusual") ||
+    normalizedPrompt.includes("outlier") ||
+    normalizedPrompt.includes("suspicious") ||
+    normalizedPrompt.includes("high")
+  ) {
+    return "unusual";
+  }
+
+  if (
+    normalizedPrompt.includes("search") ||
+    normalizedPrompt.includes("review") ||
+    normalizedPrompt.includes("find") ||
+    normalizedPrompt.includes("merchant")
+  ) {
+    return "search";
+  }
+
+  return "spending";
+};
+
+const createInsight = (intent, summary, currency, prompt = "") => {
+  if (intent === "spending") {
     const categoryLine =
       summary.topCategories.length > 0
         ? summary.topCategories
@@ -126,7 +169,9 @@ const createInsight = (actionId, summary, currency) => {
 
     return {
       title: "Spending Snapshot",
-      body: `You have ${formatMoney(summary.income, currency)} in income and ${formatMoney(summary.expense, currency)} in expenses. Your current savings balance from this upload is ${formatMoney(summary.savings, currency)}.`,
+      body: prompt
+        ? `For "${prompt}", the main read is ${formatMoney(summary.income, currency)} income against ${formatMoney(summary.expense, currency)} expenses. Current savings from this upload is ${formatMoney(summary.savings, currency)}.`
+        : `You have ${formatMoney(summary.income, currency)} in income and ${formatMoney(summary.expense, currency)} in expenses. Your current savings balance from this upload is ${formatMoney(summary.savings, currency)}.`,
       details: [
         `Top categories: ${categoryLine}`,
         `Average expense size: ${formatMoney(summary.averageExpense, currency)}`,
@@ -137,7 +182,7 @@ const createInsight = (actionId, summary, currency) => {
     };
   }
 
-  if (actionId === "saving") {
+  if (intent === "saving") {
     const highestCategory = summary.topCategories[0];
     const target = highestCategory ? Math.round(highestCategory[1] * 0.15) : 0;
 
@@ -154,7 +199,7 @@ const createInsight = (actionId, summary, currency) => {
     };
   }
 
-  if (actionId === "budget") {
+  if (intent === "budget") {
     const highestCategory = summary.topCategories[0];
     const secondCategory = summary.topCategories[1];
 
@@ -175,7 +220,7 @@ const createInsight = (actionId, summary, currency) => {
     };
   }
 
-  if (actionId === "search") {
+  if (intent === "search") {
     return {
       title: "Transaction Review Tips",
       body: `You are viewing ${summary.expenses.length} expense transactions. Use search and amount filters together to isolate merchants, repeated charges, or unusually large debits.`,
@@ -197,7 +242,9 @@ const createInsight = (actionId, summary, currency) => {
 
   return {
     title: "Unusual Expense Check",
-    body: `I compared each expense against the average expense of ${formatMoney(summary.averageExpense, currency)}.`,
+    body: prompt
+      ? `I checked "${prompt}" against your transaction distribution and compared each expense with the average expense of ${formatMoney(summary.averageExpense, currency)}.`
+      : `I compared each expense against the average expense of ${formatMoney(summary.averageExpense, currency)}.`,
     details: unusualLine,
   };
 };
@@ -211,32 +258,58 @@ export default function AIFinanceChatbot({
   const HeaderIcon = config.icon;
   const [isOpen, setIsOpen] = React.useState(true);
   const [isMinimized, setIsMinimized] = React.useState(true);
+  const [prompt, setPrompt] = React.useState("");
   const [messages, setMessages] = React.useState([
     {
       role: "assistant",
       title: config.introTitle,
       body: config.introBody,
-      details: ["Your data stays in this browser session."],
+      details: ["Ask a question or choose a quick prompt below."],
     },
   ]);
+  const messageListRef = React.useRef(null);
 
   const summary = React.useMemo(() => buildSummary(transactions), [transactions]);
 
-  const handleAction = (actionId) => {
-    const action = config.actions.find((item) => item.id === actionId);
-    const insight = createInsight(actionId, summary, currency);
+  React.useEffect(() => {
+    messageListRef.current?.scrollTo({
+      top: messageListRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages]);
+
+  const sendPrompt = (rawPrompt, actionId) => {
+    const trimmedPrompt = rawPrompt.trim();
+
+    if (!trimmedPrompt) {
+      return;
+    }
+
+    const intent = actionId || inferIntent(trimmedPrompt);
+    const insight = createInsight(intent, summary, currency, trimmedPrompt);
 
     setMessages((currentMessages) => [
       ...currentMessages,
       {
         role: "user",
-        body: action.label,
+        body: trimmedPrompt,
       },
       {
         role: "assistant",
         ...insight,
       },
     ]);
+  };
+
+  const handleAction = (actionId) => {
+    const action = config.actions.find((item) => item.id === actionId);
+    sendPrompt(action?.label || "Analyze my finances", actionId);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    sendPrompt(prompt);
+    setPrompt("");
   };
 
   if (!transactions.length || !isOpen) {
@@ -248,7 +321,7 @@ export default function AIFinanceChatbot({
       <button
         type="button"
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center border border-[#FF6B00] bg-[#111111] text-[#FF6B00] shadow-[0_0_14px_rgba(255,107,0,0.18)] transition-colors hover:bg-[#FF6B00] hover:text-black"
+        className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 z-40 flex h-12 w-12 items-center justify-center border border-[#FF6B00] bg-[#111111] text-[#FF6B00] shadow-[0_0_14px_rgba(255,107,0,0.18)] transition-colors hover:bg-[#FF6B00] hover:text-black md:bottom-5 md:right-5"
         aria-label={`Open ${config.title}`}
         title={`Open ${config.title}`}
       >
@@ -258,7 +331,7 @@ export default function AIFinanceChatbot({
   }
 
   return (
-    <aside className="fixed inset-x-3 bottom-3 z-40 mx-auto flex max-h-[78vh] w-[calc(100vw-1.5rem)] max-w-[360px] flex-col border border-[#FF6B00]/60 bg-[#0A0A0A] shadow-[0_0_22px_rgba(255,107,0,0.16)] md:inset-x-auto md:right-5 md:bottom-5">
+    <aside className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-40 mx-auto flex max-h-[min(78vh,640px)] w-auto flex-col border border-[#FF6B00]/60 bg-[#0A0A0A] shadow-[0_0_22px_rgba(255,107,0,0.16)] md:inset-x-auto md:right-5 md:bottom-5 md:w-[380px]">
       <header className="flex items-center justify-between border-b border-[#1F1F1F] bg-[#111111] px-4 py-3">
         <div className="flex min-w-0 items-center gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-[#FF6B00]/50 bg-[#FF6B00]/10 text-[#FF6B00]">
@@ -295,7 +368,11 @@ export default function AIFinanceChatbot({
         </div>
       </header>
 
-      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
+      <div
+        ref={messageListRef}
+        className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4"
+        aria-live="polite"
+      >
         {messages.map((message, index) => (
           <article
             key={`${message.role}-${index}`}
@@ -325,7 +402,7 @@ export default function AIFinanceChatbot({
       </div>
 
       <div className="border-t border-[#1F1F1F] bg-[#111111] p-4">
-        <div className="grid grid-cols-1 gap-2">
+        <div className="grid grid-cols-3 gap-2 md:grid-cols-1">
           {config.actions.map((action) => {
             const Icon = action.icon;
 
@@ -334,14 +411,34 @@ export default function AIFinanceChatbot({
                 key={action.id}
                 type="button"
                 onClick={() => handleAction(action.id)}
-                className="flex min-h-11 items-center justify-between border border-[#1F1F1F] px-3 py-2 text-left text-xs font-black uppercase tracking-wider text-gray-200 transition-colors hover:border-[#FF6B00] hover:text-[#FF6B00]"
+                className="flex min-h-11 items-center justify-center gap-2 border border-[#1F1F1F] px-3 py-2 text-left text-xs font-black uppercase tracking-wider text-gray-200 transition-colors hover:border-[#FF6B00] hover:text-[#FF6B00] md:justify-between"
+                title={action.label}
               >
-                <span>{action.label}</span>
+                <span className="hidden min-w-0 md:inline">{action.label}</span>
                 <Icon size={16} aria-hidden="true" />
               </button>
             );
           })}
         </div>
+        <form onSubmit={handleSubmit} className="mt-3 flex gap-2">
+          <input
+            type="text"
+            value={prompt}
+            onChange={(event) => setPrompt(event.target.value)}
+            className="retro-input min-w-0 flex-1 px-3 py-2 text-sm"
+            placeholder="Ask FinBoard AI"
+            aria-label={`Message ${config.title}`}
+          />
+          <button
+            type="submit"
+            disabled={!prompt.trim()}
+            className="flex h-11 w-11 shrink-0 items-center justify-center border border-[#FF6B00] text-[#FF6B00] transition-colors hover:bg-[#FF6B00] hover:text-black disabled:cursor-not-allowed disabled:border-[#333] disabled:text-gray-600 disabled:hover:bg-transparent"
+            aria-label="Send message"
+            title="Send"
+          >
+            <Send size={16} aria-hidden="true" />
+          </button>
+        </form>
       </div>
     </aside>
   );

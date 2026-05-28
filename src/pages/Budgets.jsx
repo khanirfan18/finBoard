@@ -88,10 +88,15 @@ export default function Budgets() {
     return "#FF6B00";
   };
 
+  const panelCardClass =
+    "retro-card p-6 h-full flex flex-col animate-in fade-in duration-500 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_24px_rgba(255,107,0,0.12)]";
+  const budgetCardClass =
+    "retro-card p-6 h-full min-h-[320px] flex flex-col animate-in fade-in duration-500 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_24px_rgba(255,107,0,0.12)]";
+
   return transactions && categories.length > 0 ? (
     <div className="space-y-6 animate-in fade-in duration-500">
       {showAlert && exceededCategories.length > 0 && (
-        <div className="retro-card p-6 border-[#FF6B6B] bg-[#FF6B6B]/5">
+        <div className={panelCardClass + " border-[#FF6B6B] bg-[#FF6B6B]/5"}>
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[#FF6B6B]/20 flex items-center justify-center rounded-full">
@@ -141,6 +146,7 @@ export default function Budgets() {
               </svg>
             </button>
           </div>
+
           <div className="space-y-2">
             {exceededCategories.map((item) => (
               <div
@@ -166,7 +172,7 @@ export default function Budgets() {
       )}
 
       {comparisonData.length > 0 && (
-        <div className="retro-card p-6">
+        <div className={panelCardClass}>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest">
               Budget vs Actual Spending
@@ -178,8 +184,12 @@ export default function Budgets() {
               Reset All Budgets
             </button>
           </div>
+
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={comparisonData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+            <BarChart
+              data={comparisonData}
+              margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+            >
               <XAxis dataKey="category" stroke="#666" tick={{ fill: "#888" }} />
               <YAxis stroke="#666" tick={{ fill: "#888" }} />
               <Tooltip
@@ -198,7 +208,7 @@ export default function Budgets() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
         {categories.map((category) => {
           const isOverBudget =
             budgets[category] && spending[category] > budgets[category];
@@ -209,9 +219,7 @@ export default function Budgets() {
           return (
             <div
               key={category}
-              className={`retro-card p-6 flex flex-col ${
-                isOverBudget ? "border-[#FF6B6B] bg-[#FF6B6B]/5" : ""
-              }`}
+              className={`${budgetCardClass} ${isOverBudget ? "border-[#FF6B6B] bg-[#FF6B6B]/5" : ""}`}
             >
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold tracking-widest uppercase text-[#FF6B00]">
@@ -314,7 +322,7 @@ export default function Budgets() {
     </div>
   ) : (
     <div className="flex flex-col items-center justify-center h-full min-h-[60vh]">
-      <div className="retro-card p-12 flex flex-col items-center max-w-md text-center border-[#FF6B00]/30 shadow-[0_0_20px_rgba(255,107,0,0.1)]">
+      <div className="retro-card p-12 flex flex-col items-center max-w-md text-center border-[#FF6B00]/30 shadow-[0_0_20px_rgba(255,107,0,0.1)] animate-in fade-in zoom-in-95 duration-500 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_24px_rgba(255,107,0,0.12)]">
         <div className="w-16 h-16 bg-[#FF6B00]/10 flex items-center justify-center rounded-full mb-6 text-[#FF6B00]">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -333,7 +341,7 @@ export default function Budgets() {
         <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">
           No Budgets Yet
         </h2>
-        <p className="text-gray-400 mb-8 leading-relaxed">
+        <p className="text-gray-400 mb-8 leading-relaxed min-h-[88px] flex items-center justify-center">
           We need transaction data to compute categories so you can set budgets.
         </p>
         <Link to="/settings" className="retro-btn">
