@@ -220,17 +220,16 @@ export default function Dashboard() {
       ) : (
         <div className="flex flex-col items-center justify-center h-full min-h-[60vh]">
 
-          <div className="retro-card p-12 flex flex-col items-center max-w-md text-center">
-
+          <div className="retro-card p-12 flex flex-col items-center max-w-md text-center transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_orange] backdrop-blur-md border border-orange-400/20 rounded-3xl">
             <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">
-              No Data Found
+              No Financial Data Available
             </h2>
 
             <p className="text-gray-400 mb-8 leading-relaxed">
-              Upload your transactions from settings.
+              Upload your transaction history to start tracking your finances.
             </p>
 
-            <Link to="/settings" className="retro-btn">
+            <Link to="/settings" className="retro-btn transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_orange]">
               Configure Settings
             </Link>
 

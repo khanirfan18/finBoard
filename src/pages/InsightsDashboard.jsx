@@ -18,9 +18,9 @@ export default function InsightsDashboard() {
               <line x1="6" y1="20" x2="6" y2="14"></line>
             </svg>
           </div>
-          <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">No Insights Found</h2>
+          <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">No Spending Insights Found</h2>
           <p className="text-gray-400 mb-8 leading-relaxed">
-            Your insights playground is empty. Head over to settings to upload your transaction history or load demo data.
+            Upload transaction data to unlock spending analytics and insights.
           </p>
           <Link to='/settings' className="retro-btn">
             Configure Settings

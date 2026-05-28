@@ -100,7 +100,7 @@ export default function Budgets() {
                 <p className="text-gray-400 text-sm mt-1">You've exceeded your budget in {exceededCategories.length} {exceededCategories.length === 1 ? 'category' : 'categories'}</p>
               </div>
             </div>
-            <button 
+            <button
               onClick={() => setShowAlert(false)}
               className="text-gray-500 hover:text-gray-300 transition-colors"
             >
@@ -115,7 +115,7 @@ export default function Budgets() {
               <div key={item.category} className="flex items-center justify-between bg-[#111111] p-3 border border-[#1F1F1F]">
                 <span className="font-bold text-white uppercase tracking-wider">{item.category}</span>
                 <span className="text-[#FF6B6B] font-black">
-                  Over by {currency.symbol}{item.over.toLocaleString()} 
+                  Over by {currency.symbol}{item.over.toLocaleString()}
                   <span className="text-gray-500 text-sm ml-2">
                     ({currency.symbol}{item.spent.toLocaleString()} / {currency.symbol}{item.limit.toLocaleString()})
                   </span>
@@ -131,7 +131,7 @@ export default function Budgets() {
         <div className="retro-card p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest">Budget vs Actual Spending</h2>
-            <button 
+            <button
               onClick={resetBudgets}
               className="text-xs text-gray-400 hover:text-[#FF6B6B] uppercase tracking-wider font-bold transition-colors"
             >
@@ -140,9 +140,9 @@ export default function Budgets() {
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={comparisonData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-              <XAxis dataKey="category" stroke="#666" tick={{fill: '#888'}} />
-              <YAxis stroke="#666" tick={{fill: '#888'}} />
-              <Tooltip 
+              <XAxis dataKey="category" stroke="#666" tick={{ fill: '#888' }} />
+              <YAxis stroke="#666" tick={{ fill: '#888' }} />
+              <Tooltip
                 cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
                 contentStyle={{ backgroundColor: '#111111', borderColor: '#1F1F1F', borderRadius: '0' }}
               />
@@ -159,7 +159,7 @@ export default function Budgets() {
         {categories.map((category) => {
           const isOverBudget = budgets[category] && spending[category] > budgets[category];
           const percentage = budgets[category] ? (spending[category] / budgets[category]) * 100 : 0;
-          
+
           return (
             <div key={category} className={`retro-card p-6 flex flex-col ${isOverBudget ? 'border-[#FF6B6B] bg-[#FF6B6B]/5' : ''}`}>
               <div className="flex items-center justify-between mb-4">
@@ -172,7 +172,7 @@ export default function Budgets() {
                   </svg>
                 )}
               </div>
-              
+
               <div className="flex items-baseline gap-2 mb-6">
                 <span className="text-sm text-gray-500 uppercase tracking-wider">Spent</span>
                 <span className={`text-2xl font-black ${isOverBudget ? 'text-[#FF6B6B]' : 'text-white'}`}>
@@ -231,10 +231,10 @@ export default function Budgets() {
         <div className="w-16 h-16 bg-[#FF6B00]/10 flex items-center justify-center rounded-full mb-6 text-[#FF6B00]">
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
         </div>
-        <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">No Budgets Yet</h2>
-        <p className="text-gray-400 mb-8 leading-relaxed">We need transaction data to compute categories so you can set budgets.</p>
-        <Link 
-          to='/settings' 
+        <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">Start Creating Your Budget</h2>
+        <p className="text-gray-400 mb-8 leading-relaxed">Track your expenses by creating your first budget category</p>
+        <Link
+          to='/settings'
           className="retro-btn"
         >
           Configure Settings
