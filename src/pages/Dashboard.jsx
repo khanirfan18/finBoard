@@ -219,9 +219,9 @@ export default function Dashboard() {
           </section>
         </>
       ) : (
-        <div className="flex flex-col items-center justify-center h-full min-h-[60vh]">
+        <div className="flex flex-col items-center justify-center h-full min-h-[78vh] pt-10 animate-in fade-in duration-500">
 
-          <div className="retro-card p-8 flex flex-col items-center text-center">
+          <div className="retro-card p-21 flex flex-col items-center max-w-md text-center border-[#FF6B00]/30 shadow-[0_0_20px_rgba(255,107,0,0.1)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_24px_rgba(255,107,0,0.12)]">
 
             <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">
               No Financial Data Available
