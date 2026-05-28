@@ -149,7 +149,6 @@ export default function Transaction() {
     }
   };
 
-  // Keep a map of filtered index -> original index for correct edit/delete
   const { filteredTransactions, originalIndices } = React.useMemo(() => {
     if (!transactions) return { filteredTransactions: [], originalIndices: [] };
 
@@ -475,7 +474,7 @@ export default function Transaction() {
     </div>
   ) : (
     <div className="flex flex-col items-center justify-center h-full min-h-[60vh]">
-      <div className="retro-card p-12 flex flex-col items-center max-w-md text-center border-[#FF6B00]/30 shadow-[0_0_20px_rgba(255,107,0,0.1)]">
+      <div className="retro-card p-12 flex flex-col items-center max-w-md text-center border-[#FF6B00]/30 shadow-[0_0_20px_rgba(255,107,0,0.1)] animate-in fade-in zoom-in-95 duration-500 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_24px_rgba(255,107,0,0.12)]">
         <div className="w-16 h-16 bg-[#FF6B00]/10 flex items-center justify-center rounded-full mb-6 text-[#FF6B00]">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -499,9 +498,9 @@ export default function Transaction() {
         <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">
           No Transactions
         </h2>
-        <p className="text-gray-400 mb-8 leading-relaxed">
-          No transactions found. Upload your data to view the history.
-        </p>
+       <p className="text-gray-400 mb-8 leading-relaxed min-h-[96px] flex items-center">
+        No transactions found. Upload your data to view the history.
+       </p>
         <Link to="/settings" className="retro-btn">
           Configure Settings
         </Link>
