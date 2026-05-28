@@ -221,7 +221,7 @@ export default function Dashboard() {
       ) : (
         <div className="flex flex-col items-center justify-center h-full min-h-[60vh]">
 
-          <div className="retro-card p-12 flex flex-col items-center max-w-md text-center">
+          <div className="retro-card p-8 flex flex-col items-center text-center">
 
             <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">
               No Financial Data Available
