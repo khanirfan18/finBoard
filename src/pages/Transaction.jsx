@@ -4,15 +4,17 @@ import { DataContext } from "../context/AppContextValue";
 import { useModal } from "../context/ModalContextValue";
 import categorize from "../components/utils/categorize";
 import { parse } from "date-fns";
+import { useState } from "react";
 
 const categoryIcons = {
-  FOOD: "🍔",
-  TRANSPORT: "✈️",
-  SHOPPING: "🛒",
-  INCOME: "💰",
-  BILLS: "📄",
-  HEALTH: "🏥",
-  OTHER: "📌",
+  Food: "🍔",
+  Transport: "✈️",
+  Shopping: "🛒",
+  Income: "💰",
+  Bills: "📄",
+  Entertainment: "🎬",
+  Health: "🏥",
+  Other: "📌",
 };
 
 function EditModal({ transaction, onSave, onClose }) {
@@ -20,7 +22,11 @@ function EditModal({ transaction, onSave, onClose }) {
     Date: transaction.Date,
     Description: transaction.Description,
     Amount: transaction.Amount,
+    category: transaction.category || "",
   });
+
+  const [DEFAULTCATEGORIES] = useState([ "Food", "Transport",
+    "Shopping","Income", "Bills", "Entertainment", "Health", "Other"]);
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -63,6 +69,23 @@ function EditModal({ transaction, onSave, onClose }) {
               onChange={handleChange}
               className="retro-input p-3 w-full"
             />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">
+              Select Category
+            </label>
+            <select
+              className="retro-input p-3 w-full"
+              name="category"
+              value={form.category}
+              onChange={handleChange}
+              >
+              {
+                DEFAULTCATEGORIES.map((options, index)=>(
+                  <option key={index} value={options}>{options}</option>
+                ))
+              }
+            </select>
           </div>
           <div>
             <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">
@@ -110,7 +133,7 @@ export default function Transaction() {
 
   const allCategories = React.useMemo(() => {
     const cats = new Set();
-    transactions?.forEach((t) => cats.add(categorize(t.Description)));
+    transactions?.forEach((t) => cats.add(t.category || categorize(t.Description)));
     return Array.from(cats).sort();
   }, [transactions]);
 
@@ -181,7 +204,7 @@ export default function Transaction() {
 
     if (selectedCategories.length > 0) {
       indexed = indexed.filter(({ t }) =>
-        selectedCategories.includes(categorize(t.Description)),
+        selectedCategories.includes(t.category || categorize(t.Description))
       );
     }
 
@@ -211,7 +234,7 @@ export default function Transaction() {
         case "amount-desc":
           return Number(b.t.Amount) - Number(a.t.Amount);
         case "category":
-          return categorize(a.t.Description).localeCompare(categorize(b.t.Description));
+          return (a.t.category || categorize(a.t.Description)).localeCompare(b.t.category || categorize(b.t.Description));
         default:
           return 0;
       }
@@ -266,7 +289,7 @@ export default function Transaction() {
       item.Date,
       item.Description,
       item.Amount,
-      categorize(item.Description),
+      item.category || categorize(item.Description),
     ]);
     const csvContent = [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -452,8 +475,8 @@ export default function Transaction() {
                 </td>
                 <td className="py-4 px-6">
                   <span className="bg-[#1F1F1F] text-gray-300 px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-sm border border-[#2a2a2a] flex items-center gap-2 w-fit">
-                    <span>{categoryIcons[categorize(data.Description)] || "📌"}</span>
-                    {categorize(data.Description)}
+                    <span>{categoryIcons[data.category] || categoryIcons[categorize(data.Description)] || "📌"}</span>
+                    {data.category || categorize(data.Description)}
                   </span>
                 </td>
                 <td className="py-4 px-6">
