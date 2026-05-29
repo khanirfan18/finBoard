@@ -1,12 +1,12 @@
 
   const keywords = {
-    Food : ["swiggy", "zomato", "blinkit", "bigbasket"],
-    Transport : ["uber", "ola", "rapido", "petrol"],
-    Income : ["salary", "freelance", "dividend"],
-    Entertainment : ["netflix", "youtube", "bookmyshow", "spotify"],
-    Shopping : ["amazon", "flipkart", "hm", "myntra"],
-    Bills : ["electricity", "water", "airtel", "rent"],
-    Health : ["medical", "pharmacy", "gym"]
+    Food : ["swiggy", "zomato", "blinkit", "bigbasket","Food"],
+    Transport : ["uber", "ola", "rapido", "petrol", "Transport"],
+    Income : ["salary", "freelance", "dividend","Income"],
+    Entertainment : ["netflix", "youtube", "bookmyshow", "spotify","Entertainment"],
+    Shopping : ["amazon", "flipkart", "hm", "myntra","Shopping"],
+    Bills : ["electricity", "water", "airtel", "rent","Bills"],
+    Health : ["medical", "pharmacy", "gym","Health"]
   }
 
 export default function categorize(description) {
