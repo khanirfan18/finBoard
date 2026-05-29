@@ -165,3 +165,104 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 .animate-in { animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+
+/* ── Smart Spending Heatmap ────────────────────────────────────────────────── */
+.react-calendar-heatmap {
+  font-family: "Inter", sans-serif;
+}
+
+/* Color classes with MAXIMUM specificity to override library defaults */
+.react-calendar-heatmap .color-empty {
+  fill: #1f1f1f !important;
+}
+
+.react-calendar-heatmap .color-low {
+  fill: #facc15 !important;
+  transition: all 0.2s ease;
+}
+
+.react-calendar-heatmap .color-medium {
+  fill: #fb923c !important;
+  transition: all 0.2s ease;
+}
+
+.react-calendar-heatmap .color-high {
+  fill: #ef4444 !important;
+  transition: all 0.2s ease;
+}
+
+/* Direct rect selectors for maximum priority */
+.heatmap-wrapper .react-calendar-heatmap rect.color-empty {
+  fill: #1f1f1f !important;
+}
+
+.heatmap-wrapper .react-calendar-heatmap rect.color-low {
+  fill: #facc15 !important;
+}
+
+.heatmap-wrapper .react-calendar-heatmap rect.color-medium {
+  fill: #fb923c !important;
+}
+
+.heatmap-wrapper .react-calendar-heatmap rect.color-high {
+  fill: #ef4444 !important;
+}
+
+.react-calendar-heatmap rect {
+  stroke: #0d0d0d;
+  stroke-width: 1px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.react-calendar-heatmap rect:hover {
+  stroke: rgba(255, 107, 0, 0.6);
+  filter: brightness(1.2);
+  cursor: pointer;
+}
+
+.react-calendar-heatmap text {
+  fill: rgba(255, 107, 0, 0.5);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.react-calendar-heatmap .react-calendar-heatmap-small-text {
+  fill: rgba(255, 107, 0, 0.3);
+  font-size: 9px;
+}
+
+/* Legend color box styling */
+.heatmap-color-box {
+  display: inline-block !important;
+}
+
+.heatmap-color-box.color-empty {
+  background-color: #1f1f1f !important;
+}
+
+.heatmap-color-box.color-low {
+  background-color: #facc15 !important;
+}
+
+.heatmap-color-box.color-medium {
+  background-color: #fb923c !important;
+}
+
+.heatmap-color-box.color-high {
+  background-color: #ef4444 !important;
+}
+
+/* Tooltip customization */
+.react-tooltip {
+  background-color: #1f1f1f !important;
+  border: 1px solid rgba(255, 107, 0, 0.3) !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  font-size: 12px !important;
+  color: #f0f0f0 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+}
+
+.react-tooltip::after {
+  border-top-color: #1f1f1f !important;
+}

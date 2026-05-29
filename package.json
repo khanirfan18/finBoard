@@ -15,10 +15,12 @@
     "lucide-react": "^1.8.0",
     "papaparse": "^5.5.3",
     "react": "^19.2.4",
+    "react-calendar-heatmap": "^1.10.0",
     "react-dom": "^19.2.4",
     "react-dropzone": "^15.0.0",
     "react-papaparse": "^4.4.0",
     "react-router-dom": "^7.14.1",
+    "react-tooltip": "^6.0.5",
     "recharts": "^3.8.1"
   },
   "devDependencies": {

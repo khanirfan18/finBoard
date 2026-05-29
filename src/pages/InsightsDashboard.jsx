@@ -3,6 +3,7 @@ import { DataContext } from "../context/AppContext";
 import { Link } from "react-router-dom";
 import InsightCards from '../components/Insights/InsightCards';
 import CategoryBreakdown from '../components/Insights/CategoryBreakdown';
+import SpendingHeatmap from '../components/SpendingHeatmap';
 
 export default function InsightsDashboard() {
   const { transactions } = useContext(DataContext);
@@ -63,6 +64,7 @@ export default function InsightsDashboard() {
         <div className="w-full">
           <CategoryBreakdown transactions={cleanedTransactions} />
         </div>
+        <SpendingHeatmap transactions={cleanedTransactions} />
       </div>
     </div>
   );
