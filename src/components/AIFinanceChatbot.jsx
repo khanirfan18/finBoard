@@ -1,6 +1,7 @@
 import React from "react";
 import {
   Bot,
+  ChartNoAxesCombined,
   ChevronDown,
   FileSearch,
   LayoutDashboard,
@@ -53,6 +54,30 @@ const pageConfig = {
       { id: "unusual", label: "Detect Unusual Expenses", icon: Search },
     ],
   },
+  insights: {
+    title: "Insights AI",
+    subtitle: "Pattern analysis",
+    introTitle: "Insights context ready",
+    introBody:
+      "Use this assistant to interpret category breakdowns, trend cards, and the biggest patterns behind your insights view.",
+    icon: ChartNoAxesCombined,
+    actions: [
+      { id: "spending", label: "Explain Insights", icon: ChartNoAxesCombined },
+      { id: "saving", label: "Find Leaks", icon: PiggyBank },
+      { id: "unusual", label: "Detect Outliers", icon: Search },
+    ],
+  },
+};
+
+const pageContext = {
+  dashboard:
+    "Dashboard context: summarize the overview cards, monthly trend, category chart, savings balance, and headline outliers.",
+  transactions:
+    "Transactions context: help review the transaction table, repeated merchants, largest debits, search/filter decisions, and suspicious charges.",
+  budgets:
+    "Budgets context: compare category spend against limits, highlight over-budget pressure, and suggest practical cap adjustments.",
+  insights:
+    "Insights context: explain category breakdowns, trend cards, cash-flow patterns, and the strongest story in the insights page.",
 };
 
 const formatMoney = (value, currency) =>
@@ -155,7 +180,24 @@ const inferIntent = (prompt) => {
   return "spending";
 };
 
-const createInsight = (intent, summary, currency, prompt = "") => {
+const createInsight = (intent, summary, currency, prompt = "", page = "dashboard") => {
+  const contextLine = pageContext[page] || pageContext.dashboard;
+  const noDataDetails = [
+    contextLine,
+    "Upload transactions or load demo data from Settings for numeric recommendations.",
+    "The assistant stays available on this page so you can ask what to inspect next.",
+  ];
+
+  if (!summary.income && !summary.expense && !summary.expenses.length) {
+    return {
+      title: "Data Needed",
+      body: prompt
+        ? `I can help with "${prompt}", but there are no loaded transactions to calculate against yet.`
+        : "There are no loaded transactions to calculate against yet.",
+      details: noDataDetails,
+    };
+  }
+
   if (intent === "spending") {
     const categoryLine =
       summary.topCategories.length > 0
@@ -173,6 +215,7 @@ const createInsight = (intent, summary, currency, prompt = "") => {
         ? `For "${prompt}", the main read is ${formatMoney(summary.income, currency)} income against ${formatMoney(summary.expense, currency)} expenses. Current savings from this upload is ${formatMoney(summary.savings, currency)}.`
         : `You have ${formatMoney(summary.income, currency)} in income and ${formatMoney(summary.expense, currency)} in expenses. Your current savings balance from this upload is ${formatMoney(summary.savings, currency)}.`,
       details: [
+        contextLine,
         `Top categories: ${categoryLine}`,
         `Average expense size: ${formatMoney(summary.averageExpense, currency)}`,
         summary.savings >= 0
@@ -192,6 +235,7 @@ const createInsight = (intent, summary, currency, prompt = "") => {
         ? `Your biggest controllable area is ${highestCategory[0]}. A 15% cut there could free about ${formatMoney(target, currency)}.`
         : "Add more expenses to receive stronger saving suggestions.",
       details: [
+        contextLine,
         "Set a weekly cap for the highest category.",
         "Move recurring bills into a separate review list.",
         "Keep a small buffer before adding new discretionary spends.",
@@ -209,6 +253,7 @@ const createInsight = (intent, summary, currency, prompt = "") => {
         ? `${highestCategory[0]} is your heaviest expense category at ${formatMoney(highestCategory[1], currency)}. That is the first place to tighten if a budget is overshooting.`
         : "Upload more expense data to identify which categories need tighter limits.",
       details: [
+        contextLine,
         highestCategory
           ? `Set a visible cap for ${highestCategory[0]} and review it weekly.`
           : "Create at least one category budget after importing transactions.",
@@ -225,6 +270,7 @@ const createInsight = (intent, summary, currency, prompt = "") => {
       title: "Transaction Review Tips",
       body: `You are viewing ${summary.expenses.length} expense transactions. Use search and amount filters together to isolate merchants, repeated charges, or unusually large debits.`,
       details: [
+        contextLine,
         "Start with the merchant or keyword in the search box, then narrow by date or amount.",
         "Sort by highest amount to review the biggest cash outflows first.",
         "Use category filters to compare similar expenses before deciding what to cut.",
@@ -245,7 +291,7 @@ const createInsight = (intent, summary, currency, prompt = "") => {
     body: prompt
       ? `I checked "${prompt}" against your transaction distribution and compared each expense with the average expense of ${formatMoney(summary.averageExpense, currency)}.`
       : `I compared each expense against the average expense of ${formatMoney(summary.averageExpense, currency)}.`,
-    details: unusualLine,
+    details: [contextLine, ...unusualLine],
   };
 };
 
@@ -264,7 +310,7 @@ export default function AIFinanceChatbot({
       role: "assistant",
       title: config.introTitle,
       body: config.introBody,
-      details: ["Ask a question or choose a quick prompt below."],
+      details: [pageContext[page] || pageContext.dashboard],
     },
   ]);
   const messageListRef = React.useRef(null);
@@ -286,7 +332,7 @@ export default function AIFinanceChatbot({
     }
 
     const intent = actionId || inferIntent(trimmedPrompt);
-    const insight = createInsight(intent, summary, currency, trimmedPrompt);
+    const insight = createInsight(intent, summary, currency, trimmedPrompt, page);
 
     setMessages((currentMessages) => [
       ...currentMessages,
@@ -312,7 +358,7 @@ export default function AIFinanceChatbot({
     setPrompt("");
   };
 
-  if (!transactions.length || !isOpen) {
+  if (!isOpen) {
     return null;
   }
 
@@ -331,7 +377,7 @@ export default function AIFinanceChatbot({
   }
 
   return (
-    <aside className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-40 mx-auto flex max-h-[min(78vh,640px)] w-auto flex-col border border-[#FF6B00]/60 bg-[#0A0A0A] shadow-[0_0_22px_rgba(255,107,0,0.16)] md:inset-x-auto md:right-5 md:bottom-5 md:w-[380px]">
+    <aside className="fixed inset-x-0 bottom-0 z-40 mx-0 flex max-h-[calc(100dvh-4rem)] w-full flex-col border border-[#FF6B00]/60 bg-[#0A0A0A] shadow-[0_0_22px_rgba(255,107,0,0.16)] sm:inset-x-4 sm:bottom-[calc(0.75rem+env(safe-area-inset-bottom))] sm:mx-auto sm:max-h-[min(78vh,640px)] sm:w-auto md:inset-x-auto md:right-5 md:bottom-5 md:w-[380px]">
       <header className="flex items-center justify-between border-b border-[#1F1F1F] bg-[#111111] px-4 py-3">
         <div className="flex min-w-0 items-center gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-[#FF6B00]/50 bg-[#FF6B00]/10 text-[#FF6B00]">

@@ -2,7 +2,6 @@ import { DataContext } from "../context/AppContextValue";
 import React from "react";
 import { Link } from "react-router-dom";
 import categorize from "../components/utils/categorize";
-import AIFinanceChatbot from "../components/AIFinanceChatbot";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { useModal } from "../context/ModalContextValue";
 
@@ -314,11 +313,6 @@ export default function Budgets() {
         })}
       </div>
 
-      <AIFinanceChatbot
-        transactions={transactions}
-        currency={currency}
-        page="budgets"
-      />
     </div>
   ) : (
     <div className="flex flex-col items-center justify-center h-full min-h-[60vh]">
