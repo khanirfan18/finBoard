@@ -24,8 +24,12 @@ export default function Header() {
 
   const handleSignOut = async () => {
     setProfileOpen(false);
-    await signOut();
-    navigate("/signin");
+
+    const signedOut = await signOut();
+
+    if (signedOut) {
+      navigate("/signin");
+    }
   };
 
   const getPageTitle = () => {

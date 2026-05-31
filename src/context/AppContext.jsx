@@ -1,12 +1,23 @@
 import React from 'react'
 import { CURRENCIES, DataContext } from './AppContextValue';
 
+function readLocalStorageJSON(key, fallback) {
+  try {
+    const storedValue = localStorage.getItem(key);
+    if (!storedValue) return fallback;
+
+    return JSON.parse(storedValue);
+  } catch {
+    return fallback;
+  }
+}
+
 export function AppContext({ children }) {
-  const [transactions, setTransactions] = React.useState(
-    JSON.parse(localStorage.getItem('transactions')) || []
+  const [transactions, setTransactions] = React.useState(() =>
+    readLocalStorageJSON('transactions', [])
   );
-  const [currency, setCurrency] = React.useState(
-    JSON.parse(localStorage.getItem('currency')) || CURRENCIES[0]
+  const [currency, setCurrency] = React.useState(() =>
+    readLocalStorageJSON('currency', CURRENCIES[0])
   );
   const [converting, setConverting] = React.useState(false);
   const [currencySymbols, setCurrencySymbols] = React.useState({});

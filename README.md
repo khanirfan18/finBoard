@@ -10,7 +10,6 @@ A retro-styled, interactive personal finance dashboard to manage budgets, visual
   <img width="1740" height="1011" alt="FinBoard Preview" src="https://github.com/user-attachments/assets/52fd99d8-7df9-41b0-bc31-65bb7fe09edd" />
 </p>
 
-
 ---
 
 ## ✨ Features
@@ -64,35 +63,64 @@ Dark grid terminal aesthetic with a nostalgic modern feel.
 
 ### Prerequisites
 
-Install Node.js before starting:
+Choose your preferred setup:
 
-https://nodejs.org/
+- **Node.js** → https://nodejs.org/
+- **Docker + Docker Compose** → https://docs.docker.com/get-docker/
 
-### Installation
+---
+
+### Option 1 — Node.js (Classic)
 
 1. Clone repository
 
 ```bash
 git clone https://github.com/khanirfan18/finBoard.git
-```
-
-2. Enter project folder
-
-```bash
 cd finBoard
 ```
 
-3. Install packages
+2. Install packages
 
 ```bash
 npm install
 ```
 
-4. Start development server
+3. Start development server
 
 ```bash
 npm run dev
 ```
+
+Open http://localhost:5173
+
+---
+
+### Option 2 — Docker (Recommended for Contributors)
+
+1. Clone repository
+
+```bash
+git clone https://github.com/khanirfan18/finBoard.git
+cd finBoard
+```
+
+2. Start development server
+
+```bash
+docker compose up dev --build
+```
+
+Open http://localhost:5173
+
+> Code changes reflect instantly via Vite HMR — no restart needed after the first run.
+
+#### Production build
+
+```bash
+docker compose up prod --build
+```
+
+Open http://localhost:80
 
 ---
 

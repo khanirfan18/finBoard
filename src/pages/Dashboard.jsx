@@ -18,11 +18,12 @@ import { parse, format } from "date-fns";
 import { TrendingUp, TrendingDown, PiggyBank, Plus, X } from "lucide-react";
 
 export default function Dashboard() {
-  const { transactions, currency, addTransaction} = React.useContext(DataContext);
+  const { transactions, currency, addTransaction } = React.useContext(DataContext);
 
   const [loading] = React.useState(false);
   const [showForm, setShowForm] = React.useState(false);
   const [successMsg, setSuccessMsg] = React.useState("");
+  const [errorMsg, setErrorMsg] = React.useState("");
   const [form, setForm] = React.useState({
     Date: format(new Date(), "dd/MM/yyyy"),
     Description: "",
@@ -31,13 +32,31 @@ export default function Dashboard() {
 
   const handleQuickAdd = (e) => {
     e.preventDefault();
-    if (!form.Description || !form.Amount) return;
-    if (Number(form.Amount) === 0) return;
+    setErrorMsg("");
+
+    const description = form.Description.trim();
+    const amount = Number(form.Amount);
+
+    if (!form.Date || !description || !form.Amount) {
+      setErrorMsg("Please fill all fields before adding a transaction.");
+      return;
+    }
+
+    if (!Number.isFinite(amount) || amount === 0) {
+      setErrorMsg("Enter a valid non-zero amount.");
+      return;
+    }
+
+    if (typeof addTransaction !== "function") {
+      setErrorMsg("Transaction service is unavailable. Please refresh and try again.");
+      return;
+    }
 
     addTransaction({
       Date: form.Date,
-      Description: form.Description,
-      Amount: form.Amount,
+      Description: description,
+      Amount: amount,
+      category: categorize(description),
       Currency: currency,
     });
 
@@ -48,6 +67,7 @@ export default function Dashboard() {
     });
 
     setSuccessMsg("Transaction added!");
+    setShowForm(false);
     setTimeout(() => setSuccessMsg(""), 3000);
   };
 
@@ -279,11 +299,20 @@ return (
 
       {/* Floating Action Button */}
       <button
-        onClick={() => setShowForm(!showForm)}
+        onClick={() => {
+          setErrorMsg("");
+          setShowForm(!showForm);
+        }}
         className="fixed bottom-8 right-8 z-50 w-14 h-14 rounded-full bg-[#FF6B00] text-white flex items-center justify-center shadow-lg hover:bg-[#e05e00] transition-all duration-200 hover:scale-110"
       >
         {showForm ? <X className="w-6 h-6" /> : <Plus className="w-6 h-6" />}
       </button>
+
+      {successMsg && (
+        <div className="fixed bottom-24 right-8 z-50 rounded-xl border border-green-500/40 bg-[#111] px-4 py-3 text-sm font-bold text-green-400 shadow-lg">
+          {successMsg}
+        </div>
+      )}
 
       {/* Modal Form */}
       {showForm && (
@@ -295,6 +324,7 @@ return (
             <form onSubmit={handleQuickAdd} className="flex flex-col gap-3">
               <input
                 type="date"
+                required
                 className="retro-input p-3 w-full"
                 onChange={(e) => {
                   if (!e.target.value) return;
@@ -305,6 +335,7 @@ return (
               />
               <input
                 type="text"
+                required
                 placeholder="Description e.g. Swiggy"
                 className="retro-input p-3 w-full"
                 value={form.Description}
@@ -312,13 +343,15 @@ return (
               />
               <input
                 type="number"
+                required
+                step="0.01"
                 placeholder="-450 (expense) or 5000 (income)"
                 className="retro-input p-3 w-full"
                 value={form.Amount}
                 onChange={(e) => setForm({ ...form, Amount: e.target.value })}
               />
-              {successMsg && (
-                <p className="text-green-400 text-xs">{successMsg}</p>
+              {errorMsg && (
+                <p className="text-red-400 text-xs">{errorMsg}</p>
               )}
               <div className="flex gap-3 mt-2">
                 <button type="submit" className="retro-btn flex-1">
@@ -326,7 +359,10 @@ return (
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowForm(false)}
+                  onClick={() => {
+                    setErrorMsg("");
+                    setShowForm(false);
+                  }}
                   className="flex-1 px-4 py-2 border border-gray-600 text-gray-400 hover:text-white transition-colors font-bold uppercase tracking-wider text-sm"
                 >
                   Cancel
