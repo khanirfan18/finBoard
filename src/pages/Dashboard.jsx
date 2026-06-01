@@ -1,6 +1,7 @@
 import { DataContext } from "../context/AppContext";
 import { Link } from "react-router-dom";
 import categorize from "../components/utils/categorize";
+import FinanceChatbot from "../components/FinanceChatbot";
 import {
   PieChart,
   Pie,
@@ -266,6 +267,7 @@ return (
                 </ResponsiveContainer>
               </div>
             </section>
+            <FinanceChatbot transactions={transactions} currency={currency} />
           </>
         ) : (
           <div className="flex flex-col items-center justify-center h-full min-h-[78vh] pt-10 animate-in fade-in duration-500">
