@@ -2,19 +2,30 @@ import { DataContext } from "../context/AppContext";
 import React from "react";
 import { Link } from "react-router-dom";
 import categorize from "../components/utils/categorize";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import { useModal } from "../context/ModalContext";
 import { useTheme } from "../context/ThemeContext";
 
 export default function Budgets() {
   const { showModal } = useModal();
   const { theme } = useTheme();
+
   const [budgets, setBudgets] = React.useState(() => {
     const saved = localStorage.getItem("budgets");
     return saved ? JSON.parse(saved) : {};
   });
+
   const [showAlert, setShowAlert] = React.useState(false);
   const [exceededCategories, setExceededCategories] = React.useState([]);
+
   const { transactions, currency } = React.useContext(DataContext);
 
   const spending = React.useMemo(
@@ -23,7 +34,8 @@ export default function Budgets() {
         ?.filter((t) => Number(t.Amount) < 0)
         .reduce((acc, item) => {
           const category = categorize(item.Description);
-          acc[category] = (acc[category] || 0) + Math.abs(Number(item.Amount));
+          acc[category] =
+            (acc[category] || 0) + Math.abs(Number(item.Amount));
           return acc;
         }, {}),
     [transactions]
@@ -35,6 +47,7 @@ export default function Budgets() {
 
   React.useEffect(() => {
     const exceeded = [];
+
     Object.keys(budgets).forEach((category) => {
       if (spending && spending[category] > budgets[category]) {
         exceeded.push({
@@ -45,7 +58,9 @@ export default function Budgets() {
         });
       }
     });
+
     setExceededCategories(exceeded);
+
     if (exceeded.length > 0) {
       setShowAlert(true);
     }
@@ -66,7 +81,10 @@ export default function Budgets() {
 
   const handleBudgetChange = (category, value) => {
     if (Number(value) >= 0) {
-      setBudgets({ ...budgets, [category]: Number(value) });
+      setBudgets({
+        ...budgets,
+        [category]: Number(value),
+      });
     }
   };
 
@@ -83,18 +101,22 @@ export default function Budgets() {
 
   const getProgressColor = (spent, budget) => {
     const percentage = (spent / budget) * 100;
+
     if (theme === "light") {
       if (percentage >= 100) return "#A78BFA";
       if (percentage >= 80) return "#C4B5FD";
       return "#8B5CF6";
     }
+
     if (percentage >= 100) return "#FF6B6B";
     if (percentage >= 80) return "#FFBB28";
+
     return "#FF6B00";
   };
 
   const panelCardClass =
     "retro-card p-6 h-full flex flex-col animate-in fade-in duration-500 transition-all duration-300 hover:border-[#FF6B00]/20";
+
   const budgetCardClass =
     "retro-card p-6 h-full min-h-[320px] flex flex-col animate-in fade-in duration-500 transition-all duration-300 hover:border-[#FF6B00]/20";
 
@@ -121,16 +143,22 @@ export default function Budgets() {
                   <line x1="12" y1="17" x2="12.01" y2="17"></line>
                 </svg>
               </div>
+
               <div>
                 <h3 className="text-[#FF6B6B] font-black uppercase tracking-widest text-lg">
                   Budget Alert!
                 </h3>
+
                 <p className="text-gray-400 text-sm mt-1">
-                  You've exceeded your budget in {exceededCategories.length}{" "}
-                  {exceededCategories.length === 1 ? "category" : "categories"}
+                  You've exceeded your budget in{" "}
+                  {exceededCategories.length}{" "}
+                  {exceededCategories.length === 1
+                    ? "category"
+                    : "categories"}
                 </p>
               </div>
             </div>
+
             <button
               onClick={() => setShowAlert(false)}
               className="text-gray-500 hover:text-gray-300 transition-colors"
@@ -161,8 +189,11 @@ export default function Budgets() {
                 <span className="font-bold text-white uppercase tracking-wider">
                   {item.category}
                 </span>
+
                 <span className="text-[#FF6B6B] font-black">
-                  Over by {currency.symbol}{item.over.toLocaleString()}
+                  Over by {currency.symbol}
+                  {item.over.toLocaleString()}
+
                   <span className="text-gray-500 text-sm ml-2">
                     ({currency.symbol}
                     {item.spent.toLocaleString()} / {currency.symbol}
@@ -178,7 +209,10 @@ export default function Budgets() {
       {comparisonData.length > 0 && (
         <div className={panelCardClass}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest">Budget vs Actual Spending</h2>
+            <h2 className="text-[#FF6B00] text-lg font-black uppercase tracking-widest">
+              Budget vs Actual Spending
+            </h2>
+
             <button
               onClick={resetBudgets}
               className="text-xs text-gray-400 hover:text-[#FF6B6B] uppercase tracking-wider font-bold transition-colors"
@@ -188,16 +222,47 @@ export default function Budgets() {
           </div>
 
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={comparisonData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-              <XAxis dataKey="category" stroke="#666" tick={{ fill: '#888' }} />
-              <YAxis stroke="#666" tick={{ fill: '#888' }} />
-              <Tooltip
-                cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
-                contentStyle={{ backgroundColor: '#111111', borderColor: '#1F1F1F', borderRadius: '0' }}
+            <BarChart
+              data={comparisonData}
+              margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+            >
+              <XAxis
+                dataKey="category"
+                stroke="#666"
+                tick={{ fill: "#888" }}
               />
+
+              <YAxis
+                stroke="#666"
+                tick={{ fill: "#888" }}
+              />
+
+              <Tooltip
+                cursor={{
+                  fill: "rgba(255, 255, 255, 0.05)",
+                }}
+                contentStyle={{
+                  backgroundColor: "#111111",
+                  borderColor: "#1F1F1F",
+                  borderRadius: "0",
+                }}
+              />
+
               <Legend wrapperStyle={{ paddingTop: "20px" }} />
-              <Bar dataKey="spent" fill={theme === "light" ? "#8B5CF6" : "#FF6B6B"} name="Spent" radius={[2, 2, 0, 0]} />
-              <Bar dataKey="budget" fill={theme === "light" ? "#A78BFA" : "#00C49F"} name="Budget" radius={[2, 2, 0, 0]} />
+
+              <Bar
+                dataKey="spent"
+                fill={theme === "light" ? "#8B5CF6" : "#FF6B6B"}
+                name="Spent"
+                radius={[2, 2, 0, 0]}
+              />
+
+              <Bar
+                dataKey="budget"
+                fill={theme === "light" ? "#A78BFA" : "#00C49F"}
+                name="Budget"
+                radius={[2, 2, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -205,18 +270,28 @@ export default function Budgets() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
         {categories.map((category) => {
-          const isOverBudget = budgets[category] && spending[category] > budgets[category];
-          const percentage = budgets[category] ? (spending[category] / budgets[category]) * 100 : 0;
+          const isOverBudget =
+            budgets[category] &&
+            spending[category] > budgets[category];
+
+          const percentage = budgets[category]
+            ? (spending[category] / budgets[category]) * 100
+            : 0;
 
           return (
             <div
               key={category}
-              className={`${budgetCardClass} ${isOverBudget ? "border-[#FF6B6B] bg-[#FF6B6B]/5" : ""}`}
+              className={`${budgetCardClass} ${
+                isOverBudget
+                  ? "border-[#FF6B6B] bg-[#FF6B6B]/5"
+                  : ""
+              }`}
             >
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold tracking-widest uppercase text-[#FF6B00]">
                   {category}
                 </h2>
+
                 {isOverBudget && (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -237,8 +312,17 @@ export default function Budgets() {
               </div>
 
               <div className="flex items-baseline gap-2 mb-6">
-                <span className="text-sm text-gray-500 uppercase tracking-wider">Spent</span>
-                <span className={`text-2xl font-black ${isOverBudget ? "text-[#FF6B6B]" : "text-white"}`}>
+                <span className="text-sm text-gray-500 uppercase tracking-wider">
+                  Spent
+                </span>
+
+                <span
+                  className={`text-2xl font-black ${
+                    isOverBudget
+                      ? "text-[#FF6B6B]"
+                      : "text-white"
+                  }`}
+                >
                   {currency.symbol}
                   {spending[category].toLocaleString()}
                 </span>
@@ -250,8 +334,11 @@ export default function Budgets() {
                   placeholder="Set limit"
                   className="retro-input p-3 w-full"
                   value={budgets[category] || ""}
-                  onChange={(e) => handleBudgetChange(category, e.target.value)}
+                  onChange={(e) =>
+                    handleBudgetChange(category, e.target.value)
+                  }
                 />
+
                 {budgets[category] && (
                   <div className="pt-2">
                     <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
@@ -259,24 +346,33 @@ export default function Budgets() {
                         {currency.symbol}
                         {spending[category].toLocaleString()}
                       </span>
+
                       <span>
                         Limit: {currency.symbol}
                         {budgets[category].toLocaleString()}
                       </span>
                     </div>
+
                     <progress
                       className="progress w-full h-3 rounded-none [&::-webkit-progress-bar]:bg-[#1a1a1a]"
                       style={{
-                        "--progress-color": getProgressColor(spending[category], budgets[category]),
+                        "--progress-color": getProgressColor(
+                          spending[category],
+                          budgets[category]
+                        ),
                       }}
                       value={spending[category]}
                       max={budgets[category]}
                     />
+
                     <div className="mt-2 text-xs text-gray-400">
                       {percentage >= 100 ? (
                         <span className="text-[#FF6B6B] font-bold">
-                          {percentage.toFixed(0)}% - Over budget by {currency.symbol}
-                          {(spending[category] - budgets[category]).toLocaleString()}
+                          {percentage.toFixed(0)}% - Over budget by{" "}
+                          {currency.symbol}
+                          {(
+                            spending[category] - budgets[category]
+                          ).toLocaleString()}
                         </span>
                       ) : percentage >= 80 ? (
                         <span className="text-[#FFBB28] font-bold">
@@ -285,7 +381,10 @@ export default function Budgets() {
                       ) : (
                         <span className="text-[#00C49F]">
                           {percentage.toFixed(0)}% - {currency.symbol}
-                          {(budgets[category] - spending[category]).toLocaleString()} remaining
+                          {(
+                            budgets[category] - spending[category]
+                          ).toLocaleString()}{" "}
+                          remaining
                         </span>
                       )}
                     </div>
@@ -296,6 +395,7 @@ export default function Budgets() {
           );
         })}
       </div>
+    </div>
   ) : (
     <div className="flex flex-col items-center justify-center h-full min-h-[60vh]">
       <div className="retro-card p-12 flex flex-col items-center max-w-md text-center border-[#FF6B6B]/20 animate-in fade-in zoom-in-95 duration-500 transition-all duration-300 hover:border-[#FF6B6B]/28">
@@ -314,12 +414,16 @@ export default function Budgets() {
             <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
           </svg>
         </div>
-        <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">No Budgets Yet</h2>
-        <p className="text-gray-400 mb-8 leading-relaxed">We need transaction data to compute categories so you can set budgets.</p>
-        <Link
-          to='/settings'
-          className="retro-btn"
-        >
+
+        <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">
+          No Budgets Yet
+        </h2>
+
+        <p className="text-gray-400 mb-8 leading-relaxed">
+          We need transaction data to compute categories so you can set budgets.
+        </p>
+
+        <Link to="/settings" className="retro-btn">
           Configure Settings
         </Link>
       </div>
