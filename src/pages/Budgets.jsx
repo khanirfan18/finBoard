@@ -296,7 +296,6 @@ export default function Budgets() {
           );
         })}
       </div>
-    </div>
   ) : (
     <div className="flex flex-col items-center justify-center h-full min-h-[60vh]">
       <div className="retro-card p-12 flex flex-col items-center max-w-md text-center border-[#FF6B6B]/20 animate-in fade-in zoom-in-95 duration-500 transition-all duration-300 hover:border-[#FF6B6B]/28">
