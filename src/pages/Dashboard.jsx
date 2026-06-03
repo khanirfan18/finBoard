@@ -1,5 +1,6 @@
 import { DataContext } from "../context/AppContext";
 import { Link } from "react-router-dom";
+import { useMemo } from "react";
 import categorize from "../components/utils/categorize";
 import {
   PieChart,
@@ -14,7 +15,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import React from "react";
-import { parse, format } from "date-fns";
+import { parse, format, isValid } from "date-fns";
 import { TrendingUp, TrendingDown, PiggyBank, Plus, X } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 
@@ -79,62 +80,75 @@ export default function Dashboard() {
     ? ["#FF6B00", "#FF8C00", "#FFA500", "#FFB732", "#FFC966", "#FFDB99", "#FFECCC"]
     : ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A28DFF", "#FF6B6B", "#82ca9d"];
 
-  const totalIncome = transactions?.reduce((acc, amt) => {
-    const num = Number(amt.Amount);
-    return num > 0 ? acc + num : acc;
-  }, 0);
+  const totalIncome = useMemo(() =>
+      transactions?.reduce((acc, t) => {
+        const num = Number(t.Amount);
+        return num > 0 ? acc + num : acc;
+      }, 0) ?? 0,
+    [transactions]
+  );
+ 
+  const totalExpense = useMemo(() =>
+      transactions?.reduce((acc, t) => {
+        const num = Number(t.Amount);
+        return num < 0 ? acc + num : acc;
+      }, 0) ?? 0,
+    [transactions]
+  );
+ 
+  const savings = useMemo(() => 
+    totalIncome + totalExpense,
+    [totalIncome, totalExpense]
+  );
 
-  const totalExpense = transactions?.reduce((acc, item) => {
-    const amount = Number(item.Amount);
-    return amount < 0 ? acc + amount : acc;
-  }, 0);
-
-  const savings = totalIncome + totalExpense;
-
+  const chartData = useMemo(() => {
     const categoryData =
       transactions
         ?.filter((t) => Number(t.Amount) < 0)
-        .reduce((acc, item) => {
-          const category = item.category || item.Category || categorize(item.Description);
-
-          acc[category] = (acc[category] || 0) + Math.abs(Number(item.Amount));
-
+        .reduce((acc, t) => {
+          const category = t.category || t.Category || categorize(t.Description);
+          acc[category] = (acc[category] || 0) + Math.abs(Number(t.Amount));
           return acc;
-        }, {}) || {};
-
-  const chartData = Object.entries(categoryData).map(([name, value]) => ({
-    name,
-    value,
-  }));
+        }, {}) ?? {};
+  
+      return Object.entries(categoryData).map(([name, value]) => ({ name, value }));
+  }, [transactions]);
 
   const getMonth = (dateStr) => {
     const date = parse(dateStr, "dd/MM/yyyy", new Date());
+    
+    if(!isValid(date)) return null;
+
     return format(date, "MMM yyyy");
   };
 
-  const monthData = transactions?.reduce((acc, item) => {
-    const month = getMonth(item.Date);
+  const barData = useMemo(() => {
+    const monthData = transactions?.reduce((acc, item) => {
+      const month = getMonth(item.Date);
 
-    if (!acc[month]) {
-      acc[month] = {
-        month,
-        income: 0,
-        spent: 0,
-      };
-    }
+      if(!month) return acc;
 
-    const amt = Math.abs(Number(item.Amount));
+      if(!acc[month]) {
+        acc[month] = {
+          month, 
+          income: 0,
+          spent: 0,
+        };
+      }
 
-    if (Number(item.Amount) > 0) {
-      acc[month].income += amt;
-    } else {
-      acc[month].spent += amt;
-    }
+      const amt = Math.abs(Number(item.Amount));
 
-    return acc;
-  }, {});
+      if(Number(item.Amount) > 0) {
+        acc[month].income += amt;
+      }else {
+        acc[month].spent += amt;
+      }
 
-  const barData = Object.values(monthData || {});
+      return acc;
+      }, {});
+
+      return Object.values(monthData ?? {});
+  }, [transactions]);
 
 return (
     <>
