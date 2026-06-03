@@ -4,9 +4,11 @@ import { Link } from "react-router-dom";
 import categorize from "../components/utils/categorize";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { useModal } from "../context/ModalContext";
+import { useTheme } from "../context/ThemeContext";
 
 export default function Budgets() {
   const { showModal } = useModal();
+  const { theme } = useTheme();
   const [budgets, setBudgets] = React.useState(() => {
     const saved = localStorage.getItem("budgets");
     return saved ? JSON.parse(saved) : {};
@@ -81,15 +83,20 @@ export default function Budgets() {
 
   const getProgressColor = (spent, budget) => {
     const percentage = (spent / budget) * 100;
+    if (theme === "light") {
+      if (percentage >= 100) return "#A78BFA";
+      if (percentage >= 80) return "#C4B5FD";
+      return "#8B5CF6";
+    }
     if (percentage >= 100) return "#FF6B6B";
     if (percentage >= 80) return "#FFBB28";
     return "#FF6B00";
   };
 
   const panelCardClass =
-    "retro-card p-6 h-full flex flex-col animate-in fade-in duration-500 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_24px_rgba(255,107,0,0.12)]";
+    "retro-card p-6 h-full flex flex-col animate-in fade-in duration-500 transition-all duration-300 hover:border-[#FF6B00]/20";
   const budgetCardClass =
-    "retro-card p-6 h-full min-h-[320px] flex flex-col animate-in fade-in duration-500 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_24px_rgba(255,107,0,0.12)]";
+    "retro-card p-6 h-full min-h-[320px] flex flex-col animate-in fade-in duration-500 transition-all duration-300 hover:border-[#FF6B00]/20";
 
   return transactions && categories.length > 0 ? (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -189,8 +196,8 @@ export default function Budgets() {
                 contentStyle={{ backgroundColor: '#111111', borderColor: '#1F1F1F', borderRadius: '0' }}
               />
               <Legend wrapperStyle={{ paddingTop: "20px" }} />
-              <Bar dataKey="spent" fill="#FF6B6B" name="Spent" radius={[2, 2, 0, 0]} />
-              <Bar dataKey="budget" fill="#00C49F" name="Budget" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="spent" fill={theme === "light" ? "#8B5CF6" : "#FF6B6B"} name="Spent" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="budget" fill={theme === "light" ? "#A78BFA" : "#00C49F"} name="Budget" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -292,7 +299,7 @@ export default function Budgets() {
     </div>
   ) : (
     <div className="flex flex-col items-center justify-center h-full min-h-[60vh]">
-      <div className="retro-card p-12 flex flex-col items-center max-w-md text-center border-[#FF6B00]/30 shadow-[0_0_20px_rgba(255,107,0,0.1)] animate-in fade-in zoom-in-95 duration-500 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_24px_rgba(255,107,0,0.12)]">
+      <div className="retro-card p-12 flex flex-col items-center max-w-md text-center border-[#FF6B6B]/20 animate-in fade-in zoom-in-95 duration-500 transition-all duration-300 hover:border-[#FF6B6B]/28">
         <div className="w-16 h-16 bg-[#FF6B00]/10 flex items-center justify-center rounded-full mb-6 text-[#FF6B00]">
           <svg
             xmlns="http://www.w3.org/2000/svg"

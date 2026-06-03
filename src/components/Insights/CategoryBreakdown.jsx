@@ -1,30 +1,39 @@
 import React from "react";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function CategoryBreakdown({ transactions }) {
+  const { theme } = useTheme();
+
   const getCategoryStats = () => {
     const totals = {};
     let totalExpenseSum = 0;
 
     transactions.forEach((t) => {
-      const amt = parseFloat(t.Amount) || 0;
+      const amt = Number(t.Amount) || 0;
 
       // Target expense records exclusively
       if (amt < 0) {
         const absAmt = Math.abs(amt);
-        const desc = t.Description ? t.Description.toString().trim().toLowerCase() : "";
-        let categoryKey = "other"; // Default fallback
+        const desc = (t.Description || t.description || '').toString().trim().toLowerCase();
 
-        // Exact budget category sorting keys
-        if (desc.includes("swiggy") || desc.includes("zomato")) {
-          categoryKey = "food";
-        } else if (desc.includes("uber") || desc.includes("petrol")) {
-          categoryKey = "transport";
-        } else if (desc.includes("amazon shopping") || desc.includes("amazon")) {
-          categoryKey = "shopping";
-        } else if (desc.includes("electricity bill")) {
-          categoryKey = "bills";
-        } else if (desc.includes("gym") || desc.includes("membership")) {
-          categoryKey = "health";
+        // Prefer stored category if present
+        let categoryKey = (t.category || t.Category || '').toString().trim().toLowerCase();
+
+        if (!categoryKey) {
+          // Derive from description when no stored category
+          if (desc.includes('swiggy') || desc.includes('zomato')) {
+            categoryKey = 'food';
+          } else if (desc.includes('uber') || desc.includes('petrol')) {
+            categoryKey = 'transport';
+          } else if (desc.includes('amazon shopping') || desc.includes('amazon')) {
+            categoryKey = 'shopping';
+          } else if (desc.includes('electricity bill')) {
+            categoryKey = 'bills';
+          } else if (desc.includes('gym') || desc.includes('membership')) {
+            categoryKey = 'health';
+          } else {
+            categoryKey = 'other';
+          }
         }
 
         totals[categoryKey] = (totals[categoryKey] || 0) + absAmt;
@@ -32,14 +41,23 @@ export default function CategoryBreakdown({ transactions }) {
       }
     });
 
-    const colorMap = {
-      bills: "#ef4444",      // Coral Red
-      food: "#3b82f6",       // Indigo Blue
-      health: "#a855f7",     // Fuchsia Purple
-      shopping: "#ec4899",   // Hot Pink
-      transport: "#10b981",  // Teal Green
-      other: "#f59e0b",      // Amber Orange
-    };
+    const colorMap = theme === "light"
+      ? {
+          bills: "#FF6B00",
+          food: "#FF8C00",
+          health: "#FFA500",
+          shopping: "#FFB732",
+          transport: "#FFC966",
+          other: "#FFDB99",
+        }
+      : {
+          bills: "#ef4444",      // Coral Red
+          food: "#3b82f6",       // Indigo Blue
+          health: "#a855f7",     // Fuchsia Purple
+          shopping: "#ec4899",   // Hot Pink
+          transport: "#10b981",  // Teal Green
+          other: "#f59e0b",      // Amber Orange
+        };
 
     const formatLabel = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
@@ -59,7 +77,7 @@ export default function CategoryBreakdown({ transactions }) {
   const categories = getCategoryStats();
 
   return (
-    <div className="bg-[#121214] border border-zinc-800/80 rounded-xl p-6 h-full">
+    <div className="theme-panel rounded-xl p-6 h-full">
       <div className="mb-6">
         <h3 className="text-base font-bold text-white mb-1">Full Category Breakdown</h3>
         <p className="text-xs text-zinc-500">Ranked contribution distribution analysis</p>

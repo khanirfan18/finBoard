@@ -10,7 +10,7 @@ export default function InsightsDashboard() {
   if (!transactions || transactions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[60vh] animate-in fade-in duration-500">
-        <div className="retro-card p-12 flex flex-col items-center max-w-md text-center border-[#FF6B00]/30 shadow-[0_0_20px_rgba(255,107,0,0.1)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_24px_rgba(255,107,0,0.12)]">
+        <div className="retro-card p-12 flex flex-col items-center max-w-md text-center border-[#FF6B00]/20 transition-all duration-300 hover:border-[#FF6B00]/28">
           <div className="w-16 h-16 bg-[#FF6B00]/10 flex items-center justify-center rounded-full mb-6 text-[#FF6B00]">
             <svg
               xmlns="http://www.w3.org/2000/svg"
