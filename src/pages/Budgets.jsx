@@ -1,4 +1,4 @@
-import { DataContext } from "../context/AppContext";
+import { useTransactionsQuery, useCurrencyQuery } from "../hooks/useAppData";
 import React from "react";
 import { Link } from "react-router-dom";
 import categorize from "../components/utils/categorize";
@@ -15,7 +15,8 @@ export default function Budgets() {
   });
   const [showAlert, setShowAlert] = React.useState(false);
   const [exceededCategories, setExceededCategories] = React.useState([]);
-  const { transactions, currency } = React.useContext(DataContext);
+  const { data: transactions } = useTransactionsQuery();
+  const { data: currency } = useCurrencyQuery();
 
   const spending = React.useMemo(
     () =>

@@ -1,9 +1,10 @@
 import React from "react";
-import { DataContext } from "../context/AppContext";
+import { useTransactionsQuery, useCurrencyQuery } from "../hooks/useAppData";
 import { useModal } from "../context/ModalContext";
 
 export default function Goals() {
-  const { transactions, currency } = React.useContext(DataContext);
+  const { data: transactions } = useTransactionsQuery();
+  const { data: currency } = useCurrencyQuery();
   const { showModal } = useModal();
 
   const [goals, setGoals] = React.useState(() => {

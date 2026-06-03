@@ -16,6 +16,7 @@
     "@fontsource/inter": "^5.2.8",
     "@mui/material": "^9.0.1",
     "@supabase/supabase-js": "^2.49.4",
+    "@tanstack/react-query": "^5.101.0",
     "date-fns": "^4.1.0",
     "lucide-react": "^1.8.0",
     "papaparse": "^5.5.3",

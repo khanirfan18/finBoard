@@ -1,6 +1,7 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import Papa from "papaparse";
-import { DataContext, CURRENCIES } from "../context/AppContext";
+import { CURRENCIES, useTransactionsQuery, useCurrencyQuery, useUpdateCurrencyMutation, useAddTransactionMutation } from "../hooks/useAppData";
 import { demoData } from "../data/demoData";
 import { normalizeTransactions } from "../lib/transactionNormalizer";
 import { format } from "date-fns";
@@ -52,13 +53,11 @@ const CATEGORIES = [
 ];
 
 export default function Settings() {
-  const {
-    transactions,
-    setTransactions,
-    currency,
-    updateCurrency,
-    addTransaction
-  } = useContext(DataContext);
+  const queryClient = useQueryClient();
+  const { data: transactions } = useTransactionsQuery();
+  const { data: currency } = useCurrencyQuery();
+  const { mutate: updateCurrency } = useUpdateCurrencyMutation();
+  const { mutate: addTransaction } = useAddTransactionMutation();
 
   const { showModal } = useModal();
 
@@ -130,8 +129,8 @@ export default function Settings() {
             ? [...(transactions || []), ...normalizedData]
             : normalizedData;
 
-        setTransactions(updatedData);
         localStorage.setItem("transactions", JSON.stringify(updatedData));
+        queryClient.invalidateQueries({ queryKey: ['transactions'] });
 
         setLoading(false);
         setSuccessMessage("CSV Imported Successfully!");
@@ -194,8 +193,8 @@ export default function Settings() {
       type: "confirm",
       message: "Are you sure you want to clear all data? This action cannot be undone.",
       onConfirm: () => {
-        setTransactions([]);
         localStorage.removeItem("transactions");
+        queryClient.invalidateQueries({ queryKey: ['transactions'] });
         setSuccessMessage("All Data Cleared!");
         setTimeout(() => setSuccessMessage(""), 3000);
       },
@@ -267,8 +266,8 @@ export default function Settings() {
 
                   const updated = importMode === "append" ? [...(transactions || []), ...normalized] : normalized;
 
-                  setTransactions(updated);
                   localStorage.setItem("transactions", JSON.stringify(updated));
+                  queryClient.invalidateQueries({ queryKey: ['transactions'] });
                   setSuccessMessage("Demo Data Loaded!");
                   setTimeout(() => setSuccessMessage(""), 3000);
                 }}

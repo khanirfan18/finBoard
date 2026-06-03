@@ -1,11 +1,11 @@
 import React, { useContext } from "react";
-import { DataContext } from "../context/AppContext";
+import { useTransactionsQuery } from "../hooks/useAppData";
 import { Link } from "react-router-dom";
 import InsightCards from "../components/Insights/InsightCards";
 import CategoryBreakdown from "../components/Insights/CategoryBreakdown";
 
 export default function InsightsDashboard() {
-  const { transactions } = useContext(DataContext);
+  const { data: transactions } = useTransactionsQuery();
 
   if (!transactions || transactions.length === 0) {
     return (

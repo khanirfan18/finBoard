@@ -1,4 +1,4 @@
-import { DataContext } from "../context/AppContext";
+import { useTransactionsQuery, useCurrencyQuery, useAddTransactionMutation } from "../hooks/useAppData";
 import { Link } from "react-router-dom";
 import categorize from "../components/utils/categorize";
 import {
@@ -19,7 +19,9 @@ import { TrendingUp, TrendingDown, PiggyBank, Plus, X } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 
 export default function Dashboard() {
-  const { transactions, currency, addTransaction } = React.useContext(DataContext);
+  const { data: transactions } = useTransactionsQuery();
+  const { data: currency } = useCurrencyQuery();
+  const { mutate: addTransaction } = useAddTransactionMutation();
   const { theme } = useTheme();
 
   const [loading] = React.useState(false);

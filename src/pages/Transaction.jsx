@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { DataContext } from "../context/AppContext";
+import { useTransactionsQuery, useCurrencyQuery, useDeleteTransactionMutation, useUpdateTransactionMutation } from "../hooks/useAppData";
 import { useModal } from "../context/ModalContext";
 import categorize from "../components/utils/categorize";
 import { parse } from "date-fns";
@@ -119,8 +119,10 @@ function EditModal({ transaction, onSave, onClose }) {
 }
 
 export default function Transaction() {
-  const { transactions, currency, deleteTransaction, updateTransaction } =
-    React.useContext(DataContext);
+  const { data: transactions } = useTransactionsQuery();
+  const { data: currency } = useCurrencyQuery();
+  const { mutate: deleteTransaction } = useDeleteTransactionMutation();
+  const { mutate: updateTransaction } = useUpdateTransactionMutation();
   const { showModal } = useModal();
 
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -267,7 +269,7 @@ export default function Transaction() {
 
   const handleSaveEdit = (updatedTransaction) => {
     const originalIdx = originalIndices[editingIndex];
-    updateTransaction(originalIdx, updatedTransaction);
+    updateTransaction({ index: originalIdx, updatedTransaction });
     setEditingIndex(null);
   };
 

@@ -6,7 +6,9 @@ import Settings from "./pages/Settings";
 import Transaction from "./pages/Transaction";
 import InsightsDashboard from "./pages/InsightsDashboard"; 
 import Layout from "./components/layout/Layout";
-import { AppContext } from "./context/AppContext";
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './lib/queryClient';
+import { useIsMutating } from '@tanstack/react-query';
 import { AuthProvider } from "./context/AuthContext";
 import { ModalProvider } from "./context/ModalContext";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -35,6 +37,18 @@ function ConfigError() {
   );
 }
 
+function ConvertingOverlay() {
+  const isConverting = useIsMutating({ mutationKey: ['updateCurrency'] });
+  if (!isConverting) return null;
+  return (
+    <div className="theme-overlay">
+      <div role="status" aria-live="assertive" className="theme-overlay-card">
+        Converting transactions... please wait
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   if (!isConfigured) {
     return <ConfigError />;
@@ -44,7 +58,8 @@ export default function App() {
     <>
       <ThemeProvider>
         <AuthProvider>
-          <AppContext>
+          <QueryClientProvider client={queryClient}>
+            <ConvertingOverlay />
             <ModalProvider>
               <BrowserRouter>
                 <Routes>
@@ -88,7 +103,7 @@ export default function App() {
             </BrowserRouter>
             <Modal />
           </ModalProvider>
-        </AppContext>
+        </QueryClientProvider>
       </AuthProvider>
       </ThemeProvider>
     </>
