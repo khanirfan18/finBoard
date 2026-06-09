@@ -1,19 +1,44 @@
-import { DataContext } from "../context/AppContext";
+import { DataContext } from "../context/DataContext";
 import React from "react";
 import { Link } from "react-router-dom";
 import categorize from "../components/utils/categorize";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { useModal } from "../context/ModalContext";
+import { useTheme } from "../context/ThemeContext";
+import { supabase } from "../lib/supabaseClient";
+import { useAuth } from "../context/useAuth";
 
 export default function Budgets() {
   const { showModal } = useModal();
-  const [budgets, setBudgets] = React.useState(() => {
-    const saved = localStorage.getItem("budgets");
-    return saved ? JSON.parse(saved) : {};
-  });
+  const { theme } = useTheme();
+  const { user } = useAuth();
+  
+  const [budgets, setBudgets] = React.useState({});
   const [showAlert, setShowAlert] = React.useState(false);
   const [exceededCategories, setExceededCategories] = React.useState([]);
   const { transactions, currency } = React.useContext(DataContext);
+
+  React.useEffect(() => {
+    async function fetchBudgets() {
+      if (!user) {
+        setBudgets({});
+        return;
+      }
+      const { data, error } = await supabase
+        .from('budgets')
+        .select('category, amount')
+        .eq('user_id', user.id);
+        
+      if (data && !error) {
+        const budgetsObj = {};
+        data.forEach(b => {
+          budgetsObj[b.category] = Number(b.amount);
+        });
+        setBudgets(budgetsObj);
+      }
+    }
+    fetchBudgets();
+  }, [user]);
 
   const spending = React.useMemo(
     () =>
@@ -26,10 +51,6 @@ export default function Budgets() {
         }, {}),
     [transactions]
   );
-
-  React.useEffect(() => {
-    localStorage.setItem("budgets", JSON.stringify(budgets));
-  }, [budgets]);
 
   React.useEffect(() => {
     const exceeded = [];
@@ -62,9 +83,30 @@ export default function Budgets() {
     }))
     .filter((item) => item.budget > 0);
 
-  const handleBudgetChange = (category, value) => {
-    if (Number(value) >= 0) {
-      setBudgets({ ...budgets, [category]: Number(value) });
+  const handleBudgetChange = async (category, value) => {
+    const numValue = Number(value);
+    if (numValue >= 0) {
+      setBudgets(prev => ({ ...prev, [category]: numValue }));
+      
+      if (user) {
+        await supabase
+          .from('budgets')
+          .upsert(
+            { user_id: user.id, category, amount: numValue },
+            { onConflict: 'user_id, category' }
+          );
+      }
+    } else if (value === "") {
+      const newBudgets = { ...budgets };
+      delete newBudgets[category];
+      setBudgets(newBudgets);
+      
+      if (user) {
+        await supabase
+          .from('budgets')
+          .delete()
+          .match({ user_id: user.id, category });
+      }
     }
   };
 
@@ -72,24 +114,31 @@ export default function Budgets() {
     showModal({
       type: "confirm",
       message: "Are you sure you want to reset all budgets?",
-      onConfirm: () => {
+      onConfirm: async () => {
         setBudgets({});
-        localStorage.removeItem("budgets");
+        if (user) {
+          await supabase.from('budgets').delete().eq('user_id', user.id);
+        }
       },
     });
   };
 
   const getProgressColor = (spent, budget) => {
     const percentage = (spent / budget) * 100;
+    if (theme === "light") {
+      if (percentage >= 100) return "#A78BFA";
+      if (percentage >= 80) return "#C4B5FD";
+      return "#8B5CF6";
+    }
     if (percentage >= 100) return "#FF6B6B";
     if (percentage >= 80) return "#FFBB28";
     return "#FF6B00";
   };
 
   const panelCardClass =
-    "retro-card p-6 h-full flex flex-col animate-in fade-in duration-500 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_24px_rgba(255,107,0,0.12)]";
+    "retro-card p-6 h-full flex flex-col animate-in fade-in duration-500 transition-all duration-300 hover:border-[#FF6B00]/20";
   const budgetCardClass =
-    "retro-card p-6 h-full min-h-[320px] flex flex-col animate-in fade-in duration-500 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_24px_rgba(255,107,0,0.12)]";
+    "retro-card p-6 h-full min-h-[320px] flex flex-col animate-in fade-in duration-500 transition-all duration-300 hover:border-[#FF6B00]/20";
 
   return transactions && categories.length > 0 ? (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -156,11 +205,11 @@ export default function Budgets() {
                 </span>
                 <span className="text-[#FF6B6B] font-black">
                   Over by {currency.symbol}
-                  {item.over.toLocaleString()}
+                  {item.over.toFixed(2)}
                   <span className="text-gray-500 text-sm ml-2">
                     ({currency.symbol}
-                    {item.spent.toLocaleString()} / {currency.symbol}
-                    {item.limit.toLocaleString()})
+                    {item.spent.toFixed(2)} / {currency.symbol}
+                    {item.limit.toFixed(2)})
                   </span>
                 </span>
               </div>
@@ -199,8 +248,8 @@ export default function Budgets() {
                 }}
               />
               <Legend wrapperStyle={{ paddingTop: "20px" }} />
-              <Bar dataKey="spent" fill="#FF6B6B" name="Spent" radius={[2, 2, 0, 0]} />
-              <Bar dataKey="budget" fill="#00C49F" name="Budget" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="spent" fill={theme === "light" ? "#8B5CF6" : "#FF6B6B"} name="Spent" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="budget" fill={theme === "light" ? "#A78BFA" : "#00C49F"} name="Budget" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -243,7 +292,7 @@ export default function Budgets() {
                 <span className="text-sm text-gray-500 uppercase tracking-wider">Spent</span>
                 <span className={`text-2xl font-black ${isOverBudget ? "text-[#FF6B6B]" : "text-white"}`}>
                   {currency.symbol}
-                  {spending[category].toLocaleString()}
+                  {spending[category].toFixed(2)}
                 </span>
               </div>
 
@@ -260,11 +309,11 @@ export default function Budgets() {
                     <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
                       <span>
                         {currency.symbol}
-                        {spending[category].toLocaleString()}
+                        {spending[category].toFixed(2)}
                       </span>
                       <span>
                         Limit: {currency.symbol}
-                        {budgets[category].toLocaleString()}
+                        {budgets[category].toFixed(2)}
                       </span>
                     </div>
                     <progress
@@ -279,7 +328,7 @@ export default function Budgets() {
                       {percentage >= 100 ? (
                         <span className="text-[#FF6B6B] font-bold">
                           {percentage.toFixed(0)}% - Over budget by {currency.symbol}
-                          {(spending[category] - budgets[category]).toLocaleString()}
+                          {(spending[category] - budgets[category]).toFixed(2)}
                         </span>
                       ) : percentage >= 80 ? (
                         <span className="text-[#FFBB28] font-bold">
@@ -288,7 +337,7 @@ export default function Budgets() {
                       ) : (
                         <span className="text-[#00C49F]">
                           {percentage.toFixed(0)}% - {currency.symbol}
-                          {(budgets[category] - spending[category]).toLocaleString()} remaining
+                          {(budgets[category] - spending[category]).toFixed(2)} remaining
                         </span>
                       )}
                     </div>
@@ -302,7 +351,7 @@ export default function Budgets() {
     </div>
   ) : (
     <div className="flex flex-col items-center justify-center h-full min-h-[60vh]">
-      <div className="retro-card p-12 flex flex-col items-center max-w-md text-center border-[#FF6B00]/30 shadow-[0_0_20px_rgba(255,107,0,0.1)] animate-in fade-in zoom-in-95 duration-500 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_24px_rgba(255,107,0,0.12)]">
+      <div className="retro-card p-12 flex flex-col items-center max-w-md text-center border-[#FF6B6B]/20 animate-in fade-in zoom-in-95 duration-500 transition-all duration-300 hover:border-[#FF6B6B]/28">
         <div className="w-16 h-16 bg-[#FF6B00]/10 flex items-center justify-center rounded-full mb-6 text-[#FF6B00]">
           <svg
             xmlns="http://www.w3.org/2000/svg"

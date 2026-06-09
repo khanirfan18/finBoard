@@ -1,0 +1,52 @@
+name: Thank Contributors
+
+on:
+  pull_request:
+    types:
+      - closed
+
+permissions:
+  pull-requests: write
+  issues: write
+
+jobs:
+  thank-contributor:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Post thank you comment
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const author = context.payload.pull_request.user.login;
+
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "closed",
+              per_page: 100
+            });
+
+            const mergedByAuthor = prs.filter(
+              pr =>
+                pr.user &&
+                pr.user.login === author &&
+                pr.merged_at
+            );
+
+            const isFirstContribution = mergedByAuthor.length === 1;
+            const message = isFirstContribution
+              ? `hey @${author}, really glad you took the time to contribute! your first PR just got merged and that genuinely means a lot to us 🎉
+            
+            hope this is just the beginning. feel free to pick up more issues whenever you're up for it, and if you're enjoying the project a ⭐ on the repo would be awesome`
+              : `thanks @${author}, always good to see you back 🙌
+            
+            really appreciate you keeping at it, means a lot. grab another issue whenever you feel like it and keep the good stuff coming`;
+             await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: message
+            });

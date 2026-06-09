@@ -4,6 +4,17 @@ import './index.css'
 import "react-calendar-heatmap/dist/styles.css";
 import App from './App.jsx'
 import "@fontsource/inter";
+import { applyThemeToDocument, getStoredTheme } from './context/ThemeContext';
+
+let bootTheme = 'dark';
+
+try {
+  bootTheme = getStoredTheme();
+} catch {
+  bootTheme = 'dark';
+}
+
+applyThemeToDocument(bootTheme);
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

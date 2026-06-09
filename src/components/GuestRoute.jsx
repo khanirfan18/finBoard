@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 
 /**
  * Wraps guest-only routes — redirects to /dashboard when there is an active session.
@@ -11,20 +11,20 @@ export default function GuestRoute({ children }) {
   if (loading) {
     return (
       <div
+        className="theme-route-loader"
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           height: '100vh',
-          background: '#080808',
         }}
       >
         <div
           style={{
             width: 40,
             height: 40,
-            border: '3px solid #222',
-            borderTopColor: '#FF6B00',
+            border: '3px solid var(--color-fin-border)',
+            borderTopColor: 'var(--color-fin-accent)',
             borderRadius: '50%',
             animation: 'spin 0.8s linear infinite',
           }}

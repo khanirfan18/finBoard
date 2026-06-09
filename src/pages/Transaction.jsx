@@ -1,10 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { DataContext } from "../context/AppContext";
+import { DataContext } from "../context/DataContext";
 import { useModal } from "../context/ModalContext";
 import categorize from "../components/utils/categorize";
 import { parse } from "date-fns";
-import { useState } from "react";
+import { createPortal } from "react-dom";
 
 const categoryIcons = {
   Food: "🍔",
@@ -21,13 +21,21 @@ function EditModal({ transaction, onSave, onClose }) {
   const [form, setForm] = React.useState({
     Date: transaction.Date,
     Description: transaction.Description,
-    Amount: transaction.Amount,
+    Amount: transaction.originalAmount ?? transaction.Amount,
     category: transaction.category || "",
   });
 
-  const [DEFAULTCATEGORIES , setDEFAULTCATEGORIES] = useState([ "Food", "Transport",
-    "Shopping","Income", "Bills", "Entertainment", "Health", "Other"]);
+  const DEFAULTCATEGORIES = [ "Food", "Transport",
+    "Shopping","Income", "Bills", "Entertainment", "Health", "Other"];
 
+  React.useEffect(() => {
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+  
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -37,9 +45,9 @@ function EditModal({ transaction, onSave, onClose }) {
     onSave({ ...transaction, ...form, Amount: Number(form.Amount) });
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="retro-card p-8 max-w-md w-full mx-4 animate-in zoom-in-95 duration-200">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] grid place-items-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="retro-card p-6 md:p-8 max-w-md w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
         <h3 className="text-xl font-black uppercase tracking-widest text-white mb-6">
           Edit Transaction
         </h3>
@@ -89,7 +97,7 @@ function EditModal({ transaction, onSave, onClose }) {
           </div>
           <div>
             <label className="block text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">
-              Amount
+              Amount {transaction.originalCurrency ? `(${transaction.originalCurrency.symbol || transaction.originalCurrency.code})` : ""}
             </label>
             <input
               type="number"
@@ -114,7 +122,8 @@ function EditModal({ transaction, onSave, onClose }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -141,30 +150,41 @@ export default function Transaction() {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     switch (preset) {
+      // Don't remove block { } -> This makes scopes for variables to check npm run Lint 
       case "today":
         return { start: today, end: new Date(today.getTime() + 86400000) };
       case "yesterday":
+      {
         const yesterday = new Date(today.getTime() - 86400000);
         return { start: yesterday, end: today };
+      }
       case "this-week":
+      {
         const weekStart = new Date(today);
         weekStart.setDate(today.getDate() - today.getDay());
         return { start: weekStart, end: new Date() };
+      }
       case "last-week":
+      {
         const lastWeekEnd = new Date(today);
         lastWeekEnd.setDate(today.getDate() - today.getDay());
         const lastWeekStart = new Date(lastWeekEnd);
         lastWeekStart.setDate(lastWeekEnd.getDate() - 7);
         return { start: lastWeekStart, end: lastWeekEnd };
+      }
       case "this-month":
         return { start: new Date(now.getFullYear(), now.getMonth(), 1), end: new Date() };
       case "last-month":
+      {
         const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
         const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
         return { start: lastMonth, end: lastMonthEnd };
+      }
       case "last-3-months":
+      {
         const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
         return { start: threeMonthsAgo, end: new Date() };
+      }
       case "this-year":
         return { start: new Date(now.getFullYear(), 0, 1), end: new Date() };
       default:
@@ -179,7 +199,7 @@ export default function Transaction() {
 
     if (searchTerm) {
       indexed = indexed.filter(({ t }) =>
-        t.Description.toLowerCase().includes(searchTerm.toLowerCase())
+        (t.Description || t.description || '').toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -188,7 +208,7 @@ export default function Transaction() {
       if (dateRange) {
         indexed = indexed.filter(({ t }) => {
           try {
-            const transactionDate = parse(t.Date, "dd/MM/yyyy", new Date());
+            const transactionDate = parse(t.Date || t.date, "dd/MM/yyyy", new Date());
             return transactionDate >= dateRange.start && transactionDate <= dateRange.end;
           } catch {
             return true;
@@ -199,7 +219,7 @@ export default function Transaction() {
 
     if (selectedCategories.length > 0) {
       indexed = indexed.filter(({ t }) =>
-        selectedCategories.includes(t.category || categorize(t.Description))
+        selectedCategories.includes(t.category || t.Category || categorize(t.Description))
       );
     }
 
@@ -215,15 +235,15 @@ export default function Transaction() {
     indexed.sort((a, b) => {
       switch (sortBy) {
         case "date-asc":
-          return parse(a.t.Date, "dd/MM/yyyy", new Date()) - parse(b.t.Date, "dd/MM/yyyy", new Date());
+          return parse(a.t.Date || a.t.date, "dd/MM/yyyy", new Date()) - parse(b.t.Date || b.t.date, "dd/MM/yyyy", new Date());
         case "date-desc":
-          return parse(b.t.Date, "dd/MM/yyyy", new Date()) - parse(a.t.Date, "dd/MM/yyyy", new Date());
+          return parse(b.t.Date || b.t.date, "dd/MM/yyyy", new Date()) - parse(a.t.Date || a.t.date, "dd/MM/yyyy", new Date());
         case "amount-asc":
           return Number(a.t.Amount) - Number(b.t.Amount);
         case "amount-desc":
           return Number(b.t.Amount) - Number(a.t.Amount);
         case "category":
-          return (a.t.category || categorize(a.t.Description)).localeCompare(b.t.category || categorize(b.t.Description));
+          return (a.t.category || a.t.Category || categorize(a.t.Description)).localeCompare(b.t.category || b.t.Category || categorize(b.t.Description));
         default:
           return 0;
       }
@@ -406,7 +426,7 @@ export default function Transaction() {
                 onClick={() => toggleCategory(category)}
                 className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-sm border transition-colors ${
                   selectedCategories.includes(category)
-                    ? "bg-[#FF6B00] text-black border-[#FF6B00]"
+                    ? "bg-[#FF6B00] text-[whitesmoke] border-[#FF6B00]"
                     : "bg-[#1F1F1F] text-gray-300 border-[#2a2a2a] hover:border-[#FF6B00]"
                 }`}
               >
@@ -428,7 +448,7 @@ export default function Transaction() {
         <div className="flex justify-end items-center px-4 pt-4">
           <button
             onClick={exportToCSV}
-            className="px-3 py-2 bg-[#FF6B00] text-black text-sm font-bold rounded-md hover:opacity-90 transition"
+            className="px-3 py-2 bg-[#FF6B00] text-[whitesmoke] text-sm font-bold rounded-md hover:opacity-90 transition"
           >
             Export CSV
           </button>
@@ -463,7 +483,7 @@ export default function Transaction() {
                 >
                   {Number(data.Amount) > 0 ? "+" : ""}
                   {data.Currency?.symbol || currency.symbol}
-                  {Math.abs(Number(data.Amount)).toLocaleString()}
+                  {Math.abs(Number(data.Amount)).toFixed(2)}
                 </td>
                 <td className="py-4 px-6">
                   <span className="bg-[#1F1F1F] text-gray-300 px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-sm border border-[#2a2a2a] flex items-center gap-2 w-fit">
@@ -497,7 +517,7 @@ export default function Transaction() {
     </div>
   ) : (
     <div className="flex flex-col items-center justify-center h-full min-h-[60vh]">
-      <div className="retro-card p-12 flex flex-col items-center max-w-md text-center border-[#FF6B00]/30 shadow-[0_0_20px_rgba(255,107,0,0.1)] animate-in fade-in zoom-in-95 duration-500 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_24px_rgba(255,107,0,0.12)]">
+      <div className="retro-card p-12 flex flex-col items-center max-w-md text-center border-[#FF6B00]/20 animate-in fade-in zoom-in-95 duration-500 transition-all duration-300 hover:border-[#FF6B00]/28">
         <div className="w-16 h-16 bg-[#FF6B00]/10 flex items-center justify-center rounded-full mb-6 text-[#FF6B00]">
           <svg
             xmlns="http://www.w3.org/2000/svg"

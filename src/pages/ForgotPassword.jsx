@@ -9,8 +9,10 @@ import DialogTitle from '@mui/material/DialogTitle';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Alert from '@mui/material/Alert';
 import { supabase } from '../lib/supabaseClient';
+import { useTheme } from '../context/ThemeContext';
 
 function ForgotPassword({ open, handleClose }) {
+  const { theme } = useTheme();
   const [email, setEmail] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
@@ -64,30 +66,30 @@ function ForgotPassword({ open, handleClose }) {
           onSubmit: handleSubmit,
           sx: { 
             backgroundImage: 'none',
-            backgroundColor: '#0a0a0a',
-            border: '1px solid #1f1f1f',
-            color: '#fff',
+            backgroundColor: theme === 'light' ? 'var(--color-fin-surface)' : 'var(--color-fin-bg-elevated)',
+            border: '1px solid var(--color-fin-border)',
+            color: 'var(--color-fin-text)',
           },
         },
       }}
     >
-      <DialogTitle sx={{ color: '#fff', fontWeight: 'bold' }}>Reset password</DialogTitle>
+      <DialogTitle sx={{ color: 'var(--color-fin-text)', fontWeight: 'bold' }}>Reset password</DialogTitle>
       <DialogContent
         sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%', minWidth: { xs: 280, sm: 400 } }}
       >
-        <DialogContentText sx={{ color: '#aaa' }}>
+        <DialogContentText sx={{ color: 'var(--color-fin-muted)' }}>
           Enter your account&apos;s email address, and we&apos;ll send you a link to
           reset your password.
         </DialogContentText>
         
         {error && (
-          <Alert severity="error" sx={{ backgroundColor: '#1a0d0d', color: '#ff8888', border: '1px solid #3d1a1a', '& .MuiAlert-icon': { color: '#ff8888' } }}>
+          <Alert severity="error" sx={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', color: 'var(--color-fin-text)', border: '1px solid rgba(239, 68, 68, 0.2)', '& .MuiAlert-icon': { color: '#ef4444' } }}>
             {error}
           </Alert>
         )}
         
         {success && (
-          <Alert severity="success" sx={{ backgroundColor: '#0d1a0d', color: '#88ff88', border: '1px solid #1a3d1a', '& .MuiAlert-icon': { color: '#88ff88' } }}>
+          <Alert severity="success" sx={{ backgroundColor: 'rgba(139, 92, 246, 0.08)', color: 'var(--color-fin-text)', border: '1px solid rgba(139, 92, 246, 0.2)', '& .MuiAlert-icon': { color: 'var(--color-fin-accent)' } }}>
             {success}
           </Alert>
         )}
@@ -106,21 +108,21 @@ function ForgotPassword({ open, handleClose }) {
           onChange={(e) => setEmail(e.target.value)}
           disabled={loading || !!success}
           sx={{
-            color: '#fff',
+            color: 'var(--color-fin-text)',
             '& .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#222',
+              borderColor: 'var(--color-fin-border)',
             },
             '&:hover .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#444',
+              borderColor: 'var(--color-fin-muted)',
             },
             '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#FF6B00',
+              borderColor: 'var(--color-fin-accent)',
             },
           }}
         />
       </DialogContent>
       <DialogActions sx={{ pb: 3, px: 3 }}>
-        <Button onClick={handleCancel} disabled={loading} sx={{ color: '#aaa', '&:hover': { color: '#fff' } }}>
+        <Button onClick={handleCancel} disabled={loading} sx={{ color: 'var(--color-fin-muted)', '&:hover': { color: 'var(--color-fin-text)' } }}>
           Cancel
         </Button>
         <Button 
@@ -128,15 +130,15 @@ function ForgotPassword({ open, handleClose }) {
           type="submit" 
           disabled={loading || !!success}
           sx={{ 
-            backgroundColor: '#FF6B00', 
-            color: '#000', 
+            backgroundColor: 'var(--color-fin-accent)', 
+            color: 'var(--color-fin-text-inverse)', 
             fontWeight: 'bold',
             '&:hover': { 
-              backgroundColor: '#e05e00' 
+              backgroundColor: 'var(--color-fin-accent-strong)' 
             },
             '&.Mui-disabled': {
-              backgroundColor: '#333',
-              color: '#666',
+              backgroundColor: 'var(--color-fin-border)',
+              color: 'var(--color-fin-muted)',
             }
           }}
         >
