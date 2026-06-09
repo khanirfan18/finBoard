@@ -708,10 +708,7 @@ body[data-theme="light"] ::-webkit-scrollbar-thumb {
   justify-content: center;
   padding: 2rem;
   overflow: hidden;
-<<<<<<< HEAD
-=======
   background: var(--color-fin-bg);
->>>>>>> upstream/main
 }
 
 .auth-bg-glow {
@@ -737,7 +734,6 @@ body[data-theme="light"] ::-webkit-scrollbar-thumb {
 .auth-card {
   position: relative;
   width: 100%;
-<<<<<<< HEAD
   max-width: 430px;
   padding: 2rem;
   background: linear-gradient(135deg, #161616 0%, #101010 100%);
@@ -745,44 +741,19 @@ body[data-theme="light"] ::-webkit-scrollbar-thumb {
   border-radius: 22px;
   box-shadow: 0 18px 60px rgba(0, 0, 0, 0.55);
   z-index: 1;
-=======
-  max-width: 420px;
-  background: linear-gradient(145deg, #111111 0%, #0c0c0c 100%);
-  border: 1px solid #1e1e1e;
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow:
-    0 24px 80px rgba(0, 0, 0, 0.6),
-    0 0 0 1px rgba(255, 107, 0, 0.04);
-}
-.auth-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 10%;
-  right: 10%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 107, 0, 0.4), transparent);
->>>>>>> upstream/main
 }
 
 .auth-header {
   text-align: center;
-<<<<<<< HEAD
   margin-bottom: 1.8rem;
-=======
-  margin-bottom: 1.5rem;
->>>>>>> upstream/main
 }
 
 .auth-logo {
   display: inline-block;
-<<<<<<< HEAD
   color: var(--color-fin-orange);
   font-weight: 900;
   letter-spacing: 0.15em;
   margin-bottom: 0.8rem;
-=======
   font-family: 'Righteous', 'Bungee', cursive;
   font-size: 1.5rem;
   background: linear-gradient(135deg, #FF6B00 0%, #FF8C00 50%, #FFA500 100%);
@@ -791,14 +762,11 @@ body[data-theme="light"] ::-webkit-scrollbar-thumb {
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 2px 10px rgba(255, 107, 0, 0.35));
   margin-bottom: 0.75rem;
->>>>>>> upstream/main
 }
 
 .auth-title {
-<<<<<<< HEAD
   font-size: 2rem;
   font-weight: 800;
-=======
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--color-fin-text);
@@ -808,7 +776,6 @@ body[data-theme="light"] ::-webkit-scrollbar-thumb {
 .auth-subtitle {
   font-size: 0.85rem;
   color: var(--color-fin-muted);
->>>>>>> upstream/main
   margin: 0;
 }
 
@@ -853,20 +820,17 @@ body[data-theme="light"] ::-webkit-scrollbar-thumb {
 .auth-input-wrap {
   display: flex;
   align-items: center;
-<<<<<<< HEAD
   gap: 0.6rem;
   background: #0d0d0d;
   border: 1px solid var(--color-fin-border);
   border-radius: 12px;
   padding: 0 0.85rem;
-=======
   gap: 0.5rem;
   background: #0a0a0a;
   border: 1px solid #222;
   border-radius: 10px;
   padding: 0 0.75rem;
   transition: all 0.25s ease;
->>>>>>> upstream/main
 }
 
 .auth-input-wrap:focus-within {
@@ -890,13 +854,10 @@ body[data-theme="light"] ::-webkit-scrollbar-thumb {
   border: none;
   outline: none;
   color: var(--color-fin-text);
-<<<<<<< HEAD
   font-size: 0.95rem;
-=======
   font-size: 0.9rem;
   padding: 0.65rem 0;
   font-family: inherit;
->>>>>>> upstream/main
 }
 
 .auth-input::placeholder {
@@ -930,9 +891,6 @@ body[data-theme="light"] ::-webkit-scrollbar-thumb {
   display: flex;
   align-items: center;
   justify-content: center;
-<<<<<<< HEAD
-  gap: 0.55rem;
-=======
   gap: 0.5rem;
   width: 100%;
   padding: 0.75rem 1.5rem;
@@ -956,7 +914,6 @@ body[data-theme="light"] ::-webkit-scrollbar-thumb {
 }
 .auth-submit-btn:active:not(:disabled) {
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.16);
->>>>>>> upstream/main
 }
 
 .auth-submit-btn:disabled {
@@ -977,7 +934,6 @@ body[data-theme="light"] ::-webkit-scrollbar-thumb {
 .auth-divider {
   display: flex;
   align-items: center;
-<<<<<<< HEAD
   gap: 0.8rem;
   margin: 1.5rem 0;
   color: var(--color-fin-muted);
@@ -988,7 +944,6 @@ body[data-theme="light"] ::-webkit-scrollbar-thumb {
 .auth-divider::after {
   content: "";
   height: 1px;
-=======
   gap: 1rem;
   margin: 1.25rem 0;
 }
@@ -1011,7 +966,6 @@ body[data-theme="light"] ::-webkit-scrollbar-thumb {
   gap: 0.6rem;
 }
 .auth-social-btn {
->>>>>>> upstream/main
   flex: 1;
   background: var(--color-fin-border);
 }
@@ -1034,8 +988,6 @@ body[data-theme="light"] ::-webkit-scrollbar-thumb {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-<<<<<<< HEAD
-=======
   padding: 0.65rem 1rem;
   background: #0a0a0a;
   border: 1px solid #222;
@@ -1050,7 +1002,6 @@ body[data-theme="light"] ::-webkit-scrollbar-thumb {
   border-color: #333;
   background: #111;
   color: #f0f0f0;
->>>>>>> upstream/main
 }
 
 .auth-footer-text {
@@ -1089,8 +1040,6 @@ body[data-theme="light"] ::-webkit-scrollbar-thumb {
   cursor: pointer;
 }
 
-<<<<<<< HEAD
-=======
 /* ── Footer text ───────────────────────────────────────────────────────── */
 .auth-footer-text {
   text-align: center;
@@ -1109,7 +1058,6 @@ body[data-theme="light"] ::-webkit-scrollbar-thumb {
 }
 
 /* ── Responsive ────────────────────────────────────────────────────────── */
->>>>>>> upstream/main
 @media (max-width: 480px) {
   .auth-page {
     padding: 1rem;
@@ -1117,8 +1065,6 @@ body[data-theme="light"] ::-webkit-scrollbar-thumb {
 
   .auth-card {
     padding: 1.5rem;
-<<<<<<< HEAD
-=======
     border-radius: 16px;
   }
   .auth-title {
@@ -1129,17 +1075,13 @@ body[data-theme="light"] ::-webkit-scrollbar-thumb {
   }
   .auth-form {
     gap: 0.85rem;
->>>>>>> upstream/main
   }
 
   .auth-social-row {
-<<<<<<< HEAD
-    grid-template-columns: 1fr;
-  }
-=======
+    display: flex;
     flex-direction: column;
     gap: 0.5rem;
-  }
+}
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
@@ -1376,5 +1318,4 @@ body[data-theme="light"] .theme-sidebar {
   color: var(--color-fin-accent);
   font-size: 1.2rem;
   font-weight: 700;
->>>>>>> upstream/main
 }
