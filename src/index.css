@@ -1212,3 +1212,298 @@ body[data-theme="light"] .theme-sidebar {
   font-size: 1.2rem;
   font-weight: 700;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RESPONSIVE SYSTEM PATCH (APPEND ONLY)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Base responsive typography scaling ─────────────────────────────── */
+html {
+  font-size: 16px;
+}
+
+@media (max-width: 992px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 14.5px;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+/* ── Global container behavior ──────────────────────────────────────── */
+.container,
+.theme-shell {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .container,
+  .theme-shell {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container,
+  .theme-shell {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
+
+/* ── Layout stacks (grid → column fallback) ─────────────────────────── */
+.responsive-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (max-width: 992px) {
+  .responsive-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .responsive-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* ── Flex responsiveness helpers ───────────────────────────────────── */
+.flex-responsive {
+  display: flex;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .flex-responsive {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+/* ── Card responsiveness ───────────────────────────────────────────── */
+.fin-card,
+.retro-card,
+.fin-metric-card,
+.auth-card {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .fin-card,
+  .retro-card,
+  .fin-metric-card {
+    border-radius: 14px;
+  }
+
+  .fin-metric-card {
+    padding: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .fin-card,
+  .retro-card,
+  .fin-metric-card {
+    border-radius: 12px;
+  }
+
+  .fin-metric-card {
+    padding: 1rem;
+  }
+}
+
+/* ── Auth page mobile optimization ─────────────────────────────────── */
+@media (max-width: 768px) {
+  .auth-page {
+    padding: 1rem;
+  }
+
+  .auth-card {
+    max-width: 100%;
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+
+  .auth-title {
+    font-size: 1.25rem;
+  }
+
+  .auth-subtitle {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 1.25rem;
+  }
+
+  .auth-logo {
+    font-size: 1.25rem;
+  }
+}
+
+/* ── Profile dropdown mobile fix ───────────────────────────────────── */
+@media (max-width: 768px) {
+  .profile-dropdown {
+    width: 220px;
+    right: 0;
+  }
+
+  .profile-name {
+    max-width: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-dropdown {
+    width: 200px;
+  }
+
+  .profile-trigger {
+    padding: 0.3rem 0.6rem;
+  }
+
+  .profile-avatar {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* ── Buttons scaling ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .retro-btn,
+  .auth-submit-btn {
+    padding: 0.65rem 1.25rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .retro-btn,
+  .auth-submit-btn {
+    width: 100%;
+  }
+}
+
+/* ── Table responsiveness (critical for dashboards) ───────────────── */
+@media (max-width: 768px) {
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .table :where(th, td) {
+    padding: 0.6rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* ── Sidebar behavior for mobile ───────────────────────────────────── */
+@media (max-width: 992px) {
+  .theme-sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 260px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 50;
+  }
+
+  .theme-sidebar.open {
+    transform: translateX(0);
+  }
+}
+
+/* ── Overlay for mobile sidebar ────────────────────────────────────── */
+.sidebar-overlay {
+  display: none;
+}
+
+@media (max-width: 992px) {
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 40;
+  }
+}
+
+/* ── Text scaling helpers ──────────────────────────────────────────── */
+.text-responsive-lg {
+  font-size: 1.5rem;
+}
+
+.text-responsive-md {
+  font-size: 1.1rem;
+}
+
+.text-responsive-sm {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .text-responsive-lg {
+    font-size: 1.25rem;
+  }
+
+  .text-responsive-md {
+    font-size: 1rem;
+  }
+
+  .text-responsive-sm {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .text-responsive-lg {
+    font-size: 1.1rem;
+  }
+
+  .text-responsive-md {
+    font-size: 0.95rem;
+  }
+
+  .text-responsive-sm {
+    font-size: 0.8rem;
+  }
+}
+
+/* ── Spacing compression for small screens ────────────────────────── */
+@media (max-width: 480px) {
+  .gap-responsive {
+    gap: 0.75rem !important;
+  }
+
+  .p-responsive {
+    padding: 0.75rem !important;
+  }
+
+  .m-responsive {
+    margin: 0.75rem !important;
+  }
+}
+
