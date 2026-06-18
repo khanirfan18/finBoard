@@ -33,7 +33,9 @@
 
 ---
 
-## <p align="center"><strong>A retro-themed personal finance dashboard for budgeting, transaction tracking, and financial insights.</strong></p>
+<h3 align="center">A retro-themed personal finance dashboard for budgeting, transaction tracking, and financial insights.</h3>
+
+## ✨ Features
 
 ## ✨ Features
 <table>
