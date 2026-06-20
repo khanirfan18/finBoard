@@ -75,7 +75,7 @@ export default function Settings() {
     Date: format(new Date(), "dd/MM/yyyy"),
     Description: "",
     Amount: "",
-    Category: "Other",
+    category: "Other",
   });
 
   // =========================
@@ -105,15 +105,14 @@ export default function Settings() {
           return;
         }
 
-        const requiredKeys = ["Date", "Description", "Amount", "Category"];
-        const hasAllKeys = requiredKeys.every((key) => key in parsedData[0]);
+        const requiredKeys = ["Date", "Description", "Amount", "category"];
+        const hasAllKeys = requiredKeys.every((key) => key in parsedData[0] || (key === 'category' && 'Category' in parsedData[0]));
 
         if (!hasAllKeys) {
           setLoading(false);
           showModal({
             type: "alert",
-            message:
-              "Invalid CSV format. Required: Date, Description, Amount, Category.",
+            message: "Invalid CSV format. Required: Date, Description, Amount, category.",
           });
           return;
         }
@@ -122,7 +121,7 @@ export default function Settings() {
           Date: item.Date,
           Description: item.Description,
           Amount: item.Amount,
-          Category: item.Category,
+          category: item.category || item.Category,
           Currency: currency,
           source: 'csv',
         }));
@@ -195,7 +194,7 @@ export default function Settings() {
       Amount: transactionType === "expense"
         ? -Math.abs(Number(manualTransaction.Amount))
         : Math.abs(Number(manualTransaction.Amount)),
-      category: manualTransaction.Category,
+      category: manualTransaction.category,
       Currency: currency,
       source: 'manual',
     };
@@ -206,7 +205,7 @@ export default function Settings() {
       Date: format(new Date(), "dd/MM/yyyy"),
       Description: "",
       Amount: "",
-      Category: "Other",
+      category: "Other",
     });
 
     setSuccessMessage("Transaction Added!");
@@ -372,11 +371,11 @@ export default function Settings() {
                   Category
                 </label>
                 <select
-                  value={manualTransaction.Category}
+                  value={manualTransaction.category}
                   onChange={(e) =>
                     setManualTransaction({
                       ...manualTransaction,
-                      Category: e.target.value,
+                      category: e.target.value,
                     })
                   }
                   className="retro-input w-full p-4"

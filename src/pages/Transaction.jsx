@@ -273,7 +273,7 @@ export default function Transaction() {
 
     if (selectedCategories.length > 0) {
       indexed = indexed.filter(({ t }) =>
-        selectedCategories.includes(t.category || t.Category || categorize(t.Description))
+        selectedCategories.includes(t.category || categorize(t.Description))
       );
     }
 
@@ -297,7 +297,7 @@ export default function Transaction() {
         case "amount-desc":
           return Number(b.t.Amount) - Number(a.t.Amount);
         case "category":
-          return (a.t.category || a.t.Category || categorize(a.t.Description)).localeCompare(b.t.category || b.t.Category || categorize(b.t.Description));
+          return (a.t.category || categorize(a.t.Description)).localeCompare(b.t.category || categorize(b.t.Description));
         default:
           return 0;
       }

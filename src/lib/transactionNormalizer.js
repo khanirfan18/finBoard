@@ -39,8 +39,7 @@ export function normalizeTransaction(input = {}, opts = {}) {
   const num = Number(rawAmt);
   const Amount = Number.isFinite(num) ? num : 0;
 
-  const cat = (src.category || src.Category) || (Description ? categorize(Description) : 'Other');
-
+  const cat = src.category || src.Category || (Description ? categorize(Description) : 'Other');
   const Currency = src.Currency || src.currency || opts.currency || null;
 
   const normalized = {
@@ -48,9 +47,8 @@ export function normalizeTransaction(input = {}, opts = {}) {
     Date: DateVal || (src.Date || src.date || ''),
     Description: Description,
     Amount: Amount,
-    // provide both forms so readers using either key find it
+    // provide standardized lowercase key
     category: cat,
-    Category: cat,
     Currency,
     id: src.id || uuidv4(),
     createdAt: src.createdAt || src.created_at || new Date().toISOString(),

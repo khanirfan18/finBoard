@@ -15,7 +15,7 @@ export default function InsightCards({ transactions }) {
     transactions.forEach(t => {
       // Pull using exact schema keys from matching data matrix
       const amt = Number(t.Amount) || 0;
-      const category = t.category || t.Category || 'Other';
+      const category = t.category || 'Other';
       
       let monthYear = "Active Period";
       if (t.Date) {

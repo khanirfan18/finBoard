@@ -17,7 +17,7 @@ export default function CategoryBreakdown({ transactions }) {
         const desc = (t.Description || t.description || '').toString().trim().toLowerCase();
 
         // Prefer stored category if present
-        let categoryKey = (t.category || t.Category || '').toString().trim().toLowerCase();
+        let categoryKey = (t.category || '').toString().trim().toLowerCase();
 
         if (!categoryKey) {
           // Derive from description when no stored category

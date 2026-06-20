@@ -75,6 +75,7 @@ export function AppContext({ children }) {
             Date: t.date,
             Amount: t.amount,
             Description: t.description,
+            category: t.category,
             Currency: t.currency
           }));
           
@@ -136,6 +137,7 @@ export function AppContext({ children }) {
         date: normalized.Date,
         amount: normalized.Amount,
         description: normalized.Description,
+        category: normalized.category,
         currency: normalized.Currency
       }).select().single();
       
@@ -165,6 +167,7 @@ export function AppContext({ children }) {
         date: normalized.Date,
         amount: normalized.Amount,
         description: normalized.Description,
+        category: normalized.category,
         currency: normalized.Currency
       }).eq('id', targetTx.id);
     }

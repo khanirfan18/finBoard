@@ -65,7 +65,7 @@ export default function InsightsDashboard() {
       category = "Income";
     }
 
-    return { ...t, Category: category };
+    return { ...t, category };
   });
 
   return (

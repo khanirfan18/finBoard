@@ -14,6 +14,7 @@ create table public.transactions (
   date text not null,
   amount numeric not null,
   description text not null,
+  category text,
   currency jsonb,
   created_at timestamptz default now()
 );

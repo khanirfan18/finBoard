@@ -106,24 +106,21 @@ export default function Dashboard() {
 
   const savings = totalIncome + totalExpense;
 
-  const categoryData = useMemo(() => {
-    return (
-      transactions
-        ?.filter((t) => Number(t.Amount) < 0)
-        .reduce((acc, item) => {
-          const category =
-            item.category ||
-            item.Category ||
-            categorize(item.Description);
+   const categoryData = useMemo(() => {
+  return (
+    transactions
+      ?.filter((t) => Number(t.Amount) < 0)
+      .reduce((acc, item) => {
+        const category = item.category || categorize(item.Description);
 
-          acc[category] =
-            (acc[category] || 0) +
-            Math.abs(Number(item.Amount));
+        acc[category] =
+          (acc[category] || 0) +
+          Math.abs(Number(item.Amount));
 
-          return acc;
-        }, {}) || {}
-    );
-  }, [transactions]);
+        return acc;
+      }, {}) || {}
+  );
+}, [transactions]);
 
   const chartData = useMemo(() => {
     return Object.entries(categoryData).map(([name, value]) => ({

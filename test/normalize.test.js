@@ -15,7 +15,6 @@ assert.strictEqual(typeof normalized.id, 'string', 'id generated');
 assert.strictEqual(normalized.Description, 'Swiggy Order');
 assert.strictEqual(normalized.Date, '01/01/2025');
 assert.strictEqual(normalized.category, 'Food');
-assert.strictEqual(normalized.Category, 'Food');
 assert.strictEqual(typeof normalized.Amount, 'number');
 
 // array normalize
