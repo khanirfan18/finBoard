@@ -27,6 +27,15 @@ export default function Dashboard() {
   const [showForm, setShowForm] = React.useState(false);
   const [successMsg, setSuccessMsg] = React.useState("");
   const [errorMsg, setErrorMsg] = React.useState("");
+  const [showWelcome, setShowWelcome] = React.useState(false);
+
+  React.useEffect(() => {
+    const dismissed = localStorage.getItem("finboard_welcome_dismissed");
+
+    if (!dismissed) {
+      setShowWelcome(true);
+    }
+  }, []);
   const [form, setForm] = React.useState({
     Date: format(new Date(), "dd/MM/yyyy"),
     Description: "",
@@ -80,48 +89,48 @@ export default function Dashboard() {
     ? ["#FF6B00", "#FF8C00", "#FFA500", "#FFB732", "#FFC966", "#FFDB99", "#FFECCC"]
     : ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A28DFF", "#FF6B6B", "#82ca9d"];
 
- const totalIncome = useMemo(() => {
-  return transactions?.reduce((acc, amt) => {
-    const num = Number(amt.Amount);
-    return num > 0 ? acc + num : acc;
-  }, 0);
-}, [transactions]);
+  const totalIncome = useMemo(() => {
+    return transactions?.reduce((acc, amt) => {
+      const num = Number(amt.Amount);
+      return num > 0 ? acc + num : acc;
+    }, 0);
+  }, [transactions]);
 
-const totalExpense = useMemo(() => {
-  return transactions?.reduce((acc, item) => {
-    const amount = Number(item.Amount);
-    return amount < 0 ? acc + amount : acc;
-  }, 0);
-}, [transactions]);
+  const totalExpense = useMemo(() => {
+    return transactions?.reduce((acc, item) => {
+      const amount = Number(item.Amount);
+      return amount < 0 ? acc + amount : acc;
+    }, 0);
+  }, [transactions]);
 
 
   const savings = totalIncome + totalExpense;
 
-   const categoryData = useMemo(() => {
-  return (
-    transactions
-      ?.filter((t) => Number(t.Amount) < 0)
-      .reduce((acc, item) => {
-        const category =
-          item.category ||
-          item.Category ||
-          categorize(item.Description);
+  const categoryData = useMemo(() => {
+    return (
+      transactions
+        ?.filter((t) => Number(t.Amount) < 0)
+        .reduce((acc, item) => {
+          const category =
+            item.category ||
+            item.Category ||
+            categorize(item.Description);
 
-        acc[category] =
-          (acc[category] || 0) +
-          Math.abs(Number(item.Amount));
+          acc[category] =
+            (acc[category] || 0) +
+            Math.abs(Number(item.Amount));
 
-        return acc;
-      }, {}) || {}
-  );
-}, [transactions]);
+          return acc;
+        }, {}) || {}
+    );
+  }, [transactions]);
 
   const chartData = useMemo(() => {
-  return Object.entries(categoryData).map(([name, value]) => ({
-    name,
-    value,
-  }));
-}, [categoryData]);
+    return Object.entries(categoryData).map(([name, value]) => ({
+      name,
+      value,
+    }));
+  }, [categoryData]);
 
   const getMonth = (dateStr) => {
     const date = parse(dateStr, "dd/MM/yyyy", new Date());
@@ -129,36 +138,53 @@ const totalExpense = useMemo(() => {
   };
 
   const monthData = useMemo(() => {
-  return transactions?.reduce((acc, item) => {
-    const month = getMonth(item.Date);
+    return transactions?.reduce((acc, item) => {
+      const month = getMonth(item.Date);
 
-    if (!acc[month]) {
-      acc[month] = {
-        month,
-        income: 0,
-        spent: 0,
-      };
-    }
+      if (!acc[month]) {
+        acc[month] = {
+          month,
+          income: 0,
+          spent: 0,
+        };
+      }
 
-    const amt = Math.abs(Number(item.Amount));
+      const amt = Math.abs(Number(item.Amount));
 
-    if (Number(item.Amount) > 0) {
-      acc[month].income += amt;
-    } else {
-      acc[month].spent += amt;
-    }
+      if (Number(item.Amount) > 0) {
+        acc[month].income += amt;
+      } else {
+        acc[month].spent += amt;
+      }
 
-    return acc;
-  }, {});
-}, [transactions]); 
+      return acc;
+    }, {});
+  }, [transactions]);
 
-const barData = useMemo(() => {
-  return Object.values(monthData || {});
-}, [monthData]);
+  const barData = useMemo(() => {
+    return Object.values(monthData || {});
+  }, [monthData]);
 
-return (
+  return (
     <>
       <div className="space-y-8 animate-in fade-in duration-500">
+        {showWelcome && (
+          <div className="retro-card px-4 py-3 relative flex items-center justify-between gap-3">
+            <p className="text-sm text-gray-300">
+              🎉 <span className="font-bold text-white">Welcome to FinBoard</span> — track expenses, set budgets, and reach your savings goals.
+            </p>
+            <button
+              onClick={() => {
+                localStorage.setItem("finboard_welcome_dismissed", "true");
+                setShowWelcome(false);
+              }}
+              aria-label="Close welcome banner"
+              className="shrink-0"
+            >
+              <X className="w-4 h-4 text-gray-400 hover:text-white" />
+            </button>
+          </div>
+        )}
         {loading && (
           <div className="flex justify-center items-center py-10">
             <span className="loading loading-spinner loading-lg text-primary"></span>
@@ -302,13 +328,24 @@ return (
             </section>
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center h-full min-h-[78vh] pt-10 animate-in fade-in duration-500">
-            <div className="retro-card p-12 flex flex-col items-center max-w-md text-center border-[#FF6B00]/20 transition-all duration-300 hover:border-[#FF6B00]/28">
-              <div className="w-16 h-16 bg-[#FF6B00]/10 flex items-center justify-center rounded-full mb-6 text-[#FF6B00]">
+          <div className="flex flex-col items-center justify-center min-h-[60vh] animate-in fade-in duration-500">
+            <div
+              className="retro-card p-10 flex flex-col items-center max-w-md text-center border-[#FF6B00]/20 transition-all duration-300 hover:-translate-y-1"
+              style={{
+                boxShadow: "0 8px 32px rgba(255,107,0,0.12), 0 2px 8px rgba(0,0,0,0.4)",
+              }}
+            >
+              <div
+                className="w-16 h-16 bg-[#FF6B00]/10 flex items-center justify-center rounded-full mb-5 text-[#FF6B00] animate-bounce"
+                style={{
+                  animationDuration: "3s",
+                  boxShadow: "0 0 20px rgba(255,107,0,0.3)",
+                }}
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="32"
-                  height="32"
+                  width="28"
+                  height="28"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -319,15 +356,35 @@ return (
                   <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                 </svg>
               </div>
-              <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">
-                No Data Found
+              <h2 className="text-2xl font-black mb-2">
+                Welcome to FinBoard
               </h2>
-              <p className="text-gray-400 mb-8 leading-relaxed min-h-[88px] flex items-center justify-center">
-                Upload your transaction history from settings to start tracking your finances.
+              <p className="text-gray-400 text-base mb-7">
+                Get started in three quick steps.
               </p>
-              <Link to="/settings" className="retro-btn">
-                Configure Settings
-              </Link>
+
+              <div className="w-full flex flex-col gap-2 text-sm">
+                <div className="flex justify-between items-center gap-2 p-3 border border-[#FF6B00]/20 rounded-lg">
+                  <span className="text-gray-300">📝 Add a transaction</span>
+                  <button onClick={() => setShowForm(true)} className="text-[#FF6B00] font-bold text-xs uppercase hover:underline">
+                    Add
+                  </button>
+                </div>
+
+                <div className="flex justify-between items-center gap-2 p-3 border border-[#FF6B00]/20 rounded-lg">
+                  <span className="text-gray-300">💰 Set a budget</span>
+                  <Link to="/budgets" className="text-[#FF6B00] font-bold text-xs uppercase hover:underline">
+                    Set
+                  </Link>
+                </div>
+
+                <div className="flex justify-between items-center gap-2 p-3 border border-[#FF6B00]/20 rounded-lg">
+                  <span className="text-gray-300">🎯 Create a goal</span>
+                  <Link to="/goals" className="text-[#FF6B00] font-bold text-xs uppercase hover:underline">
+                    Create
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -381,22 +438,20 @@ return (
                 <button
                   type="button"
                   onClick={() => setTransactionType("expense")}
-                  className={`flex-1 py-3 text-sm font-bold uppercase tracking-wider transition-colors ${
-                    transactionType === "expense"
-                      ? "bg-[#FF6B6B] text-white"
-                      : "bg-[#111] text-gray-400 hover:text-white"
-                  }`}
+                  className={`flex-1 py-3 text-sm font-bold uppercase tracking-wider transition-colors ${transactionType === "expense"
+                    ? "bg-[#FF6B6B] text-white"
+                    : "bg-[#111] text-gray-400 hover:text-white"
+                    }`}
                 >
                   Expense
                 </button>
                 <button
                   type="button"
                   onClick={() => setTransactionType("income")}
-                  className={`flex-1 py-3 text-sm font-bold uppercase tracking-wider transition-colors ${
-                    transactionType === "income"
-                      ? "bg-[#00C49F] text-white"
-                      : "bg-[#111] text-gray-400 hover:text-white"
-                  }`}
+                  className={`flex-1 py-3 text-sm font-bold uppercase tracking-wider transition-colors ${transactionType === "income"
+                    ? "bg-[#00C49F] text-white"
+                    : "bg-[#111] text-gray-400 hover:text-white"
+                    }`}
                 >
                   Income
                 </button>

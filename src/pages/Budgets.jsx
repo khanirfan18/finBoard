@@ -12,7 +12,7 @@ export default function Budgets() {
   const { showModal } = useModal();
   const { theme } = useTheme();
   const { user } = useAuth();
-  
+
   const [budgets, setBudgets] = React.useState({});
   const [showAlert, setShowAlert] = React.useState(false);
   const [exceededCategories, setExceededCategories] = React.useState([]);
@@ -28,7 +28,7 @@ export default function Budgets() {
         .from('budgets')
         .select('category, amount')
         .eq('user_id', user.id);
-        
+
       if (data && !error) {
         const budgetsObj = {};
         data.forEach(b => {
@@ -87,7 +87,7 @@ export default function Budgets() {
     const numValue = Number(value);
     if (numValue >= 0) {
       setBudgets(prev => ({ ...prev, [category]: numValue }));
-      
+
       if (user) {
         await supabase
           .from('budgets')
@@ -100,7 +100,7 @@ export default function Budgets() {
       const newBudgets = { ...budgets };
       delete newBudgets[category];
       setBudgets(newBudgets);
-      
+
       if (user) {
         await supabase
           .from('budgets')
@@ -351,8 +351,19 @@ export default function Budgets() {
     </div>
   ) : (
     <div className="flex flex-col items-center justify-center h-full min-h-[60vh]">
-      <div className="retro-card p-12 flex flex-col items-center max-w-md text-center border-[#FF6B6B]/20 animate-in fade-in zoom-in-95 duration-500 transition-all duration-300 hover:border-[#FF6B6B]/28">
-        <div className="w-16 h-16 bg-[#FF6B00]/10 flex items-center justify-center rounded-full mb-6 text-[#FF6B00]">
+      <div
+        className="retro-card p-12 flex flex-col items-center max-w-md text-center border-[#FF6B00]/20 animate-in fade-in zoom-in-95 duration-500 transition-all duration-300 hover:-translate-y-1"
+        style={{
+          boxShadow: "0 8px 32px rgba(255,107,0,0.12), 0 2px 8px rgba(0,0,0,0.4)",
+        }}
+      >
+        <div
+          className="w-16 h-16 bg-[#FF6B00]/10 flex items-center justify-center rounded-full mb-6 text-[#FF6B00] animate-bounce"
+          style={{
+            animationDuration: "3s",
+            boxShadow: "0 0 20px rgba(255,107,0,0.3)",
+          }}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="32"
@@ -370,11 +381,11 @@ export default function Budgets() {
         <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">
           No Budgets Yet
         </h2>
-        <p className="text-gray-400 mb-8 leading-relaxed min-h-[88px] flex items-center justify-center">
-          We need transaction data to compute categories so you can set budgets.
+        <p className="text-gray-400 mb-8 leading-relaxed min-h-[88px] text-center">
+          Add an <span className="text-[#FF6B00] font-bold">expense</span> transaction first — we'll detect its category so you can set a spending limit for it.
         </p>
-        <Link to="/settings" className="retro-btn">
-          Configure Settings
+        <Link to="/" className="retro-btn">
+          Go to Dashboard
         </Link>
       </div>
     </div>

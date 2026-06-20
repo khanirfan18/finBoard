@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { DataContext } from "../context/DataContext";
 import { useModal } from "../context/ModalContext";
 import categorize from "../components/utils/categorize";
-import { parse } from "date-fns";
+import { parse, format } from "date-fns";
 import { createPortal } from "react-dom";
 
 const categoryIcons = {
@@ -128,7 +128,7 @@ function EditModal({ transaction, onSave, onClose }) {
 }
 
 export default function Transaction() {
-  const { transactions, currency, deleteTransaction, updateTransaction } =
+  const { transactions, currency, deleteTransaction, updateTransaction, addTransaction } =
     React.useContext(DataContext);
   const { showModal } = useModal();
 
@@ -139,6 +139,60 @@ export default function Transaction() {
   const [minAmount, setMinAmount] = React.useState("");
   const [maxAmount, setMaxAmount] = React.useState("");
   const [editingIndex, setEditingIndex] = React.useState(null);
+
+  // Quick Add Transaction state
+  const [showForm, setShowForm] = React.useState(false);
+  const [successMsg, setSuccessMsg] = React.useState("");
+  const [errorMsg, setErrorMsg] = React.useState("");
+  const [quickAddForm, setQuickAddForm] = React.useState({
+    Date: format(new Date(), "dd/MM/yyyy"),
+    Description: "",
+    Amount: "",
+  });
+  const [transactionType, setTransactionType] = React.useState("expense");
+
+  const handleQuickAdd = (e) => {
+    e.preventDefault();
+    setErrorMsg("");
+
+    const description = quickAddForm.Description.trim();
+    const amount = Number(quickAddForm.Amount);
+
+    if (!quickAddForm.Date || !description || !quickAddForm.Amount) {
+      setErrorMsg("Please fill all fields before adding a transaction.");
+      return;
+    }
+
+    if (!Number.isFinite(amount) || amount === 0) {
+      setErrorMsg("Enter a valid non-zero amount.");
+      return;
+    }
+
+    if (typeof addTransaction !== "function") {
+      setErrorMsg("Transaction service is unavailable. Please refresh and try again.");
+      return;
+    }
+
+    addTransaction({
+      Date: quickAddForm.Date,
+      Description: description,
+      Amount: transactionType === "expense"
+        ? -Math.abs(amount)
+        : Math.abs(amount),
+      category: categorize(description),
+      Currency: currency,
+    });
+
+    setQuickAddForm({
+      Date: format(new Date(), "dd/MM/yyyy"),
+      Description: "",
+      Amount: "",
+    });
+
+    setSuccessMsg("Transaction added!");
+    setShowForm(false);
+    setTimeout(() => setSuccessMsg(""), 3000);
+  };
 
   const allCategories = React.useMemo(() => {
     const cats = new Set();
@@ -311,7 +365,9 @@ export default function Transaction() {
     document.body.removeChild(link);
   };
 
-  return transactions && transactions.length > 0 ? (
+  return (
+    <>
+    {transactions && transactions.length > 0 ? (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Edit Modal */}
       {editingIndex !== null && (
@@ -517,8 +573,19 @@ export default function Transaction() {
     </div>
   ) : (
     <div className="flex flex-col items-center justify-center h-full min-h-[60vh]">
-      <div className="retro-card p-12 flex flex-col items-center max-w-md text-center border-[#FF6B00]/20 animate-in fade-in zoom-in-95 duration-500 transition-all duration-300 hover:border-[#FF6B00]/28">
-        <div className="w-16 h-16 bg-[#FF6B00]/10 flex items-center justify-center rounded-full mb-6 text-[#FF6B00]">
+      <div
+        className="retro-card p-12 flex flex-col items-center max-w-md text-center border-[#FF6B00]/20 animate-in fade-in zoom-in-95 duration-500 transition-all duration-300 hover:-translate-y-1"
+        style={{
+          boxShadow: "0 8px 32px rgba(255,107,0,0.12), 0 2px 8px rgba(0,0,0,0.4)",
+        }}
+      >
+        <div
+          className="w-16 h-16 bg-[#FF6B00]/10 flex items-center justify-center rounded-full mb-6 text-[#FF6B00] animate-bounce"
+          style={{
+            animationDuration: "3s",
+            boxShadow: "0 0 20px rgba(255,107,0,0.3)",
+          }}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="32"
@@ -541,13 +608,104 @@ export default function Transaction() {
         <h2 className="text-2xl font-black tracking-wider text-white mb-2 uppercase">
           No Transactions
         </h2>
-       <p className="text-gray-400 mb-8 leading-relaxed min-h-[96px] flex items-center">
-        No transactions found. Upload your data to view the history.
-       </p>
-        <Link to="/settings" className="retro-btn">
-          Configure Settings
-        </Link>
+        <p className="text-gray-400 mb-8 leading-relaxed min-h-[96px] text-center">
+          You haven't added any transactions yet. Add your first one below, or upload your history from settings.
+        </p>
+        <button onClick={() => { setErrorMsg(""); setShowForm(true); }} className="retro-btn">
+          Add Transaction
+        </button>
       </div>
     </div>
+    )}
+
+      {successMsg && (
+        <div className="fixed bottom-24 right-8 z-50 rounded-xl border border-green-500/40 bg-[#111] px-4 py-3 text-sm font-bold text-green-400 shadow-lg">
+          {successMsg}
+        </div>
+      )}
+
+      {/* Quick Add Modal */}
+      {showForm && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
+          <div className="retro-card p-6 w-full max-w-md mx-4 animate-in fade-in duration-200">
+            <h3 className="text-fin-orange font-bold tracking-widest text-sm uppercase mb-4">
+              Quick Add Transaction
+            </h3>
+            <form onSubmit={handleQuickAdd} className="flex flex-col gap-3">
+              <input
+                type="date"
+                required
+                className="retro-input p-3 w-full"
+                onChange={(e) => {
+                  if (!e.target.value) return;
+                  const [year, month, day] = e.target.value.split("-");
+                  setQuickAddForm({ ...quickAddForm, Date: `${day}/${month}/${year}` });
+                }}
+                value={quickAddForm.Date.split("/").reverse().join("-")}
+              />
+              <input
+                type="text"
+                required
+                placeholder="Description e.g. Swiggy"
+                className="retro-input p-3 w-full"
+                value={quickAddForm.Description}
+                onChange={(e) => setQuickAddForm({ ...quickAddForm, Description: e.target.value })}
+              />
+              <div className="flex rounded-xl overflow-hidden border border-[#222]">
+                <button
+                  type="button"
+                  onClick={() => setTransactionType("expense")}
+                  className={`flex-1 py-3 text-sm font-bold uppercase tracking-wider transition-colors ${
+                    transactionType === "expense"
+                      ? "bg-[#FF6B6B] text-white"
+                      : "bg-[#111] text-gray-400 hover:text-white"
+                  }`}
+                >
+                  Expense
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTransactionType("income")}
+                  className={`flex-1 py-3 text-sm font-bold uppercase tracking-wider transition-colors ${
+                    transactionType === "income"
+                      ? "bg-[#00C49F] text-white"
+                      : "bg-[#111] text-gray-400 hover:text-white"
+                  }`}
+                >
+                  Income
+                </button>
+              </div>
+              <input
+                type="number"
+                placeholder="e.g., 450"
+                required
+                step="0.01"
+                className="retro-input p-3 w-full"
+                value={quickAddForm.Amount}
+                onChange={(e) => setQuickAddForm({ ...quickAddForm, Amount: e.target.value })}
+              />
+              {errorMsg && (
+                <p className="text-red-400 text-xs">{errorMsg}</p>
+              )}
+              <div className="flex gap-3 mt-2">
+                <button type="submit" className="retro-btn flex-1">
+                  Add
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setErrorMsg("");
+                    setShowForm(false);
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-600 text-gray-400 hover:text-white transition-colors font-bold uppercase tracking-wider text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
