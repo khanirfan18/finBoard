@@ -154,6 +154,12 @@ Before opening an issue or submitting a pull request, please review:
 * [CONTRIBUTING.md](./CONTRIBUTING.md)
 * [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
 
+### 👥 Contributors
+
+Thanks to all contributors ❤️
+
+[![Contributors](https://contrib.rocks/image?repo=khanirfan18/finBoard)](https://github.com/khanirfan18/finBoard/graphs/contributors)
+
 ### Guidelines
 
 Happy building 🚀
