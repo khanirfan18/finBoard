@@ -45,7 +45,9 @@ export function AuthProvider({ children }) {
         setUser(currentSession?.user ?? null);
         setAuthError('');
       } catch (error) {
-        console.error('Unexpected error while loading the Supabase session:', error);
+        if (import.meta.env.DEV) {
+          console.error('Unexpected error while loading the Supabase session:', error);
+        }
 
         if (!isMounted) {
           return;
@@ -89,7 +91,9 @@ export function AuthProvider({ children }) {
       const { error } = await supabase.auth.signOut();
 
       if (error) {
-        console.error('Supabase signOut failed:', error);
+        if (import.meta.env.DEV) {
+          console.error('Supabase signOut failed:', error);
+        }
         setAuthError(
           getFriendlyAuthError(error, 'We could not sign you out right now. Please try again.')
         );
@@ -101,7 +105,9 @@ export function AuthProvider({ children }) {
       setAuthError('');
       return true;
     } catch (error) {
-      console.error('Unexpected error during signOut:', error);
+      if (import.meta.env.DEV) {
+        console.error('Unexpected error during signOut:', error);
+      }
       setAuthError('We could not sign you out right now. Please try again.');
       return false;
     }
