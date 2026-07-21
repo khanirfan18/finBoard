@@ -4,6 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import "@fontsource/inter";
 import { applyThemeToDocument, getStoredTheme } from './context/ThemeContext';
+import { startFaviconAnimation } from "./components/utils/faviconAnimation";
 
 let bootTheme = 'dark';
 
@@ -14,6 +15,9 @@ try {
 }
 
 applyThemeToDocument(bootTheme);
+
+// Start animated favicon
+startFaviconAnimation();
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
