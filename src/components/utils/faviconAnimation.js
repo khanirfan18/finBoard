@@ -6,12 +6,15 @@ const frames = [
 );
 
 let index = 0;
-let timer;
+let timer = null;
 
 export function startFaviconAnimation() {
   const favicon = document.getElementById("favicon");
 
   if (!favicon) return;
+
+  // Prevent multiple intervals
+  if (timer) return;
 
   timer = setInterval(() => {
     favicon.href = frames[index];
@@ -26,7 +29,12 @@ export function startFaviconAnimation() {
 
 
 export function stopFaviconAnimation() {
-  clearInterval(timer);
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+  }
+
+  index = 0; // reset animation position
 
   const favicon = document.getElementById("favicon");
 
