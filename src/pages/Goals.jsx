@@ -60,7 +60,7 @@ export default function Goals() {
 
   const handleAddGoal = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.target || !form.deadline || !user) return;
+    if (!user || !form.name || !form.target || !form.deadline) return;
 
     const newGoal = {
       name: form.name,
@@ -86,19 +86,21 @@ export default function Goals() {
   };
 
   const handleDelete = (id) => {
+    if (!user) return;
+
     showModal({
       type: "confirm",
       message: "Are you sure you want to delete this goal? Any allocated funds will be returned to your unallocated savings.",
       onConfirm: async () => {
         setGoals(goals.filter((g) => g.id !== id));
-        if (user) {
-          await supabase.from('goals').delete().eq('id', id);
-        }
+        await supabase.from('goals').delete().eq('id', id);
       },
     });
   };
 
   const handleAllocate = async (goalId, isWithdrawal = false) => {
+    if (!user) return;
+
     const amount = Number(allocationAmount);
     if (!amount || amount <= 0) return;
 
@@ -124,9 +126,7 @@ export default function Goals() {
     setAllocationGoalId(null);
     setAllocationAmount("");
 
-    if (user) {
-      await supabase.from('goals').update({ saved_amount: newSavedAmount }).eq('id', goalId);
-    }
+    await supabase.from('goals').update({ saved_amount: newSavedAmount }).eq('id', goalId);
   };
 
   const getProgress = (saved, target) => {

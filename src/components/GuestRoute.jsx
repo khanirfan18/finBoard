@@ -1,12 +1,14 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
 
 /**
- * Wraps guest-only routes — redirects to /dashboard when there is an active session.
+ * Wraps guest-only routes — redirects authenticated users away from sign-in/sign-up.
+ * Honors location.state.from when present so post-login destinations are preserved.
  * Shows nothing while the auth state is still loading to avoid a flash of content.
  */
 export default function GuestRoute({ children }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -35,7 +37,10 @@ export default function GuestRoute({ children }) {
   }
 
   if (user) {
-    return <Navigate to="/dashboard" replace />;
+    const from = location.state?.from;
+    const destination =
+      from && typeof from.pathname === 'string' ? from.pathname : '/dashboard';
+    return <Navigate to={destination} replace />;
   }
 
   return children;

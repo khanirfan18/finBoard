@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import finbGif from "../../assets/finboard.gif";
+import { useAuth } from "../../context/useAuth";
 
 import {
   LayoutDashboard,
@@ -9,18 +10,18 @@ import {
   Settings,
   Target,
   CircleHelp,
-  UserCircle,
-  SlidersHorizontal,
+  Lock,
 } from "lucide-react";
 
 export default function Sidebar() {
   const location = useLocation();
   const path = location.pathname;
+  const { user } = useAuth();
 
   const links = [
     { name: "Home", to: "/", icon: LayoutDashboard },
-    { name: "Budgets", to: "/budgets", icon: PiggyBank },
-    { name: "Goals", to: "/goals", icon: Target },
+    { name: "Budgets", to: "/budgets", icon: PiggyBank, requiresAuth: true },
+    { name: "Goals", to: "/goals", icon: Target, requiresAuth: true },
     { name: "Transactions", to: "/transaction", icon: ArrowLeftRight },
     { name: "Insights", to: "/insights", icon: BarChart2 },
     { name: "Settings", to: "/settings", icon: Settings },
@@ -67,11 +68,13 @@ export default function Sidebar() {
         {links.map((link) => {
           const isActive = path === link.to;
           const Icon = link.icon;
+          const isLocked = Boolean(link.requiresAuth && !user);
 
           return (
             <Link
               key={link.to}
               to={link.to}
+              title={isLocked ? "Create an account to use Budgets and Goals." : undefined}
               onClick={() => {
                 const drawer = document.getElementById("mobile-drawer");
                 if (drawer) drawer.checked = false;
@@ -105,7 +108,14 @@ export default function Sidebar() {
                 }
               />
               {link.name}
-              {isActive && (
+              {isLocked && (
+                <Lock
+                  size={14}
+                  className="ml-auto text-[var(--color-fin-muted)]"
+                  aria-label="Requires account"
+                />
+              )}
+              {!isLocked && isActive && (
                 <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[var(--color-fin-accent)]" />
               )}
             </Link>

@@ -84,41 +84,39 @@ export default function Budgets() {
     .filter((item) => item.budget > 0);
 
   const handleBudgetChange = async (category, value) => {
+    if (!user) return;
+
     const numValue = Number(value);
     if (numValue >= 0) {
       setBudgets(prev => ({ ...prev, [category]: numValue }));
-      
-      if (user) {
-        await supabase
-          .from('budgets')
-          .upsert(
-            { user_id: user.id, category, amount: numValue },
-            { onConflict: 'user_id, category' }
-          );
-      }
+
+      await supabase
+        .from('budgets')
+        .upsert(
+          { user_id: user.id, category, amount: numValue },
+          { onConflict: 'user_id, category' }
+        );
     } else if (value === "") {
       const newBudgets = { ...budgets };
       delete newBudgets[category];
       setBudgets(newBudgets);
-      
-      if (user) {
-        await supabase
-          .from('budgets')
-          .delete()
-          .match({ user_id: user.id, category });
-      }
+
+      await supabase
+        .from('budgets')
+        .delete()
+        .match({ user_id: user.id, category });
     }
   };
 
   const resetBudgets = () => {
+    if (!user) return;
+
     showModal({
       type: "confirm",
       message: "Are you sure you want to reset all budgets?",
       onConfirm: async () => {
         setBudgets({});
-        if (user) {
-          await supabase.from('budgets').delete().eq('user_id', user.id);
-        }
+        await supabase.from('budgets').delete().eq('user_id', user.id);
       },
     });
   };

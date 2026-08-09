@@ -2,15 +2,137 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
 import { useState, useRef, useEffect } from "react";
 import { LogOut, ChevronDown, User, Settings } from "lucide-react";
+
+function GuestAuthButtons({ onSignIn, onSignUp }) {
+  return (
+    <>
+      <button
+        type="button"
+        onClick={onSignIn}
+        className="text-sm font-semibold text-[var(--color-fin-muted)] hover:text-[var(--color-fin-text)] transition-colors px-2 py-1.5"
+        id="guest-signin-btn"
+      >
+        Sign in
+      </button>
+      <button
+        type="button"
+        onClick={onSignUp}
+        className="text-sm font-bold px-3 py-1.5 rounded-lg text-[var(--color-fin-text)] transition-colors"
+        style={{
+          background: "var(--color-fin-accent-soft)",
+          border: "1px solid color-mix(in srgb, var(--color-fin-accent) 35%, transparent)",
+        }}
+        id="guest-signup-btn"
+      >
+        Sign up
+      </button>
+    </>
+  );
+}
+
+function AuthenticatedProfileMenu({
+  displayName,
+  displayEmail,
+  initials,
+  profileOpen,
+  setProfileOpen,
+  onViewProfile,
+  onPreferences,
+  onSignOut,
+}) {
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setProfileOpen(!profileOpen)}
+        className="profile-trigger"
+        id="profile-menu-btn"
+        aria-expanded={profileOpen}
+        aria-haspopup="menu"
+      >
+        <div className="profile-avatar">{initials}</div>
+        <span className="profile-name hidden md:block">{displayName}</span>
+        <ChevronDown
+          size={14}
+          className="profile-chevron hidden md:block"
+          style={{
+            transform: profileOpen ? "rotate(180deg)" : "rotate(0deg)",
+            transition: "transform 0.2s ease",
+            color: "var(--color-fin-muted)",
+          }}
+        />
+      </button>
+
+      {profileOpen && (
+        <div className="profile-dropdown animate-in" role="menu">
+          <div
+            className="h-1 w-full rounded-t-xl mb-3"
+            style={{ background: "linear-gradient(90deg, var(--color-fin-accent), #f97316)" }}
+          />
+
+          <div className="profile-dropdown-header">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold text-white shrink-0"
+              style={{ background: "linear-gradient(135deg, var(--color-fin-accent), #f97316)" }}
+            >
+              {initials}
+            </div>
+            <div className="profile-dropdown-info">
+              <span className="profile-dropdown-name">{displayName}</span>
+              <span className="profile-dropdown-email">{displayEmail}</span>
+            </div>
+          </div>
+
+          <div className="profile-dropdown-divider" />
+
+          <button
+            type="button"
+            onClick={onViewProfile}
+            className="profile-dropdown-item flex items-center gap-3 group"
+          >
+            <div className="p-1.5 rounded-lg bg-[var(--color-fin-accent)]/10 group-hover:bg-[var(--color-fin-accent)]/20 transition-colors">
+              <User size={14} className="text-[var(--color-fin-accent)]" />
+            </div>
+            View Profile
+          </button>
+
+          <button
+            type="button"
+            onClick={onPreferences}
+            className="profile-dropdown-item flex items-center gap-3 group"
+          >
+            <div className="p-1.5 rounded-lg bg-blue-400/10 group-hover:bg-blue-400/20 transition-colors">
+              <Settings size={14} className="text-blue-400" />
+            </div>
+            Preferences
+          </button>
+
+          <div className="profile-dropdown-divider" />
+
+          <button
+            type="button"
+            onClick={onSignOut}
+            className="profile-dropdown-item profile-dropdown-item--danger flex items-center gap-3 group"
+            id="signout-btn"
+          >
+            <div className="p-1.5 rounded-lg bg-red-400/10 group-hover:bg-red-400/20 transition-colors">
+              <LogOut size={14} className="text-red-400" />
+            </div>
+            Sign out
+          </button>
+        </div>
+      )}
+    </>
+  );
+}
+
 export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
 
-
   const [profileOpen, setProfileOpen] = useState(false);
   const dropdownRef = useRef(null);
-
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -24,9 +146,7 @@ export default function Header() {
 
   const handleSignOut = async () => {
     setProfileOpen(false);
-
     const signedOut = await signOut();
-
     if (signedOut) {
       navigate("/signin");
     }
@@ -51,8 +171,8 @@ export default function Header() {
     return "";
   };
 
-  // Extract display name and email from Supabase user
-  const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User";
+  const displayName =
+    user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User";
   const displayEmail = user?.email || "";
   const initials = displayName
     .split(" ")
@@ -68,10 +188,21 @@ export default function Header() {
         backdropFilter: "blur(12px)",
       }}
     >
-      <label htmlFor="mobile-drawer"
+      <label
+        htmlFor="mobile-drawer"
         className="theme-icon-button p-2 cursor-pointer rounded-lg transition-colors lg:hidden"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <line x1="3" y1="12" x2="21" y2="12"></line>
           <line x1="3" y1="6" x2="21" y2="6"></line>
           <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -82,87 +213,35 @@ export default function Header() {
         <h1 className="text-base font-bold text-[var(--color-fin-text)] tracking-wide leading-tight">
           {getPageTitle()}
         </h1>
-        <p className="text-xs text-[var(--color-fin-muted)] leading-tight">{getPageSubtitle()}</p>
+        <p className="text-xs text-[var(--color-fin-muted)] leading-tight">
+          {getPageSubtitle()}
+        </p>
       </div>
 
-      {/* ── Profile section ──────────────────────────────────────── */}
+      {/* Mutually exclusive: guests see Sign in/up; signed-in users see one profile menu */}
       <div className="flex items-center gap-3 relative ml-auto" ref={dropdownRef}>
-        <button
-          onClick={() => setProfileOpen(!profileOpen)}
-          className="profile-trigger"
-          id="profile-menu-btn"
-        >
-          {/* Avatar */}
-          <div className="profile-avatar">
-            {initials}
-          </div>
-          {/* Name (hidden on mobile) */}
-          <span className="profile-name hidden md:block">{displayName}</span>
-          <ChevronDown
-            size={14}
-            className="profile-chevron hidden md:block"
-            style={{
-              transform: profileOpen ? "rotate(180deg)" : "rotate(0deg)",
-              transition: "transform 0.2s ease",
-              color: "var(--color-fin-muted)",
-            }}
+        {!user ? (
+          <GuestAuthButtons
+            onSignIn={() => navigate("/signin")}
+            onSignUp={() => navigate("/signup")}
           />
-        </button>
-
-        {/* Dropdown */}
-        {profileOpen && (
-          <div className="profile-dropdown animate-in">
-            {/* Gradient top bar */}
-            <div className="h-1 w-full rounded-t-xl mb-3"
-              style={{ background: "linear-gradient(90deg, var(--color-fin-accent), #f97316)" }} />
-
-            {/* User info */}
-            <div className="profile-dropdown-header">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold text-white shrink-0"
-                style={{ background: "linear-gradient(135deg, var(--color-fin-accent), #f97316)" }}>
-                {initials}
-              </div>
-              <div className="profile-dropdown-info">
-                <span className="profile-dropdown-name">{displayName}</span>
-                <span className="profile-dropdown-email">{displayEmail}</span>
-              </div>
-            </div>
-
-            <div className="profile-dropdown-divider" />
-
-            <button
-              onClick={() => { setProfileOpen(false); navigate("/profile"); }}
-              className="profile-dropdown-item flex items-center gap-3 group"
-            >
-              <div className="p-1.5 rounded-lg bg-[var(--color-fin-accent)]/10 group-hover:bg-[var(--color-fin-accent)]/20 transition-colors">
-                <User size={14} className="text-[var(--color-fin-accent)]" />
-              </div>
-              View Profile
-            </button>
-
-            <button
-              onClick={() => { setProfileOpen(false); navigate("/preferences"); }}
-              className="profile-dropdown-item flex items-center gap-3 group"
-            >
-              <div className="p-1.5 rounded-lg bg-blue-400/10 group-hover:bg-blue-400/20 transition-colors">
-                <Settings size={14} className="text-blue-400" />
-              </div>
-              Preferences
-            </button>
-
-            <div className="profile-dropdown-divider" />
-
-            <button
-              onClick={handleSignOut}
-              className="profile-dropdown-item profile-dropdown-item--danger flex items-center gap-3 group"
-              id="signout-btn"
-            >
-              <div className="p-1.5 rounded-lg bg-red-400/10 group-hover:bg-red-400/20 transition-colors">
-                <LogOut size={14} className="text-red-400" />
-              </div>
-              Sign out
-            </button>
-          </div>
+        ) : (
+          <AuthenticatedProfileMenu
+            displayName={displayName}
+            displayEmail={displayEmail}
+            initials={initials}
+            profileOpen={profileOpen}
+            setProfileOpen={setProfileOpen}
+            onViewProfile={() => {
+              setProfileOpen(false);
+              navigate("/profile");
+            }}
+            onPreferences={() => {
+              setProfileOpen(false);
+              navigate("/preferences");
+            }}
+            onSignOut={handleSignOut}
+          />
         )}
       </div>
     </header>
