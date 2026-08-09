@@ -1,10 +1,22 @@
 import * as React from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { Eye, EyeOff, Mail, Lock, User, UserPlus, Loader2 } from 'lucide-react';
 
+function getPostAuthPath(location) {
+  const from = location.state?.from;
+  if (from && typeof from.pathname === 'string') {
+    return `${from.pathname}${from.search || ''}`;
+  }
+  return '/dashboard';
+}
+
 export default function SignUp() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const showPremiumUpsell = searchParams.get('reason') === 'budgets-goals';
+  const postAuthPath = getPostAuthPath(location);
 
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
@@ -121,7 +133,7 @@ export default function SignUp() {
 
       if (data?.session) {
         setAuthSuccess('Account created! Redirecting…');
-        setTimeout(() => navigate('/dashboard'), 600);
+        setTimeout(() => navigate(postAuthPath, { replace: true }), 600);
       } else {
         setAuthSuccess('Account created! Check your email to verify before signing in.');
       }
@@ -166,6 +178,20 @@ export default function SignUp() {
           <h1 className="auth-title">Create your account</h1>
           <p className="auth-subtitle">Start managing your finances today</p>
         </div>
+
+        {showPremiumUpsell && (
+          <div
+            className="auth-alert"
+            role="status"
+            style={{
+              background: 'rgba(249, 115, 22, 0.1)',
+              border: '1px solid rgba(249, 115, 22, 0.3)',
+              color: 'var(--color-fin-accent, #f97316)',
+            }}
+          >
+            <span>Create an account to use Budgets and Goals.</span>
+          </div>
+        )}
 
         {/* Alerts */}
         {authError && (
@@ -338,7 +364,13 @@ export default function SignUp() {
         {/* Footer */}
         <p className="auth-footer-text">
           Already have an account?{' '}
-          <RouterLink to="/signin" className="auth-link">Sign in</RouterLink>
+          <RouterLink
+            to={showPremiumUpsell ? '/signin?reason=budgets-goals' : '/signin'}
+            state={location.state}
+            className="auth-link"
+          >
+            Sign in
+          </RouterLink>
         </p>
       </div>
     </div>

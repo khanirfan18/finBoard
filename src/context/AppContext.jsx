@@ -5,6 +5,54 @@ import { useAuth } from './useAuth';
 import { DataContext } from './DataContext';
 import { CURRENCIES } from '../lib/Currencies'
 
+const GUEST_TRANSACTIONS_KEY = 'transactions';
+const GUEST_CURRENCY_KEY = 'guest_currency';
+
+function readGuestTransactions() {
+  if (typeof window === 'undefined') return [];
+  try {
+    const stored = window.localStorage.getItem(GUEST_TRANSACTIONS_KEY);
+    if (stored === null) return [];
+    const parsed = JSON.parse(stored);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeGuestTransactions(txs) {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(GUEST_TRANSACTIONS_KEY, JSON.stringify(txs));
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.error('Failed to persist guest transactions:', err);
+    }
+  }
+}
+
+function readGuestCurrency() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const stored = window.localStorage.getItem(GUEST_CURRENCY_KEY);
+    if (!stored) return null;
+    return JSON.parse(stored);
+  } catch {
+    return null;
+  }
+}
+
+function writeGuestCurrency(selectedCurrency) {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(GUEST_CURRENCY_KEY, JSON.stringify(selectedCurrency));
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.error('Failed to persist guest currency:', err);
+    }
+  }
+}
+
 export function AppContext({ children }) {
   const { user } = useAuth();
   const [transactions, setTransactions] = React.useState([]);
@@ -49,8 +97,14 @@ export function AppContext({ children }) {
   React.useEffect(() => {
     async function loadData() {
       if (!user) {
-        setTransactions([]);
-        setCurrency(CURRENCIES[0]);
+        const guestCurrency = readGuestCurrency() || CURRENCIES[0];
+        const guestTx = readGuestTransactions();
+        setCurrency(guestCurrency);
+        setTransactions(
+          guestTx.length
+            ? normalizeTransactions(guestTx, { currency: guestCurrency })
+            : []
+        );
         setLoadingData(false);
         return;
       }
@@ -120,6 +174,8 @@ export function AppContext({ children }) {
       await supabase
         .from('user_settings')
         .upsert({ user_id: user.id, currency: enrichedCurrency }, { onConflict: 'user_id' });
+    } else {
+      writeGuestCurrency(enrichedCurrency);
     }
   };
 
@@ -141,6 +197,9 @@ export function AppContext({ children }) {
       : transactions.filter((t) => t.id !== indexOrId);
 
     setTransactions(updated);
+    if (!user) {
+      writeGuestTransactions(updated);
+    }
   };
 
   const addTransaction = async (newTransaction) => {
@@ -169,9 +228,17 @@ export function AppContext({ children }) {
       if (data) {
         normalized.id = data.id;
       }
+    } else if (!normalized.id) {
+      normalized.id = `guest-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
     }
 
-    setTransactions((prev) => [...prev, normalized]);
+    setTransactions((prev) => {
+      const next = [...prev, normalized];
+      if (!user) {
+        writeGuestTransactions(next);
+      }
+      return next;
+    });
   };
 
   const updateTransaction = async (index, updatedTransaction) => {
@@ -202,9 +269,17 @@ export function AppContext({ children }) {
         }
         throw error;
       }
+    } else if (targetTx?.id) {
+      normalized.id = targetTx.id;
     }
 
-    setTransactions((prev) => prev.map((t, i) => i === index ? normalized : t));
+    setTransactions((prev) => {
+      const next = prev.map((t, i) => i === index ? normalized : t);
+      if (!user) {
+        writeGuestTransactions(next);
+      }
+      return next;
+    });
   };
 
   const displayTransactions = React.useMemo(() => {

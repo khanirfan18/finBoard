@@ -143,6 +143,12 @@ export default function Settings() {
                 if (data[idx]) t.id = data[idx].id;
               });
             }
+          } else {
+            normalizedData.forEach((t, idx) => {
+              if (!t.id) {
+                t.id = `guest-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 7)}`;
+              }
+            });
           }
 
           const updatedData =
@@ -219,6 +225,7 @@ export default function Settings() {
       onConfirm: () => {
         setTransactions([]);
         localStorage.removeItem("transactions");
+        localStorage.removeItem("guest_currency");
         setSuccessMessage("All Data Cleared!");
         setTimeout(() => setSuccessMessage(""), 3000);
       },
@@ -303,6 +310,12 @@ export default function Settings() {
                         if (data[idx]) t.id = data[idx].id;
                       });
                     }
+                  } else {
+                    normalized.forEach((t, idx) => {
+                      if (!t.id) {
+                        t.id = `guest-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 7)}`;
+                      }
+                    });
                   }
 
                   const updated = importMode === "append" ? [...(transactions || []), ...normalized] : normalized;

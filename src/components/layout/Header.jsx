@@ -2,15 +2,14 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
 import { useState, useRef, useEffect } from "react";
 import { LogOut, ChevronDown, User, Settings } from "lucide-react";
+
 export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
 
-
   const [profileOpen, setProfileOpen] = useState(false);
   const dropdownRef = useRef(null);
-
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -85,84 +84,106 @@ export default function Header() {
         <p className="text-xs text-[var(--color-fin-muted)] leading-tight">{getPageSubtitle()}</p>
       </div>
 
-      {/* ── Profile section ──────────────────────────────────────── */}
+      {/* ── Auth / Profile section ─────────────────────────────────── */}
       <div className="flex items-center gap-3 relative ml-auto" ref={dropdownRef}>
-        <button
-          onClick={() => setProfileOpen(!profileOpen)}
-          className="profile-trigger"
-          id="profile-menu-btn"
-        >
-          {/* Avatar */}
-          <div className="profile-avatar">
-            {initials}
-          </div>
-          {/* Name (hidden on mobile) */}
-          <span className="profile-name hidden md:block">{displayName}</span>
-          <ChevronDown
-            size={14}
-            className="profile-chevron hidden md:block"
-            style={{
-              transform: profileOpen ? "rotate(180deg)" : "rotate(0deg)",
-              transition: "transform 0.2s ease",
-              color: "var(--color-fin-muted)",
-            }}
-          />
-        </button>
-
-        {/* Dropdown */}
-        {profileOpen && (
-          <div className="profile-dropdown animate-in">
-            {/* Gradient top bar */}
-            <div className="h-1 w-full rounded-t-xl mb-3"
-              style={{ background: "linear-gradient(90deg, var(--color-fin-accent), #f97316)" }} />
-
-            {/* User info */}
-            <div className="profile-dropdown-header">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold text-white shrink-0"
-                style={{ background: "linear-gradient(135deg, var(--color-fin-accent), #f97316)" }}>
+        {!user ? (
+          <>
+            <button
+              type="button"
+              onClick={() => navigate("/signin")}
+              className="text-sm font-semibold text-[var(--color-fin-muted)] hover:text-[var(--color-fin-text)] transition-colors px-2 py-1.5"
+              id="guest-signin-btn"
+            >
+              Sign in
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/signup")}
+              className="text-sm font-bold px-3 py-1.5 rounded-lg text-[var(--color-fin-text)] transition-colors"
+              style={{
+                background: "var(--color-fin-accent-soft)",
+                border: "1px solid color-mix(in srgb, var(--color-fin-accent) 35%, transparent)",
+              }}
+              id="guest-signup-btn"
+            >
+              Sign up
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={() => setProfileOpen(!profileOpen)}
+              className="profile-trigger"
+              id="profile-menu-btn"
+            >
+              <div className="profile-avatar">
                 {initials}
               </div>
-              <div className="profile-dropdown-info">
-                <span className="profile-dropdown-name">{displayName}</span>
-                <span className="profile-dropdown-email">{displayEmail}</span>
-              </div>
-            </div>
-
-            <div className="profile-dropdown-divider" />
-
-            <button
-              onClick={() => { setProfileOpen(false); navigate("/profile"); }}
-              className="profile-dropdown-item flex items-center gap-3 group"
-            >
-              <div className="p-1.5 rounded-lg bg-[var(--color-fin-accent)]/10 group-hover:bg-[var(--color-fin-accent)]/20 transition-colors">
-                <User size={14} className="text-[var(--color-fin-accent)]" />
-              </div>
-              View Profile
+              <span className="profile-name hidden md:block">{displayName}</span>
+              <ChevronDown
+                size={14}
+                className="profile-chevron hidden md:block"
+                style={{
+                  transform: profileOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  transition: "transform 0.2s ease",
+                  color: "var(--color-fin-muted)",
+                }}
+              />
             </button>
 
-            <button
-              onClick={() => { setProfileOpen(false); navigate("/preferences"); }}
-              className="profile-dropdown-item flex items-center gap-3 group"
-            >
-              <div className="p-1.5 rounded-lg bg-blue-400/10 group-hover:bg-blue-400/20 transition-colors">
-                <Settings size={14} className="text-blue-400" />
-              </div>
-              Preferences
-            </button>
+            {profileOpen && (
+              <div className="profile-dropdown animate-in">
+                <div className="h-1 w-full rounded-t-xl mb-3"
+                  style={{ background: "linear-gradient(90deg, var(--color-fin-accent), #f97316)" }} />
 
-            <div className="profile-dropdown-divider" />
+                <div className="profile-dropdown-header">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold text-white shrink-0"
+                    style={{ background: "linear-gradient(135deg, var(--color-fin-accent), #f97316)" }}>
+                    {initials}
+                  </div>
+                  <div className="profile-dropdown-info">
+                    <span className="profile-dropdown-name">{displayName}</span>
+                    <span className="profile-dropdown-email">{displayEmail}</span>
+                  </div>
+                </div>
 
-            <button
-              onClick={handleSignOut}
-              className="profile-dropdown-item profile-dropdown-item--danger flex items-center gap-3 group"
-              id="signout-btn"
-            >
-              <div className="p-1.5 rounded-lg bg-red-400/10 group-hover:bg-red-400/20 transition-colors">
-                <LogOut size={14} className="text-red-400" />
+                <div className="profile-dropdown-divider" />
+
+                <button
+                  onClick={() => { setProfileOpen(false); navigate("/profile"); }}
+                  className="profile-dropdown-item flex items-center gap-3 group"
+                >
+                  <div className="p-1.5 rounded-lg bg-[var(--color-fin-accent)]/10 group-hover:bg-[var(--color-fin-accent)]/20 transition-colors">
+                    <User size={14} className="text-[var(--color-fin-accent)]" />
+                  </div>
+                  View Profile
+                </button>
+
+                <button
+                  onClick={() => { setProfileOpen(false); navigate("/preferences"); }}
+                  className="profile-dropdown-item flex items-center gap-3 group"
+                >
+                  <div className="p-1.5 rounded-lg bg-blue-400/10 group-hover:bg-blue-400/20 transition-colors">
+                    <Settings size={14} className="text-blue-400" />
+                  </div>
+                  Preferences
+                </button>
+
+                <div className="profile-dropdown-divider" />
+
+                <button
+                  onClick={handleSignOut}
+                  className="profile-dropdown-item profile-dropdown-item--danger flex items-center gap-3 group"
+                  id="signout-btn"
+                >
+                  <div className="p-1.5 rounded-lg bg-red-400/10 group-hover:bg-red-400/20 transition-colors">
+                    <LogOut size={14} className="text-red-400" />
+                  </div>
+                  Sign out
+                </button>
               </div>
-              Sign out
-            </button>
-          </div>
+            )}
+          </>
         )}
       </div>
     </header>

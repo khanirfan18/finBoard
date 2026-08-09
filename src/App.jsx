@@ -89,25 +89,39 @@ export default function App() {
                 />
                 <Route path="/reset-password" element={<ResetPassword />} />
 
-                {/* Protected routes */}
-                <Route
-                  path="/"
-                  element={
-                    <ProtectedRoute>
-                      <Layout />
-                    </ProtectedRoute>
-                  }
-                >
+                {/* App shell — free routes are guest-accessible; premium routes are gated */}
+                <Route path="/" element={<Layout />}>
                   <Route index element={<Dashboard />} />
                   <Route path="dashboard" element={<Dashboard />} />
-                  <Route path="budgets" element={<Budgets />} />
                   <Route path="settings" element={<Settings />} />
                   <Route path="transaction" element={<Transaction />} />
                   <Route path="insights" element={<InsightsDashboard />} />
-                  <Route path="goals" element={<Goals />} />
-                  <Route path="profile" element={<Profile />} />
                   <Route path="preferences" element={<Preferences />} />
                   <Route path="help" element={<HelpCenter />} />
+                  <Route
+                    path="budgets"
+                    element={
+                      <ProtectedRoute>
+                        <Budgets />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="goals"
+                    element={
+                      <ProtectedRoute>
+                        <Goals />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="profile"
+                    element={
+                      <ProtectedRoute>
+                        <Profile />
+                      </ProtectedRoute>
+                    }
+                  />
                 </Route>
               </Routes>
             </BrowserRouter>

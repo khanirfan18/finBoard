@@ -1,11 +1,23 @@
 import * as React from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import ForgotPassword from './ForgotPassword';
 import { Eye, EyeOff, Mail, Lock, LogIn, Loader2 } from 'lucide-react';
 
+function getPostAuthPath(location) {
+  const from = location.state?.from;
+  if (from && typeof from.pathname === 'string') {
+    return `${from.pathname}${from.search || ''}`;
+  }
+  return '/dashboard';
+}
+
 export default function SignIn() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const showPremiumUpsell = searchParams.get('reason') === 'budgets-goals';
+  const postAuthPath = getPostAuthPath(location);
 
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -88,7 +100,7 @@ export default function SignIn() {
       }
       if (data?.user) {
         setAuthSuccess('Signed in! Redirecting…');
-        setTimeout(() => navigate('/dashboard'), 600);
+        setTimeout(() => navigate(postAuthPath, { replace: true }), 600);
       }
     } catch {
       setAuthError('An unexpected error occurred. Please try again.');
@@ -132,6 +144,20 @@ export default function SignIn() {
           <h1 className="auth-title">Welcome back</h1>
           <p className="auth-subtitle">Sign in to your account to continue</p>
         </div>
+
+        {showPremiumUpsell && (
+          <div
+            className="auth-alert"
+            role="status"
+            style={{
+              background: 'rgba(249, 115, 22, 0.1)',
+              border: '1px solid rgba(249, 115, 22, 0.3)',
+              color: 'var(--color-fin-accent, #f97316)',
+            }}
+          >
+            <span>Create an account to use Budgets and Goals.</span>
+          </div>
+        )}
 
         {/* Alerts */}
         {authError && (
@@ -274,7 +300,13 @@ export default function SignIn() {
         {/* Footer */}
         <p className="auth-footer-text">
           Don't have an account?{' '}
-          <RouterLink to="/signup" className="auth-link">Sign up</RouterLink>
+          <RouterLink
+            to={showPremiumUpsell ? '/signup?reason=budgets-goals' : '/signup'}
+            state={location.state}
+            className="auth-link"
+          >
+            Sign up
+          </RouterLink>
         </p>
       </div>
     </div>
