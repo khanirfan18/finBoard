@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ErrorBoundary from "./components/ErrorBoundary";
 import Dashboard from "./pages/Dashboard";
 import Budgets from "./pages/Budgets";
 import Goals from "./pages/Goals";
@@ -64,71 +65,73 @@ export default function App() {
   }
 
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <AppContext>
-          <ModalProvider>
-            <BrowserRouter>
-              <Routes>
-                {/* Public auth routes */}
-                <Route
-                  path="/signin"
-                  element={
-                    <GuestRoute>
-                      <SignIn />
-                    </GuestRoute>
-                  }
-                />
-                <Route
-                  path="/signup"
-                  element={
-                    <GuestRoute>
-                      <SignUp />
-                    </GuestRoute>
-                  }
-                />
-                <Route path="/reset-password" element={<ResetPassword />} />
+    <ErrorBoundary>
+      <ThemeProvider>
+        <AuthProvider>
+          <AppContext>
+            <ModalProvider>
+              <BrowserRouter>
+                <Routes>
+                  {/* Public auth routes */}
+                  <Route
+                    path="/signin"
+                    element={
+                      <GuestRoute>
+                        <SignIn />
+                      </GuestRoute>
+                    }
+                  />
+                  <Route
+                    path="/signup"
+                    element={
+                      <GuestRoute>
+                        <SignUp />
+                      </GuestRoute>
+                    }
+                  />
+                  <Route path="/reset-password" element={<ResetPassword />} />
 
-                {/* App shell — free routes are guest-accessible; premium routes are gated */}
-                <Route path="/" element={<Layout />}>
-                  <Route index element={<Dashboard />} />
-                  <Route path="dashboard" element={<Dashboard />} />
-                  <Route path="settings" element={<Settings />} />
-                  <Route path="transaction" element={<Transaction />} />
-                  <Route path="insights" element={<InsightsDashboard />} />
-                  <Route path="preferences" element={<Preferences />} />
-                  <Route path="help" element={<HelpCenter />} />
-                  <Route
-                    path="budgets"
-                    element={
-                      <ProtectedRoute>
-                        <Budgets />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="goals"
-                    element={
-                      <ProtectedRoute>
-                        <Goals />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="profile"
-                    element={
-                      <ProtectedRoute>
-                        <Profile />
-                      </ProtectedRoute>
-                    }
-                  />
-                </Route>
-              </Routes>
-            </BrowserRouter>
-            <Modal />
-          </ModalProvider>
-        </AppContext>
-      </AuthProvider>
-    </ThemeProvider>
+                  {/* App shell — free routes are guest-accessible; premium routes are gated */}
+                  <Route path="/" element={<Layout />}>
+                    <Route index element={<Dashboard />} />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="settings" element={<Settings />} />
+                    <Route path="transaction" element={<Transaction />} />
+                    <Route path="insights" element={<InsightsDashboard />} />
+                    <Route path="preferences" element={<Preferences />} />
+                    <Route path="help" element={<HelpCenter />} />
+                    <Route
+                      path="budgets"
+                      element={
+                        <ProtectedRoute>
+                          <Budgets />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="goals"
+                      element={
+                        <ProtectedRoute>
+                          <Goals />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="profile"
+                      element={
+                        <ProtectedRoute>
+                          <Profile />
+                        </ProtectedRoute>
+                      }
+                    />
+                  </Route>
+                </Routes>
+              </BrowserRouter>
+              <Modal />
+            </ModalProvider>
+          </AppContext>
+        </AuthProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
