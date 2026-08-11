@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import { isFinnyAuthorized } from "../../lib/finnyGating";
 
@@ -43,8 +44,20 @@ export default function FinnyPanel({ isOpen, onClose, user }) {
         </div>
 
         {!isFinnyAuthorized(user) ? (
-          <p>Please sign in first to use Finny.</p>
-        ) : (
+  <div className="space-y-3">
+    <p>Please sign in first to use Finny.</p>
+
+    <div className="flex gap-2">
+      <Link to="/signin" className="btn btn-primary">
+        Sign in
+      </Link>
+
+      <Link to="/signup" className="btn btn-outline">
+        Sign up
+      </Link>
+    </div>
+  </div>
+) : (
           <p>Finny is ready. (Chatbot experience coming soon.)</p>
         )}
       </div>
