@@ -2,17 +2,14 @@ import { useContext, useState } from "react";
 import { DataContext } from "../../context/DataContext";
 import { useAuth } from "../../context/useAuth";
 import FinnyPanel from "./FinnyPanel";
-
-const MIN_TRANSACTIONS_TO_SHOW = 5;
+import { shouldShowFinny } from "../../lib/finnyGating";
 
 export default function Finny() {
   const { transactions } = useContext(DataContext);
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
-  const hasMinTransactions = (transactions?.length || 0) > MIN_TRANSACTIONS_TO_SHOW;
-
-  if (!hasMinTransactions) {
+  if (!shouldShowFinny(transactions?.length)) {
     return null;
   }
 
