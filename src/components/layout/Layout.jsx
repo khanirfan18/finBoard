@@ -2,6 +2,7 @@ import Header from "./Header";
 import Sidebar from "./Sidebar";
 import { Outlet } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
+import Finny from "../Finny/Finny";
 
 export default function Layout() {
   const { authError, clearAuthError } = useAuth();
@@ -29,7 +30,9 @@ export default function Layout() {
       <div className="drawer-side z-50">
         <label htmlFor="mobile-drawer" aria-label="close sidebar" className="drawer-overlay"></label> 
         <Sidebar />
-      </div>
+        </div>
+      <Finny />
     </div>
   );
 }
+

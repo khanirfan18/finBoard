@@ -1,0 +1,1 @@
+export const MIN_TRANSACTIONS_TO_SHOW = 5;
