@@ -19,7 +19,12 @@ export default function Finny() {
         type="button"
         onClick={() => setIsOpen(true)}
         aria-label="Open Finny"
-        className="fixed bottom-6 right-6 z-50 btn btn-primary rounded-full shadow-lg px-5 py-3"
+        className="fixed z-50 rounded-full shadow-lg px-5 py-3 font-semibold text-white transition-opacity hover:opacity-90"
+        style={{
+          bottom: "5.5rem", 
+          right: "1.5rem",
+          background: "var(--color-fin-accent, #f97316)",
+        }}
       >
         Finny
       </button>
