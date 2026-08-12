@@ -1,20 +1,36 @@
 import { Link } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import { isFinnyAuthorized } from "../../lib/finnyGating";
+import gatooGif from "../../assets/gatooo.webp";
+import finnnGif from "../../assets/finnn.gif";
 
 export default function FinnyPanel({ isOpen, onClose, user }) {
   const panelRef = useRef(null);
+  const authorized = isFinnyAuthorized(user);
 
   useEffect(() => {
     if (!isOpen) return;
+
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
         onClose();
       }
     };
+
+    const handleClickOutside = (e) => {
+      if (panelRef.current && !panelRef.current.contains(e.target)) {
+        onClose();
+      }
+    };
+
     document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("mousedown", handleClickOutside);
     panelRef.current?.focus();
-    return () => document.removeEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, [isOpen, onClose]);
 
   if (!isOpen) {
@@ -33,7 +49,7 @@ export default function FinnyPanel({ isOpen, onClose, user }) {
         tabIndex={-1}
         className="rounded-lg shadow-xl p-6 w-full max-w-sm mx-4 outline-none"
         style={{
-          background: "var(--color-fin-surface, #14161a)", // swap for your real card bg variable/class if different
+          background: "var(--color-fin-surface, #14161a)",
           border: "1px solid rgba(249, 115, 22, 0.15)",
         }}
       >
@@ -48,10 +64,17 @@ export default function FinnyPanel({ isOpen, onClose, user }) {
           </button>
         </div>
 
-        {!isFinnyAuthorized(user) ? (
-          <div className="space-y-3">
-            <p>Please sign in first to use Finny.</p>
-            <div className="flex gap-2">
+        {!authorized ? (
+          <div className="flex flex-col items-center text-center gap-4 py-2">
+            <p className="font-medium">
+              Finny is Arriving Shortly, sign in to use.
+            </p>
+            <img
+              src={gatooGif}
+              alt="Finny arriving soon"
+              style={{ width: "96px", height: "96px", objectFit: "contain" }}
+            />
+            <div className="flex gap-2 mt-1">
               <Link
                 to="/signin"
                 className="rounded-md px-4 py-2 font-semibold text-white text-center transition-opacity hover:opacity-90"
@@ -72,7 +95,14 @@ export default function FinnyPanel({ isOpen, onClose, user }) {
             </div>
           </div>
         ) : (
-          <p>Finny is ready. (Chatbot experience coming soon.)</p>
+          <div className="flex flex-col items-center text-center gap-4 py-4">
+            <p className="font-medium">Finny is Arriving faster than u think :)</p>
+            <img
+              src={finnnGif}
+              alt="Finny"
+              style={{ width: "96px", height: "96px", objectFit: "contain" }}
+            />
+          </div>
         )}
       </div>
     </div>
