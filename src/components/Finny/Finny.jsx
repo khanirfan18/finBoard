@@ -3,6 +3,7 @@ import { DataContext } from "../../context/DataContext";
 import { useAuth } from "../../context/useAuth";
 import FinnyPanel from "./FinnyPanel";
 import { shouldShowFinny } from "../../lib/finnyGating";
+import catIcon from "../../assets/icons8-cat-96.png";
 
 export default function Finny() {
   const { transactions } = useContext(DataContext);
@@ -19,14 +20,20 @@ export default function Finny() {
         type="button"
         onClick={() => setIsOpen(true)}
         aria-label="Open Finny"
-        className="fixed z-50 rounded-full shadow-lg px-5 py-3 font-semibold text-white transition-opacity hover:opacity-90"
+        className="fixed z-50 rounded-full shadow-lg flex items-center justify-center transition-opacity hover:opacity-90"
         style={{
-          bottom: "5.5rem", 
+          bottom: "8rem", 
           right: "1.5rem",
-          background: "var(--color-fin-accent, #f97316)",
+          width: "56px",
+          height: "56px",
+          background: "#2b2b2b",
         }}
       >
-        Finny
+        <img
+          src={catIcon}
+          alt="Finny"
+          style={{ width: "32px", height: "32px", objectFit: "contain" }}
+        />
       </button>
       <FinnyPanel isOpen={isOpen} onClose={() => setIsOpen(false)} user={user} />
     </>
