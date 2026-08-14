@@ -96,21 +96,24 @@ Choose your preferred setup:
 
 ### Option 1 — Node.js (Classic)
 
-```bash
-# Clone the repository
+1. Clone the repository
+
+`````bash
 git clone https://github.com/khanirfan18/finBoard.git
 cd finBoard
+`````
 
 2. Install packages
 
-```bash
+`````bash
 npm install
+`````
 
 3. Start development server
 
-```bash
+`````bash
 npm run dev
-```
+`````
 
 Open http://localhost:5173
 
